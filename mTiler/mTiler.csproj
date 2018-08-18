@@ -45,6 +45,11 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Core\Data\Atlas.cs" />
+    <Compile Include="Core\Data\MapTile.cs" />
+    <Compile Include="Core\Data\MapRegion.cs" />
+    <Compile Include="Core\Data\ZoomLevel.cs" />
+    <Compile Include="Core\TilingEngine.cs" />
     <Compile Include="mainForm.cs">
       <SubType>Form</SubType>
     </Compile>
@@ -78,5 +83,6 @@
   <ItemGroup>
     <None Include="App.config" />
   </ItemGroup>
+  <ItemGroup />
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
 </Project>
