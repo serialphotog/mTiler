@@ -1,5 +1,7 @@
 ﻿using mTiler.Core.Data;
+using mTiler.Core.Util;
 using System;
+using System.Collections.Generic;
 using System.IO;
 
 namespace mTiler.Core
@@ -9,6 +11,16 @@ namespace mTiler.Core
     /// </summary>
     class TilingEngine
     {
+        /// <summary>
+        /// The input path that stores our atlas directories
+        /// </summary>
+        private String inputPath;
+
+        /// <summary>
+        /// The output path, where we will write the final tiles
+        /// </summary>
+        private String outputPath;
+
         /// <summary>
         /// Reference to the logger component
         /// </summary>
@@ -28,13 +40,16 @@ namespace mTiler.Core
         public TilingEngine(String inputPath, String outputPath, Logger logger)
         {
             this.logger = logger;
+            this.inputPath = inputPath;
+            this.outputPath = outputPath;
 
             // Validate the input and output paths
             if (validateInputPath(inputPath))
             {
                 if (validateOutputPath(outputPath))
                 {
-                    logger.log("TODO: Implement the hard stuff :-)");
+                    // Enumerate the atlases and kick off loading all of the data
+                    loadAtlases();
                 }
             }
         }
@@ -87,6 +102,46 @@ namespace mTiler.Core
                 return false;
             }
             return true;
+        }
+
+        /// <summary>
+        /// Loads all the atlas projects from the input directory
+        /// </summary>
+        private void loadAtlases()
+        {
+            logger.log("Loading atlas projects from " + inputPath);
+
+            // Find all of the atlas projects in the input path
+            String[] potentialAtlases = Filesystem.enumerateDir(inputPath);
+
+            if (potentialAtlases != null && potentialAtlases.Length > 0)
+            {
+                List<Atlas> atlases = new List<Atlas>();
+                foreach (String dir in potentialAtlases)
+                {
+                    // Filter out all non atlas dirs.
+                    // For now, the filtering is very basic and just looks for directories that end in "_atlas"
+                    if (dir.EndsWith("_atlas"))
+                    {
+                        logger.log("Found atals project " + dir);
+                        Atlas atlas = new Atlas(dir);
+                        atlases.Add(atlas);
+                    }
+                }
+
+                // Check that we actually found some atlas projects
+                if (atlases != null && !(atlases.Count > 0))
+                {
+                    logger.error("No atlas projects were found in " + inputPath);
+                }
+                else
+                {
+                    this.atlases = atlases.ToArray();
+                }
+            } else
+            {
+                logger.error("No atlas projects were found in " + inputPath);
+            }
         }
     }
 }
