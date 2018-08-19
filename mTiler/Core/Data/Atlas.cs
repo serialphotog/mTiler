@@ -60,7 +60,7 @@ namespace mTiler.Core.Data
                 foreach (String dir in zoomPaths)
                 {
                     logger.log("\tFound zoom level: " + dir);
-                    ZoomLevel zoom = new ZoomLevel(dir);
+                    ZoomLevel zoom = new ZoomLevel(dir, logger);
                     zooms.Add(zoom);
                 }
 
