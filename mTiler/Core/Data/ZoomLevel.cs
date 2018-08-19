@@ -59,7 +59,7 @@ namespace mTiler.Core.Data
                 foreach (String dir in regionPaths)
                 {
                     logger.log("\t\tFound map region: " + dir);
-                    MapRegion region = new MapRegion(dir);
+                    MapRegion region = new MapRegion(dir, logger);
                     regions.Add(region);
                 }
 
