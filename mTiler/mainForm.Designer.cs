@@ -144,7 +144,6 @@
             // 
             // outputConsole
             // 
-            this.outputConsole.Enabled = false;
             this.outputConsole.Location = new System.Drawing.Point(12, 3);
             this.outputConsole.Name = "outputConsole";
             this.outputConsole.Size = new System.Drawing.Size(560, 255);
