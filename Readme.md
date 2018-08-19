@@ -31,6 +31,7 @@ To understand what I'm trying to achieve with this utility, let's look at an exa
 The first level of directories (E.G. 'RRG Whole (EXPORT)_F4_atlas') are the atlas project directories. Within these directories are various directories representing different zoom levels on a map (E.G. 14, 17, etc.). Within the zoom level directories are the map regions (E.G. 4379, 4380, etc.). Finally, within each map region are the tiles for that region (E.G. 6332, 6333, etc.).
 
 The vast majority of these tiles contain incomplete data. For example:
+
 ![Example of incomplete map tile](https://raw.githubusercontent.com/serialphotog/mTiler/master/Screenshots/6335.jpg)
 
 The purpose of this app is to compare the tiles from the map regions across all of the atlas project to align them and create a new tile with all of the missing data filled in.
