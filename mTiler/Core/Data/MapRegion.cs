@@ -38,7 +38,7 @@ namespace mTiler.Core.Data
         {
             this.path = path;
             this.logger = logger;
-            this.name = getRegionName();
+            this.name = FS.getPathName(path);
 
             // Load the tiles in this region
             loadTiles();
@@ -52,7 +52,7 @@ namespace mTiler.Core.Data
             logger.log("\t\tLoading tiles for map region: " + name);
 
             // Find all of the tiles
-            String[] tilePaths = Directory.GetFiles(path);
+            String[] tilePaths = FS.enumerateFiles(path);
             if (tilePaths != null && tilePaths.Length > 0)
             {
                 List<MapTile> tiles = new List<MapTile>();
@@ -74,15 +74,6 @@ namespace mTiler.Core.Data
             {
                 logger.error("\t\tNo tiles found for region " + name);
             }
-        }
-
-        /// <summary>
-        /// Returns the name of this zoom level
-        /// </summary>
-        /// <returns></returns>
-        private String getRegionName()
-        {
-            return new DirectoryInfo(path).Name;
         }
     }
 }

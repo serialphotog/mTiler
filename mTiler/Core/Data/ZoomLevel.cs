@@ -38,7 +38,7 @@ namespace mTiler.Core.Data
         {
             this.path = path;
             this.logger = logger;
-            this.name = getZoomName();
+            this.name = FS.getPathName(path);
 
             // Load the map regions within this zoom level
             loadRegions();
@@ -75,15 +75,6 @@ namespace mTiler.Core.Data
             {
                 logger.error("\tNo map regions found for zoom level: " + name);
             }
-        }
-
-        /// <summary>
-        /// Returns the name of this zoom level
-        /// </summary>
-        /// <returns></returns>
-        private String getZoomName()
-        {
-            return new DirectoryInfo(path).Name;
         }
     }
 }

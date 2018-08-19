@@ -39,7 +39,7 @@ namespace mTiler.Core.Data
         {
             this.logger = logger;
             this.path = path;
-            this.name = getAtlasName();
+            this.name = FS.getPathName(path);
 
             // Load the zoom levels
             loadZoomLevels();
@@ -76,11 +76,6 @@ namespace mTiler.Core.Data
             {
                 logger.error("No zoom levels found for atlas project: " + name);
             }
-        }
-
-        private String getAtlasName()
-        {
-            return new DirectoryInfo(path).Name;
         }
     }
 }
