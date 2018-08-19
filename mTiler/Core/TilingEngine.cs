@@ -124,7 +124,7 @@ namespace mTiler.Core
                     if (dir.EndsWith("_atlas"))
                     {
                         logger.log("Found atals project " + dir);
-                        Atlas atlas = new Atlas(dir);
+                        Atlas atlas = new Atlas(dir, logger);
                         atlases.Add(atlas);
                     }
                 }
