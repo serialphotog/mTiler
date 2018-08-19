@@ -58,7 +58,7 @@ namespace mTiler.Core.Data
                 foreach (String dir in tilePaths)
                 {
                     logger.log("\t\t\tFound tile: " + dir);
-                    MapTile tile = new MapTile(dir);
+                    MapTile tile = new MapTile(dir, logger);
                     tiles.Add(tile);
                 }
 

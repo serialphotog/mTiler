@@ -42,5 +42,15 @@ namespace mTiler.Core.Util
         {
             return new DirectoryInfo(path).Name;
         }
+
+        /// <summary>
+        /// Gets the name of a file from a path
+        /// </summary>
+        /// <param name="path">The path to get filename from</param>
+        /// <returns>The name of the file in the path</returns>
+        public static String getFilename(String path)
+        {
+            return Path.GetFileName(path);
+        }
     }
 }
