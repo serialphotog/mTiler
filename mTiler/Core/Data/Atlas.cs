@@ -64,7 +64,7 @@ namespace mTiler.Core.Data
                 }
 
                 // Check that we actually found some zoom levels
-                if (zooms != null || !(zooms.Count > 0))
+                if (zooms == null || !(zooms.Count > 0))
                 {
                     logger.error("No zoom levels found for atlas project: " + name);
                 } else

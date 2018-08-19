@@ -62,7 +62,7 @@ namespace mTiler.Core.Data
                     tiles.Add(tile);
                 }
 
-                if (tiles != null || !(tiles.Count > 0))
+                if (tiles == null || !(tiles.Count > 0))
                 {
                     logger.error("\t\tNo tiles found for region " + name);
                 } else
