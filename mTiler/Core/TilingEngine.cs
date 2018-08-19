@@ -112,7 +112,7 @@ namespace mTiler.Core
             logger.log("Loading atlas projects from " + inputPath);
 
             // Find all of the atlas projects in the input path
-            String[] potentialAtlases = Filesystem.enumerateDir(inputPath);
+            String[] potentialAtlases = FS.enumerateDir(inputPath);
 
             if (potentialAtlases != null && potentialAtlases.Length > 0)
             {

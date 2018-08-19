@@ -52,7 +52,7 @@ namespace mTiler.Core.Data
             logger.log("\tLoading map regions for zoom level: " + name);
 
             // Find all of the map regions
-            String[] regionPaths = Filesystem.enumerateDir(path);
+            String[] regionPaths = FS.enumerateDir(path);
             if (regionPaths != null && regionPaths.Length > 0)
             {
                 List<MapRegion> regions = new List<MapRegion>();

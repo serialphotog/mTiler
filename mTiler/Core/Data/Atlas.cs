@@ -53,7 +53,7 @@ namespace mTiler.Core.Data
             logger.log("Loading zoom levels for atlas: " + name);
 
             // Find all of the zoom levels
-            String[] zoomPaths = Filesystem.enumerateDir(path);
+            String[] zoomPaths = FS.enumerateDir(path);
             if (zoomPaths != null && zoomPaths.Length > 0)
             {
                 List<ZoomLevel> zooms = new List<ZoomLevel>();

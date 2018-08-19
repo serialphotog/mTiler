@@ -3,7 +3,7 @@ using System.IO;
 
 namespace mTiler.Core.Util
 {
-    class Filesystem
+    class FS
     {
         /// <summary>
         /// Enumerates all of the directories within a path.
