@@ -49,7 +49,9 @@
     <Compile Include="Core\Data\MapTile.cs" />
     <Compile Include="Core\Data\MapRegion.cs" />
     <Compile Include="Core\Data\ZoomLevel.cs" />
+    <Compile Include="Core\Logger.cs" />
     <Compile Include="Core\TilingEngine.cs" />
+    <Compile Include="Core\Util\Filesystem.cs" />
     <Compile Include="mainForm.cs">
       <SubType>Form</SubType>
     </Compile>

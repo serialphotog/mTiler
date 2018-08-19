@@ -1,13 +1,30 @@
-﻿using System;
+﻿using mTiler.Core;
+using System;
 using System.Windows.Forms;
 
 namespace mTiler
 {
     public partial class mainForm : Form
     {
+        /// <summary>
+        /// Reference to the logger instance
+        /// </summary>
+        private Logger logger { get; set; }
+
+        /// <summary>
+        /// Reference to the tiling engine.
+        /// </summary>
+        private TilingEngine tilingEngine;
+
+        /// <summary>
+        /// Initializes the main form
+        /// </summary>
         public mainForm()
         {
             InitializeComponent();
+
+            // Initialize the logger component 
+            this.logger = new Logger(this.outputConsole);
         }
 
         /// <summary>
@@ -41,6 +58,7 @@ namespace mTiler
         /// <param name="e"></param>
         private void inputPathBtn_Click(object sender, EventArgs e)
         {
+            // Get the input path
             String path = openFolderPath();
             inputPathTxt.Text = path;
         }
@@ -54,6 +72,17 @@ namespace mTiler
         {
             String path = openFolderPath();
             outputPathTxt.Text = path;
+        }
+
+        /// <summary>
+        /// Handles the click event for the start button
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
+        private void btnStart_Click(object sender, EventArgs e)
+        {
+            // Pass everything over to the stacking engine
+            this.tilingEngine = new TilingEngine(this.inputPathTxt.Text, this.outputPathTxt.Text, this.logger);
         }
     }
 }
