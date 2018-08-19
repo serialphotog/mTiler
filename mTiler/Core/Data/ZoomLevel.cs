@@ -64,7 +64,7 @@ namespace mTiler.Core.Data
                 }
 
                 // Check that we actually found some regions
-                if (regions != null && !(regions.Count > 0))
+                if (regions != null || !(regions.Count > 0))
                 {
                     logger.error("\tNo map regions found for zoom level: " + name);
                 } else
