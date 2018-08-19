@@ -30,6 +30,8 @@ namespace mTiler.Core
         /// <param name="msg">The message to log</param>
         public void log(String msg)
         {
+            outputWindow.Select(outputWindow.TextLength, 0);
+            outputWindow.SelectionColor = Color.Black;
             outputWindow.AppendText("[INFO]: " + msg + Environment.NewLine);
         }
 
