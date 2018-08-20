@@ -143,5 +143,69 @@ namespace mTiler.Core
                 logger.error("No atlas projects were found in " + inputPath);
             }
         }
+
+        /// <summary>
+        /// Perform the tiling operations
+        /// </summary>
+        public void tile()
+        {
+            logger.log("Performing the tiling operations...");
+
+            // Tracks the tiles that have already been handled, based off the tile's name. There is no need
+            // to handle anyone tile of a given ID more than once.
+            List<String> visitedTiles = new List<string>();
+
+            // Iterate through all of the atlas projects
+            int nAtlases = atlases.Length - 1;
+            for (int currentAtlas=0; currentAtlas <= nAtlases; currentAtlas++)
+            {
+                Atlas atlas = atlases[currentAtlas];
+                String atlasID = atlas.getName();
+
+                // Iterate through the zoom levels
+                ZoomLevel[] zoomLevels = atlases[currentAtlas].getZoomLevels();
+                for (int currentZoom = 0; currentZoom < zoomLevels.Length; currentZoom++)
+                {
+                    ZoomLevel zoom = zoomLevels[currentZoom];
+                    String zoomLevelID = zoom.getName();
+
+                    // Iterate through the map regions
+                    MapRegion[] mapRegions = zoomLevels[currentZoom].getMapRegions();
+                    for (int currentRegion = 0; currentRegion < mapRegions.Length; currentRegion++)
+                    {
+                        MapRegion region = mapRegions[currentRegion];
+                        String regionID = region.getName();
+
+                        // Iterate through the tiles
+                        MapTile[] mapTiles = mapRegions[currentRegion].getMapTiles();
+                        for (int currentTile = 0; currentTile < mapTiles.Length; currentTile++)
+                        {
+                            // For each tile, perform a forward search in the other atlas projects for matching tiles.
+                            // It should be noted that there should be no need to search backwards over previous atlas projects, since
+                            // all the tiles within those should have already been handled.
+                            MapTile tile = mapTiles[currentTile];
+                            String tileID = tile.getName();
+
+                            // Tracks rather or not this tile has been fully handled. If it hasn't, we don't mark it as being ignored for
+                            // future search. This is done for the case in which we have an all-white tile (a tile with no usuable data).
+                            Boolean tileIsHandled = false;
+
+                            // Don't handle the tile more than once
+                            if (!visitedTiles.Contains(tileID))
+                            {
+                                logger.log("Analyzing tile " + tileID + " from atlas " + atlasID + " at zoom level " + zoomLevelID + " for worl region " + regionID);
+                                tileIsHandled = true;
+                            }
+
+                            if (tileIsHandled)
+                            {
+                                // Add this tile to the visited tiles list
+                                visitedTiles.Add(tileID);
+                            }
+                        }
+                    }
+                }
+            }
+        }
     }
 }

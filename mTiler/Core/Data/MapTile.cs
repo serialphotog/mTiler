@@ -33,5 +33,14 @@ namespace mTiler.Core.Data
             this.logger = logger;
             this.name = FS.getFilename(path);
         }
+
+        /// <summary>
+        /// Returns the name of this tile.
+        /// </summary>
+        /// <returns></returns>
+        public String getName()
+        {
+            return name;
+        }
     }
 }

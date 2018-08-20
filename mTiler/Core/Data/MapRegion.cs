@@ -74,5 +74,23 @@ namespace mTiler.Core.Data
                 logger.error("\t\tNo tiles found for region " + name);
             }
         }
+
+        /// <summary>
+        /// Returns the map tiles within this region
+        /// </summary>
+        /// <returns></returns>
+        public MapTile[] getMapTiles()
+        {
+            return mapTiles;
+        }
+
+        /// <summary>
+        /// Returns the name of this map region
+        /// </summary>
+        /// <returns></returns>
+        public String getName()
+        {
+            return name;
+        }
     }
 }

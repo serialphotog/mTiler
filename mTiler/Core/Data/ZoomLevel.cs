@@ -75,5 +75,23 @@ namespace mTiler.Core.Data
                 logger.error("\tNo map regions found for zoom level: " + name);
             }
         }
+
+        /// <summary>
+        /// Gets the map regions within this zoom level
+        /// </summary>
+        /// <returns></returns>
+        public MapRegion[] getMapRegions()
+        {
+            return mapRegions;
+        }
+
+        /// <summary>
+        /// Returns the name of this zoom level.
+        /// </summary>
+        /// <returns></returns>
+        public String getName()
+        {
+            return name;
+        }
     }
 }

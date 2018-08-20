@@ -76,5 +76,23 @@ namespace mTiler.Core.Data
                 logger.error("No zoom levels found for atlas project: " + name);
             }
         }
+
+        /// <summary>
+        /// Returns the zoom levels within this atlas project
+        /// </summary>
+        /// <returns>ZoomLevel[] - The zoom levels</returns>
+        public ZoomLevel[] getZoomLevels()
+        {
+            return zoomLevels;
+        }
+
+        /// <summary>
+        /// Returns the name of this atlas.
+        /// </summary>
+        /// <returns></returns>
+        public String getName()
+        {
+            return name;
+        }
     }
 }

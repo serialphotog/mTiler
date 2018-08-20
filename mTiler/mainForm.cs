@@ -86,6 +86,7 @@ namespace mTiler
         {
             // Pass everything over to the stacking engine
             this.tilingEngine = new TilingEngine(this.inputPathTxt.Text, this.outputPathTxt.Text, this.logger);
+            tilingEngine.tile();
         }
     }
 }
