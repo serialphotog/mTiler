@@ -200,7 +200,7 @@ namespace mTiler.Core
                                 {
                                     // This tile has no data, ignore it
                                     tileIsHandled = false;
-                                    logger.log("\t\tTile " + tileID + " from atlas " + atlasID + " at zoom level " + zoomLevelID + " for map region " + regionID + " has no data. Ignoring it...");
+                                    logger.log("\tTile " + tileID + " from atlas " + atlasID + " at zoom level " + zoomLevelID + " for map region " + regionID + " has no data. Ignoring it...");
                                 }
                             }
 

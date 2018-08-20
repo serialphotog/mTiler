@@ -25,6 +25,7 @@ namespace mTiler
 
             // Setup some output console properties
             outputConsole.ReadOnly = true;
+            outputConsole.WordWrap = false;
 
             // Initialize the logger component 
             this.logger = new Logger(this.outputConsole);
