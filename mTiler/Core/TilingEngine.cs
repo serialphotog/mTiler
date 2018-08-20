@@ -193,8 +193,15 @@ namespace mTiler.Core
                             // Don't handle the tile more than once
                             if (!visitedTiles.Contains(tileID))
                             {
-                                logger.log("Analyzing tile " + tileID + " from atlas " + atlasID + " at zoom level " + zoomLevelID + " for worl region " + regionID);
+                                logger.log("Analyzing tile " + tileID + " from atlas " + atlasID + " at zoom level " + zoomLevelID + " for map region " + regionID);
                                 tileIsHandled = true;
+
+                                if (tile.isDatalessTile())
+                                {
+                                    // This tile has no data, ignore it
+                                    tileIsHandled = false;
+                                    logger.log("\t\tTile " + tileID + " from atlas " + atlasID + " at zoom level " + zoomLevelID + " for map region " + regionID + " has no data. Ignoring it...");
+                                }
                             }
 
                             if (tileIsHandled)
