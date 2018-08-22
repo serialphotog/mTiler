@@ -36,15 +36,9 @@ namespace mTiler.Core
         {
            outputWindow.Invoke((Action)delegate // Make things thread-safe
            {
-               try
-               {
-                   outputWindow.Select(outputWindow.TextLength, 0);
-                   outputWindow.SelectionColor = color;
-                   outputWindow.AppendText(header + msg + Environment.NewLine);
-               } catch (Exception e)
-               {
-                    // Ignore. This is the result of canceling in the middle of an operation.
-               }
+                outputWindow.Select(outputWindow.TextLength, 0);
+                outputWindow.SelectionColor = color;
+                outputWindow.AppendText(header + msg + Environment.NewLine);
            });
         }
 
