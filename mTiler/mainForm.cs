@@ -59,7 +59,7 @@ namespace mTiler
         private void btnCancel_Click(object sender, EventArgs e)
         {
             // Check that the tiling engine thread is stopped
-            if (tilingEngineThread.IsAlive)
+            if (tilingEngineThread != null && tilingEngineThread.IsAlive)
             {
                 tilingEngineThread.Abort();
             }
