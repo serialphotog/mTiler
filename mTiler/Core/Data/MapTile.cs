@@ -68,7 +68,6 @@ namespace mTiler.Core.Data
             int height = tileImage.Height;
 
             // Determine if every pixel is white
-            Boolean allWhite = true;
             for (int x=0; x < width; x++) // loop over width
             {
                 for (int y=0; y < height; y++) // loop over height
@@ -76,16 +75,12 @@ namespace mTiler.Core.Data
                     Color currentPixel = tileImage.GetPixel(x, y);
                     if (currentPixel.ToArgb() != WHITE_POINT.ToArgb())
                     {
-                        allWhite = false;
-                        break;
+                        return false;
                     }
                 }
-
-                if (!allWhite)
-                    break;
             }
 
-            return allWhite;
+            return true;
         }
 
         /// <summary>
