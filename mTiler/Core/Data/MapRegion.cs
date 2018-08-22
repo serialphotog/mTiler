@@ -30,6 +30,11 @@ namespace mTiler.Core.Data
         private MapTile[] mapTiles;
 
         /// <summary>
+        /// Tracks the total number of tiles in this region
+        /// </summary>
+        public int nTiles = 0;
+
+        /// <summary>
         /// Initializes a map region
         /// </summary>
         /// <param name="path">The path to this map region on disk</param>
@@ -58,6 +63,7 @@ namespace mTiler.Core.Data
                 foreach (String dir in tilePaths)
                 {
                     logger.log("\t\t\tFound tile: " + dir);
+                    nTiles++;
                     MapTile tile = new MapTile(dir, logger);
                     tiles.Add(tile);
                 }

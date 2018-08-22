@@ -32,6 +32,11 @@ namespace mTiler.Core
         private Atlas[] atlases;
 
         /// <summary>
+        /// The total number of loaded tiles
+        /// </summary>
+        private int nTiles = 0;
+
+        /// <summary>
         /// Initializes the tiling engine
         /// </summary>
         /// <param name="inputPath">The path to the input directory</param>
@@ -125,6 +130,7 @@ namespace mTiler.Core
                     {
                         logger.log("Found atals project " + dir);
                         Atlas atlas = new Atlas(dir, logger);
+                        nTiles += atlas.nTiles;
                         atlases.Add(atlas);
                     }
                 }

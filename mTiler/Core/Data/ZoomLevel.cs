@@ -30,6 +30,11 @@ namespace mTiler.Core.Data
         private MapRegion[] mapRegions;
 
         /// <summary>
+        /// The total number of tiles in this zoom level
+        /// </summary>
+        public int nTiles = 0;
+
+        /// <summary>
         /// Initializes this zoom level
         /// </summary>
         /// <param name="path">The path to this zoom level on disk</param>
@@ -59,6 +64,7 @@ namespace mTiler.Core.Data
                 {
                     logger.log("\t\tFound map region: " + dir);
                     MapRegion region = new MapRegion(dir, logger);
+                    nTiles += region.nTiles;
                     regions.Add(region);
                 }
 

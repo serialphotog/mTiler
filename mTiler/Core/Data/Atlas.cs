@@ -30,6 +30,11 @@ namespace mTiler.Core.Data
         private ZoomLevel[] zoomLevels;
 
         /// <summary>
+        /// The total number of tiles in this atlas
+        /// </summary>
+        public int nTiles = 0;
+
+        /// <summary>
         /// Initializes the atlas
         /// </summary>
         /// <param name="path">The path to the atlas on Disk</param>
@@ -60,6 +65,7 @@ namespace mTiler.Core.Data
                 {
                     logger.log("\tFound zoom level: " + dir);
                     ZoomLevel zoom = new ZoomLevel(dir, logger);
+                    nTiles += zoom.nTiles;
                     zooms.Add(zoom);
                 }
 
