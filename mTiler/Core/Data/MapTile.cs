@@ -11,6 +11,12 @@ namespace mTiler.Core.Data
     class MapTile
     {
         /// <summary>
+        /// The white point definition for map tiles. This is used to determine if a pixel
+        /// in the tile has data.
+        /// </summary>
+        private static readonly Color WHITE_POINT = Color.FromArgb(255, 253, 253, 253);
+
+        /// <summary>
         /// The path to the map tile on disk
         /// </summary>
         private String path;
@@ -68,7 +74,7 @@ namespace mTiler.Core.Data
                 for (int y=0; y < height; y++) // loop over height
                 {
                     Color currentPixel = tileImage.GetPixel(x, y);
-                    if (currentPixel.ToArgb() != Color.FromArgb(255, 253, 253, 253).ToArgb())
+                    if (currentPixel.ToArgb() != WHITE_POINT.ToArgb())
                     {
                         allWhite = false;
                         break;
@@ -80,6 +86,32 @@ namespace mTiler.Core.Data
             }
 
             return allWhite;
+        }
+
+        /// <summary>
+        /// Determines if this is a complete tile (no empty pixels)
+        /// </summary>
+        /// <returns>True if tile data is complete, else false</returns>
+        public Boolean isComplete()
+        {
+            Bitmap tileImage = getBitmap();
+            int width = tileImage.Width;
+            int height = tileImage.Height;
+
+            // Determine if the image lacks all white pixels
+            for (int x=0; x < width; x++)
+            {
+                for (int y=0; y < height; y++)
+                {
+                    Color currentPixel = tileImage.GetPixel(x, y);
+                    if (currentPixel.ToArgb() == WHITE_POINT.ToArgb())
+                    {
+                        // Found a dataless pixel, tile is not complete
+                        return false;
+                    }
+                }
+            }
+            return true;
         }
 
         /// <summary>

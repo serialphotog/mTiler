@@ -202,6 +202,13 @@ namespace mTiler.Core
                                     tileIsHandled = false;
                                     logger.log("\tTile " + tileID + " from atlas " + atlasID + " at zoom level " + zoomLevelID + " for map region " + regionID + " has no data. Ignoring it...");
                                 }
+                                else if (tile.isComplete())
+                                {
+                                    // This tile is complete, ignore other versions of it and copy it to destination
+                                    tileIsHandled = true;
+                                    logger.log("\tTile " + tileID + " from atlas " + atlasID + " at zoom level " + zoomLevelID + " for map region " + regionID + " is already complete.");
+                                    // TODO: Copy the complete tile to the destination 
+                                }
                             }
 
                             if (tileIsHandled)
