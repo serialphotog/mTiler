@@ -1,5 +1,6 @@
 ﻿using mTiler.Core;
 using System;
+using System.Threading;
 using System.Windows.Forms;
 
 namespace mTiler
@@ -15,6 +16,11 @@ namespace mTiler
         /// Reference to the tiling engine.
         /// </summary>
         private TilingEngine tilingEngine;
+
+        /// <summary>
+        /// The thread the tiling engine runs in
+        /// </summary>
+        private Thread tilingEngineThread;
 
         /// <summary>
         /// Initializes the main form
@@ -52,6 +58,12 @@ namespace mTiler
         /// <param name="e"></param>
         private void btnCancel_Click(object sender, EventArgs e)
         {
+            // Check that the tiling engine thread is stopped
+            if (tilingEngineThread.IsAlive)
+            {
+                tilingEngineThread.Abort();
+            }
+
             this.Close();
         }
 
@@ -87,7 +99,12 @@ namespace mTiler
         {
             // Pass everything over to the stacking engine
             this.tilingEngine = new TilingEngine(this.inputPathTxt.Text, this.outputPathTxt.Text, this.logger);
-            tilingEngine.tile();
+
+            // Spawn the thread for the tiling engine
+            ThreadStart tilingThreadChildRef = new ThreadStart(tilingEngine.tile);
+            tilingEngineThread = new Thread(tilingThreadChildRef);
+            tilingEngineThread.Start();
+            //tilingEngine.tile();
         }
     }
 }
