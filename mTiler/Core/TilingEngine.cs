@@ -185,13 +185,14 @@ namespace mTiler.Core
                             // all the tiles within those should have already been handled.
                             MapTile tile = mapTiles[currentTile];
                             String tileID = tile.getName();
+                            String fullTileID = atlasID + zoomLevelID + regionID + tileID;
 
                             // Tracks rather or not this tile has been fully handled. If it hasn't, we don't mark it as being ignored for
                             // future search. This is done for the case in which we have an all-white tile (a tile with no usuable data).
                             Boolean tileIsHandled = false;
 
                             // Don't handle the tile more than once
-                            if (!visitedTiles.Contains(tileID))
+                            if (!visitedTiles.Contains(fullTileID))
                             {
                                 logger.log("Analyzing tile " + tileID + " from atlas " + atlasID + " at zoom level " + zoomLevelID + " for map region " + regionID);
                                 tileIsHandled = true;
@@ -214,7 +215,7 @@ namespace mTiler.Core
                             if (tileIsHandled)
                             {
                                 // Add this tile to the visited tiles list
-                                visitedTiles.Add(tileID);
+                                visitedTiles.Add(fullTileID);
                             }
                         }
                     }
