@@ -23,11 +23,26 @@ namespace mTiler
         private Thread tilingEngineThread;
 
         /// <summary>
+        /// Tracks the total work for the progress bar
+        /// </summary>
+        private int totalWork = 0;
+
+        /// <summary>
+        /// Delegates to update the progress bar
+        /// </summary>
+        /// <param name="progress"></param>
+        public delegate void UpdateProgressDelegate(int progress);
+        public UpdateProgressDelegate UpdateProgress;
+
+        /// <summary>
         /// Initializes the main form
         /// </summary>
         public mainForm()
         {
             InitializeComponent();
+
+            // Initialize the update progress delegate handler
+            UpdateProgress = new UpdateProgressDelegate(updateProgress);
 
             // Setup some output console properties
             outputConsole.ReadOnly = true;
@@ -98,14 +113,33 @@ namespace mTiler
         private async void btnStart_Click(object sender, EventArgs e)
         {
             // Initialize the tiling engine
-            tilingEngine = new TilingEngine(this.inputPathTxt.Text, this.outputPathTxt.Text, this.logger);
+            tilingEngine = new TilingEngine(inputPathTxt.Text, outputPathTxt.Text, logger, this);
             await tilingEngine.init();
+
+            // Setup the progress bar
+            totalWork = tilingEngine.getNTiles();
+            progressBar.Maximum = totalWork;
+            progressBar.Step = 1;
+            progressBar.Value = 0;
+            lblProgress.Text = "0%";
 
             // Spawn the thread for the tiling engine
             ThreadStart tilingThreadChildRef = new ThreadStart(tilingEngine.tile);
             tilingEngineThread = new Thread(tilingThreadChildRef);
             tilingEngineThread.Start();
-            //tilingEngine.tile();
         }
+
+
+        /// <summary>
+        /// Updates the progress bar
+        /// </summary>
+        /// <param name="progress"></param>
+        private void updateProgress(int progress)
+        {
+            double progressPercent = ((double)progress / totalWork) * 100;
+            lblProgress.Text = Decimal.Round((decimal)progressPercent, 0, MidpointRounding.AwayFromZero) + "%";
+            progressBar.Value = progress;
+        }
+
     }
 }

@@ -29,6 +29,9 @@
         private void InitializeComponent()
         {
             this.splitContainer1 = new System.Windows.Forms.SplitContainer();
+            this.lblProgress = new System.Windows.Forms.Label();
+            this.label3 = new System.Windows.Forms.Label();
+            this.progressBar = new System.Windows.Forms.ProgressBar();
             this.btnCancel = new System.Windows.Forms.Button();
             this.btnStart = new System.Windows.Forms.Button();
             this.outputPathBtn = new System.Windows.Forms.Button();
@@ -53,6 +56,9 @@
             // 
             // splitContainer1.Panel1
             // 
+            this.splitContainer1.Panel1.Controls.Add(this.lblProgress);
+            this.splitContainer1.Panel1.Controls.Add(this.label3);
+            this.splitContainer1.Panel1.Controls.Add(this.progressBar);
             this.splitContainer1.Panel1.Controls.Add(this.btnCancel);
             this.splitContainer1.Panel1.Controls.Add(this.btnStart);
             this.splitContainer1.Panel1.Controls.Add(this.outputPathBtn);
@@ -68,6 +74,31 @@
             this.splitContainer1.Size = new System.Drawing.Size(584, 411);
             this.splitContainer1.SplitterDistance = 149;
             this.splitContainer1.TabIndex = 0;
+            // 
+            // lblProgress
+            // 
+            this.lblProgress.AutoSize = true;
+            this.lblProgress.Location = new System.Drawing.Point(257, 119);
+            this.lblProgress.Name = "lblProgress";
+            this.lblProgress.Size = new System.Drawing.Size(21, 13);
+            this.lblProgress.TabIndex = 10;
+            this.lblProgress.Text = "0%";
+            // 
+            // label3
+            // 
+            this.label3.AutoSize = true;
+            this.label3.Location = new System.Drawing.Point(12, 119);
+            this.label3.Name = "label3";
+            this.label3.Size = new System.Drawing.Size(51, 13);
+            this.label3.TabIndex = 9;
+            this.label3.Text = "Progress:";
+            // 
+            // progressBar
+            // 
+            this.progressBar.Location = new System.Drawing.Point(69, 114);
+            this.progressBar.Name = "progressBar";
+            this.progressBar.Size = new System.Drawing.Size(182, 23);
+            this.progressBar.TabIndex = 8;
             // 
             // btnCancel
             // 
@@ -181,6 +212,9 @@
         private System.Windows.Forms.Button inputPathBtn;
         private System.Windows.Forms.Button btnCancel;
         private System.Windows.Forms.Button btnStart;
+        private System.Windows.Forms.Label lblProgress;
+        private System.Windows.Forms.Label label3;
+        private System.Windows.Forms.ProgressBar progressBar;
     }
 }
 

@@ -28,6 +28,11 @@ namespace mTiler.Core
         private Logger logger;
 
         /// <summary>
+        /// Reference to the form
+        /// </summary>
+        private mainForm form;
+
+        /// <summary>
         /// The atlases within the project
         /// </summary>
         private Atlas[] atlases;
@@ -43,13 +48,19 @@ namespace mTiler.Core
         /// <param name="inputPath">The path to the input directory</param>
         /// <param name="outputPath">The path for the output directory</param>
         /// <param name="logger">Reference to the logging component</param>
-        public TilingEngine(String inputPath, String outputPath, Logger logger)
+        /// <param name="form">Reference to the main form (for progress bar updating)</param>
+        public TilingEngine(String inputPath, String outputPath, Logger logger, mainForm form)
         {
+            this.form = form;
             this.logger = logger;
             this.inputPath = inputPath;
             this.outputPath = outputPath;
         }
 
+        /// <summary>
+        /// Performs the initialization task
+        /// </summary>
+        /// <returns></returns>
         public async Task init()
         {
             // Validate the input and output paths
@@ -162,6 +173,7 @@ namespace mTiler.Core
         public void tile()
         {
             logger.log("Performing the tiling operations...");
+            int totalProgress = 0;
 
             // Tracks the tiles that have already been handled, based off the tile's name. There is no need
             // to handle anyone tile of a given ID more than once.
@@ -199,6 +211,12 @@ namespace mTiler.Core
                             String tileID = tile.getName();
                             String fullTileID = atlasID + zoomLevelID + regionID + tileID;
 
+                            // Update the progress bar on the main form
+                            form.Invoke((Action)delegate
+                            {
+                                form.UpdateProgress(++totalProgress);
+                            });
+
                             // Tracks rather or not this tile has been fully handled. If it hasn't, we don't mark it as being ignored for
                             // future search. This is done for the case in which we have an all-white tile (a tile with no usuable data).
                             Boolean tileIsHandled = false;
@@ -234,5 +252,15 @@ namespace mTiler.Core
                 }
             }
         }
+
+        /// <summary>
+        /// Returns the total number of tiles
+        /// </summary>
+        /// <returns></returns>
+        public int getNTiles()
+        {
+            return this.nTiles;
+        }
+
     }
 }
