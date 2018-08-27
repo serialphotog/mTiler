@@ -48,6 +48,11 @@ namespace mTiler.Core
         public volatile bool stopRequested = false;
 
         /// <summary>
+        /// Tracks the total progress by the tiling task
+        /// </summary>
+        private int totalProgress = 0;
+
+        /// <summary>
         /// Initializes the tiling engine
         /// </summary>
         /// <param name="inputPath">The path to the input directory</param>
@@ -178,7 +183,7 @@ namespace mTiler.Core
         public void tile()
         {
             logger.log("Performing the tiling operations...");
-            int totalProgress = 0;
+            totalProgress = 0;
 
             // Tracks the tiles that have already been handled, based off the tile's name. There is no need
             // to handle anyone tile of a given ID more than once.
@@ -265,6 +270,75 @@ namespace mTiler.Core
                                 // Add this tile to the visited tiles list
                                 visitedTiles.Add(regionTileID);
                             }
+                        }
+                    }
+                }
+            }
+
+            // Handle all of the temporary tiles
+            logger.log("Processing incomplete tiles...");
+            processTempTiles();
+        }
+
+        /// <summary>
+        /// Handles the tiles in the temp directory
+        /// </summary>
+        private void processTempTiles()
+        {
+            String tempDir = FS.buildTempDir(outputPath);
+            String[] zoomLevels = FS.enumerateDir(tempDir);
+            foreach (String zoomLevel in zoomLevels)
+            {
+                String zoomLevelName = FS.getPathName(zoomLevel);
+                String[] mapRegions = FS.enumerateDir(Path.Combine(tempDir, zoomLevel));
+                foreach (String mapRegion in mapRegions)
+                {
+                    String mapRegionName = FS.getPathName(mapRegion);
+                    String[] tiles = FS.enumerateFiles(mapRegion);
+                    int nTiles = tiles.Length;
+                    for (int i=0; i < nTiles; i++)
+                    {
+                        if (stopRequested)
+                            return;
+
+                        // Get the tileID
+                        String tileID = FS.getTileID(tiles[i]);
+                        logger.log("Handling incomplete tile with id: " + tileID);
+                        List<String> currentTileCrop = new List<string>();
+                        currentTileCrop.Add(tiles[i]);
+
+                        // Get all tiles of this ID
+                        while (!(i+1 > nTiles-1))
+                        {
+                            if (stopRequested)
+                                return;
+
+                            if (FS.getTileID(tiles[i + 1]) == tileID)
+                            {
+                                currentTileCrop.Add(tiles[++i]);
+                            } else
+                            {
+                                break;
+                            }
+                        }
+
+                        // Process the tile crop
+                        if (currentTileCrop.Count > 1)
+                        {
+                            // We have multiple incomplete tiles with this id, handle them
+                            logger.log("\tHandling " + currentTileCrop.Count + " tiles with ID " + tileID + " in zoom level " + zoomLevelName + " and map region " + mapRegionName);
+                            // TODO: Handle these tiles
+                        }
+                        else
+                        {
+                            // There are not multiple of these tiles, just copy it to the output directory
+                            logger.log("\tThere is only one incomplete tile with id " + tileID + " in zoom level " + zoomLevelName + " and map region " + mapRegionName + ". copying it to output directory");
+                            String copyToDir = FS.buildOutputDir(outputPath, zoomLevelName, mapRegionName);
+                            String copyPath = Path.Combine(copyToDir, tileID);
+                            File.Copy(tiles[i], copyPath, true);
+
+                            // Update the progress tracker
+                            updateProgress(++totalProgress);
                         }
                     }
                 }

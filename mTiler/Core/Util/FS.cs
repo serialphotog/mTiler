@@ -118,5 +118,24 @@ namespace mTiler.Core.Util
             return (String)Path.Combine(inputDir, atlasID, zoomLevelID, regionID, tileID);
         }
 
+        /// <summary>
+        /// Gets the tileID from a tile path
+        /// </summary>
+        /// <param name="tilePath">The path to the tile</param>
+        /// <returns>The tile ID</returns>
+        public static String getTileID(String tilePath)
+        {
+            if (!String.IsNullOrWhiteSpace(tilePath))
+            {
+                String tileFileName = FS.getFilename(tilePath);
+                int spacerLoc = tileFileName.IndexOf("_", StringComparison.Ordinal);
+                if (spacerLoc > 0)
+                {
+                    return tileFileName.Substring(0, spacerLoc);
+                }
+            }
+            return String.Empty;
+        }
+
     }
 }
