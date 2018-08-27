@@ -250,7 +250,7 @@ namespace mTiler.Core
                                     String copyToDir = FS.buildOutputDir(outputPath, zoomLevelID, regionID);
                                     String copyPath = Path.Combine(copyToDir, tileID);
                                     String copyFromPath = Path.Combine(inputPath, atlasID, zoomLevelID, regionID, tileID);
-                                    File.Copy(copyFromPath, copyPath);
+                                    File.Copy(copyFromPath, copyPath, true);
                                 } else
                                 {
                                     // Copy the tiles to a temporary working directory for further processing.
