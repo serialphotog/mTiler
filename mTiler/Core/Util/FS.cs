@@ -70,5 +70,53 @@ namespace mTiler.Core.Util
             return output;
         }
 
+        /// <summary>
+        /// Builds a temporary directory in the output directory
+        /// </summary>
+        /// <param name="outputDir">The output directory path</param>
+        /// <returns>The path to the temporary directory</returns>
+        public static String buildTempDir(String outputDir)
+        {
+            String output = Path.Combine(outputDir, "_temp");
+            if (!Directory.Exists(output))
+            {
+                Directory.CreateDirectory(output);
+            }
+            return output;
+        }
+
+        /// <summary>
+        /// Builds the full output path for a temporary file
+        /// </summary>
+        /// <param name="tempDir">The temp directory</param>
+        /// <param name="zoomLevel">The zoom level id</param>
+        /// <param name="regionID">The region ID</param>
+        /// <param name="tileID">The tile ID</param>
+        /// <param name="atlasID">The atlas ID</param>
+        /// <returns>The output path</returns>
+        public static String buildTempPath(String tempDir, String zoomLevel, String regionID, String tileID, String atlasID)
+        {
+            String outPath = Path.Combine(tempDir, zoomLevel, regionID);
+            if (!Directory.Exists(outPath))
+            {
+                Directory.CreateDirectory(outPath);
+            }
+            return (String)Path.Combine(outPath, tileID + "_" + atlasID + ".jpg");
+        }
+
+        /// <summary>
+        /// Gets the path of a tile
+        /// </summary>
+        /// <param name="inputDir">The input directory</param>
+        /// <param name="atlasID">The atlas id of the tile</param>
+        /// <param name="zoomLevelID">The zoom level of the tile</param>
+        /// <param name="regionID">The region id for the tile</param>
+        /// <param name="tileID">The tile id</param>
+        /// <returns>The path to the tile</returns>
+        public static String getTilePath(String inputDir, String atlasID, String zoomLevelID, String regionID, String tileID)
+        {
+            return (String)Path.Combine(inputDir, atlasID, zoomLevelID, regionID, tileID);
+        }
+
     }
 }

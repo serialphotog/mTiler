@@ -249,12 +249,16 @@ namespace mTiler.Core
                                     // Copy the complete tile to the output path
                                     String copyToDir = FS.buildOutputDir(outputPath, zoomLevelID, regionID);
                                     String copyPath = Path.Combine(copyToDir, tileID);
-                                    String copyFromPath = Path.Combine(inputPath, atlasID, zoomLevelID, regionID, tileID);
+                                    String copyFromPath = FS.getTilePath(inputPath, atlasID, zoomLevelID, regionID, tileID);
                                     File.Copy(copyFromPath, copyPath, true);
                                 } else
                                 {
                                     // Copy the tiles to a temporary working directory for further processing.
-                                    // TODO: Implement this!
+                                    tileIsHandled = false;
+                                    String tempDir = FS.buildTempDir(outputPath);
+                                    String copyTo = FS.buildTempPath(tempDir, zoomLevelID, regionID, tileID, atlasID);
+                                    String copyFromPath = FS.getTilePath(inputPath, atlasID, zoomLevelID, regionID, tileID);
+                                    File.Copy(copyFromPath, copyTo, true);
                                 }
                             }
 
