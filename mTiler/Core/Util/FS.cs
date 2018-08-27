@@ -137,5 +137,13 @@ namespace mTiler.Core.Util
             return String.Empty;
         }
 
+        public static void deleteFile(String path)
+        {
+            if (File.Exists(path))
+            {
+                File.Delete(path);
+            }
+        }
+
     }
 }

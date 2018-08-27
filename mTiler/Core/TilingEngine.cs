@@ -337,6 +337,9 @@ namespace mTiler.Core
                             String copyPath = Path.Combine(copyToDir, tileID);
                             File.Copy(tiles[i], copyPath, true);
 
+                            // Delete the temporary tile file
+                            FS.deleteFile(tiles[i]);
+
                             // Update the progress tracker
                             updateProgress(++totalProgress);
                         }
