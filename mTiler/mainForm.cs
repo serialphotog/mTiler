@@ -73,7 +73,8 @@ namespace mTiler
         /// <param name="e"></param>
         private void btnCancel_Click(object sender, EventArgs e)
         {
-            tilingEngine.stopRequested = true;
+            if (tilingEngine != null)
+                tilingEngine.stopRequested = true;
             logger.stopRequested = true;
             Application.Exit();
         }
