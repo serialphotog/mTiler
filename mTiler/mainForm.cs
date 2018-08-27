@@ -73,13 +73,9 @@ namespace mTiler
         /// <param name="e"></param>
         private void btnCancel_Click(object sender, EventArgs e)
         {
-            // Check that the tiling engine thread is stopped
-            if (tilingEngineThread != null && tilingEngineThread.IsAlive)
-            {
-                tilingEngineThread.Abort();
-            }
-
-            this.Close();
+            tilingEngine.stopRequested = true;
+            logger.stopRequested = true;
+            Application.Exit();
         }
 
         /// <summary>
@@ -124,6 +120,7 @@ namespace mTiler
             lblProgress.Text = "0%";
 
             // Spawn the thread for the tiling engine
+            tilingEngine.stopRequested = false;
             ThreadStart tilingThreadChildRef = new ThreadStart(tilingEngine.tile);
             tilingEngineThread = new Thread(tilingThreadChildRef);
             tilingEngineThread.Start();

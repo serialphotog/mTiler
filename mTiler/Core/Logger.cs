@@ -18,6 +18,11 @@ namespace mTiler.Core
         private RichTextBox outputWindow { get; set; }
 
         /// <summary>
+        /// Used to determine if an application exit has been requested
+        /// </summary>
+        public volatile bool stopRequested = false;
+
+        /// <summary>
         /// Initializes the logger component
         /// </summary>
         /// <param name="outputWindow">Reference to the output window textbox</param>
@@ -34,12 +39,15 @@ namespace mTiler.Core
         /// <param name="color">The text color to log the message in</param>
         private void log(String header, String msg, Color color)
         {
-           outputWindow.Invoke((Action)delegate // Make things thread-safe
-           {
-                outputWindow.Select(outputWindow.TextLength, 0);
-                outputWindow.SelectionColor = color;
-                outputWindow.AppendText(header + msg + Environment.NewLine);
-           });
+            if (!stopRequested)
+            {
+                outputWindow.Invoke((Action)delegate // Make things thread-safe
+                {
+                    outputWindow.Select(outputWindow.TextLength, 0);
+                    outputWindow.SelectionColor = color;
+                    outputWindow.AppendText(header + msg + Environment.NewLine);
+                });
+            }
         }
 
         /// <summary>

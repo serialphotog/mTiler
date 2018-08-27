@@ -41,6 +41,11 @@ namespace mTiler.Core
         /// The total number of loaded tiles
         /// </summary>
         private int nTiles = 0;
+        
+        /// <summary>
+        /// Used to request that the tiling thread process be stopped
+        /// </summary>
+        public volatile bool stopRequested = false;
 
         /// <summary>
         /// Initializes the tiling engine
@@ -204,6 +209,9 @@ namespace mTiler.Core
                         MapTile[] mapTiles = mapRegions[currentRegion].getMapTiles();
                         for (int currentTile = 0; currentTile < mapTiles.Length; currentTile++)
                         {
+                            if (stopRequested) // User requested thread be stopped
+                                return;
+
                             // For each tile, perform a forward search in the other atlas projects for matching tiles.
                             // It should be noted that there should be no need to search backwards over previous atlas projects, since
                             // all the tiles within those should have already been handled.
