@@ -52,5 +52,23 @@ namespace mTiler.Core.Util
         {
             return Path.GetFileName(path);
         }
+
+        /// <summary>
+        /// Builds the output directory, if it doesn't exist, for completed tiles
+        /// </summary>
+        /// <param name="outputDir">The output directory path</param>
+        /// <param name="zoomLevel">The zoom level</param>
+        /// <param name="mapRegion">The map Region</param>
+        /// <returns>The output path</returns>
+        public static String buildOutputDir(String outputDir, String zoomLevel, String mapRegion)
+        {
+            String output = Path.Combine(outputDir, zoomLevel, mapRegion);
+            if (!Directory.Exists(output))
+            {
+                Directory.CreateDirectory(output);
+            }
+            return output;
+        }
+
     }
 }

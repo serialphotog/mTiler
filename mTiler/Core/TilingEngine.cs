@@ -233,7 +233,6 @@ namespace mTiler.Core
                             if (!visitedTiles.Contains(regionTileID))
                             {
                                 logger.log("Analyzing tile " + tileID + " from atlas " + atlasID + " at zoom level " + zoomLevelID + " for map region " + regionID);
-                                tileIsHandled = true;
 
                                 if (tile.isDatalessTile())
                                 {
@@ -246,7 +245,16 @@ namespace mTiler.Core
                                     // This tile is complete, ignore other versions of it and copy it to destination
                                     tileIsHandled = true;
                                     logger.log("\tTile " + tileID + " from atlas " + atlasID + " at zoom level " + zoomLevelID + " for map region " + regionID + " is already complete.");
-                                    // TODO: Copy the complete tile to the destination 
+
+                                    // Copy the complete tile to the output path
+                                    String copyToDir = FS.buildOutputDir(outputPath, zoomLevelID, regionID);
+                                    String copyPath = Path.Combine(copyToDir, tileID);
+                                    String copyFromPath = Path.Combine(inputPath, atlasID, zoomLevelID, regionID, tileID);
+                                    File.Copy(copyFromPath, copyPath);
+                                } else
+                                {
+                                    // Copy the tiles to a temporary working directory for further processing.
+                                    // TODO: Implement this!
                                 }
                             }
 
