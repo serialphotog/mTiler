@@ -219,12 +219,6 @@ namespace mTiler.Core
                             String tileID = tile.getName();
                             String regionTileID = zoomLevelID + regionID + tileID;
 
-                            // Update the progress bar on the main form
-                            form.Invoke((Action)delegate
-                            {
-                                form.UpdateProgress(++totalProgress);
-                            });
-
                             // Tracks rather or not this tile has been fully handled. If it hasn't, we don't mark it as being ignored for
                             // future search. This is done for the case in which we have an all-white tile (a tile with no usuable data).
                             Boolean tileIsHandled = false;
@@ -239,6 +233,7 @@ namespace mTiler.Core
                                     // This tile has no data, ignore it
                                     tileIsHandled = false;
                                     logger.log("\tTile " + tileID + " from atlas " + atlasID + " at zoom level " + zoomLevelID + " for map region " + regionID + " has no data. Ignoring it...");
+                                    updateProgress(++totalProgress);
                                 }
                                 else if (tile.isComplete())
                                 {
@@ -251,6 +246,9 @@ namespace mTiler.Core
                                     String copyPath = Path.Combine(copyToDir, tileID);
                                     String copyFromPath = FS.getTilePath(inputPath, atlasID, zoomLevelID, regionID, tileID);
                                     File.Copy(copyFromPath, copyPath, true);
+
+                                    // Update the progress
+                                    updateProgress(++totalProgress);
                                 } else
                                 {
                                     // Copy the tiles to a temporary working directory for further processing.
@@ -271,6 +269,18 @@ namespace mTiler.Core
                     }
                 }
             }
+        }
+
+        /// <summary>
+        /// updates the progress
+        /// </summary>
+        /// <param name="progress">The progress</param>
+        private void updateProgress(int progress)
+        {
+            form.Invoke((Action)delegate
+            {
+                form.UpdateProgress(progress);
+            });
         }
 
         /// <summary>
