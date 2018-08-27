@@ -95,10 +95,11 @@ namespace mTiler
         /// </summary>
         /// <param name="sender"></param>
         /// <param name="e"></param>
-        private void btnStart_Click(object sender, EventArgs e)
+        private async void btnStart_Click(object sender, EventArgs e)
         {
-            // Pass everything over to the stacking engine
-            this.tilingEngine = new TilingEngine(this.inputPathTxt.Text, this.outputPathTxt.Text, this.logger);
+            // Initialize the tiling engine
+            tilingEngine = new TilingEngine(this.inputPathTxt.Text, this.outputPathTxt.Text, this.logger);
+            await tilingEngine.init();
 
             // Spawn the thread for the tiling engine
             ThreadStart tilingThreadChildRef = new ThreadStart(tilingEngine.tile);

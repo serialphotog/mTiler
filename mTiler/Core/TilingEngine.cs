@@ -3,6 +3,7 @@ using mTiler.Core.Util;
 using System;
 using System.Collections.Generic;
 using System.IO;
+using System.Threading.Tasks;
 
 namespace mTiler.Core
 {
@@ -47,14 +48,17 @@ namespace mTiler.Core
             this.logger = logger;
             this.inputPath = inputPath;
             this.outputPath = outputPath;
+        }
 
+        public async Task init()
+        {
             // Validate the input and output paths
             if (validateInputPath(inputPath))
             {
                 if (validateOutputPath(outputPath))
                 {
                     // Enumerate the atlases and kick off loading all of the data
-                    loadAtlases();
+                    await loadAtlases();
                 }
             }
         }
@@ -112,7 +116,8 @@ namespace mTiler.Core
         /// <summary>
         /// Loads all the atlas projects from the input directory
         /// </summary>
-        private void loadAtlases()
+#pragma warning disable 1998
+        private async Task loadAtlases()
         {
             logger.log("Loading atlas projects from " + inputPath);
 
@@ -149,6 +154,7 @@ namespace mTiler.Core
                 logger.error("No atlas projects were found in " + inputPath);
             }
         }
+#pragma warning restore 1998
 
         /// <summary>
         /// Perform the tiling operations
