@@ -120,10 +120,13 @@ namespace mTiler
             lblProgress.Text = "0%";
 
             // Spawn the thread for the tiling engine
-            tilingEngine.stopRequested = false;
-            ThreadStart tilingThreadChildRef = new ThreadStart(tilingEngine.tile);
-            tilingEngineThread = new Thread(tilingThreadChildRef);
-            tilingEngineThread.Start();
+            if (totalWork > 0)
+            {
+                tilingEngine.stopRequested = false;
+                ThreadStart tilingThreadChildRef = new ThreadStart(tilingEngine.tile);
+                tilingEngineThread = new Thread(tilingThreadChildRef);
+                tilingEngineThread.Start();
+            }
         }
 
 
