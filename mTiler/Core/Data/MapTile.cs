@@ -18,6 +18,11 @@ namespace mTiler.Core.Data
         private static readonly Color WHITE_POINT = Color.FromArgb(255, 253, 253, 253);
 
         /// <summary>
+        /// The threshold to use when checking for "white" pixels
+        /// </summary>
+        private static readonly int WHITE_THRESHOLD = 50;
+
+        /// <summary>
         /// The path to the map tile on disk
         /// </summary>
         private String path;
@@ -137,14 +142,14 @@ namespace mTiler.Core.Data
                     Color pixelA = tileAImage.GetPixel(w, h);
                     Color pixelB = tileBImage.GetPixel(w, h);
 
-                    if (pixelA.ToArgb() != WHITE_POINT.ToArgb())
+                    if (!ImageUtil.colorWithinThresholdOfWhite(pixelA, WHITE_THRESHOLD))
                     {
                         // This pixel has data, copy it
                         resultingTile.SetPixel(w, h, pixelA);
                     }
-                    else
+                    else if (!ImageUtil.colorWithinThresholdOfWhite(pixelB, WHITE_THRESHOLD))
                     {
-                        // else, just copy what's in pixelB
+                        // Pixel b has valid data to copy
                         resultingTile.SetPixel(w, h, pixelB);
                     }
                 }

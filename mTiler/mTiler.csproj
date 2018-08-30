@@ -52,6 +52,7 @@
     <Compile Include="Core\Logger.cs" />
     <Compile Include="Core\TilingEngine.cs" />
     <Compile Include="Core\Util\FS.cs" />
+    <Compile Include="Core\Util\ImageUtil.cs" />
     <Compile Include="mainForm.cs">
       <SubType>Form</SubType>
     </Compile>
