@@ -342,7 +342,8 @@ namespace mTiler.Core
                             String mergeResult = MapTile.mergeTiles(tileA, tileB, resultPath);
                             MapTile resultingTile = new MapTile(mergeResult, logger);
 
-                            updateProgress(++totalProgress);
+                            totalProgress += 2;
+                            updateProgress(totalProgress);
 
                             if (currentTileCrop.Count > 2)
                             {
