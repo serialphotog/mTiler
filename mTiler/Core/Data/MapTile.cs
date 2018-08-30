@@ -150,7 +150,7 @@ namespace mTiler.Core.Data
             }
 
             // Write the bitmap to disk and return the URI
-            return FS.writeBitmapToPng(resultingTile, outputDir, tileA.getName());
+            return FS.writeBitmapToJpeg(resultingTile, outputDir, tileA.getName());
         }
 
         /// <summary>

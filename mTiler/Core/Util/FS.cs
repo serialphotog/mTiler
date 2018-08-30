@@ -158,7 +158,7 @@ namespace mTiler.Core.Util
         /// <param name="outputDir">The directory to write to</param>
         /// <param name="name">The name to use</param>
         /// <returns>The path to the resulting PNG</returns>
-        public static String writeBitmapToPng(Bitmap bmp, String outputDir, String name)
+        public static String writeBitmapToJpeg(Bitmap bmp, String outputDir, String name)
         {
             String path = (String)Path.Combine(outputDir, name + "_mergeresult" + ".png");
 
@@ -166,7 +166,7 @@ namespace mTiler.Core.Util
             {
                 using (FileStream fs = new FileStream(path, FileMode.Create, FileAccess.ReadWrite))
                 {
-                    bmp.Save(memory, ImageFormat.Png);
+                    bmp.Save(memory, ImageFormat.Jpeg);
                     byte[] bytes = memory.ToArray();
                     fs.Write(bytes, 0, bytes.Length);
                 }
