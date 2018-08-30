@@ -387,10 +387,13 @@ namespace mTiler.Core
         /// <param name="progress">The progress</param>
         private void updateProgress(int progress)
         {
-            form.Invoke((Action)delegate
+            if (!stopRequested)
             {
-                form.UpdateProgress(progress);
-            });
+                form.Invoke((Action)delegate
+                {
+                    form.UpdateProgress(progress);
+                });
+            }
         }
 
         /// <summary>
