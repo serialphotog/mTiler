@@ -345,7 +345,7 @@ namespace mTiler.Core
                                 for (int j=2; j < currentTileCrop.Count; j++)
                                 {
                                     tileA = resultingTile;
-                                    tileB = new MapTile(tileCrop[i], logger);
+                                    tileB = new MapTile(tileCrop[j], logger);
                                     mergeResult = MapTile.mergeTiles(tileA, tileB, resultPath);
                                     resultingTile = new MapTile(mergeResult, logger);
                                     updateProgress(++totalProgress);
