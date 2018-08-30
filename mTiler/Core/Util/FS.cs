@@ -1,4 +1,6 @@
 ﻿using System;
+using System.Drawing;
+using System.Drawing.Imaging;
 using System.IO;
 
 namespace mTiler.Core.Util
@@ -137,12 +139,40 @@ namespace mTiler.Core.Util
             return String.Empty;
         }
 
+        /// <summary>
+        /// Deletes a given file from the filesystem
+        /// </summary>
+        /// <param name="path">The path to the file to delete</param>
         public static void deleteFile(String path)
         {
             if (File.Exists(path))
             {
                 File.Delete(path);
             }
+        }
+
+        /// <summary>
+        /// Writes a bitmap to disk as a PNG
+        /// </summary>
+        /// <param name="bmp">The bitmap to write to disk</param>
+        /// <param name="outputDir">The directory to write to</param>
+        /// <param name="name">The name to use</param>
+        /// <returns>The path to the resulting PNG</returns>
+        public static String writeBitmapToPng(Bitmap bmp, String outputDir, String name)
+        {
+            String path = (String)Path.Combine(outputDir, name + "_mergeresult" + ".png");
+
+            using (MemoryStream memory = new MemoryStream())
+            {
+                using (FileStream fs = new FileStream(path, FileMode.Create, FileAccess.ReadWrite))
+                {
+                    bmp.Save(memory, ImageFormat.Png);
+                    byte[] bytes = memory.ToArray();
+                    fs.Write(bytes, 0, bytes.Length);
+                }
+            }
+
+            return path;
         }
 
     }

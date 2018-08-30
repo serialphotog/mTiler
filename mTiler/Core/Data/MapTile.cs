@@ -1,6 +1,7 @@
 ﻿using mTiler.Core.Util;
 using System;
 using System.Drawing;
+using System.Drawing.Imaging;
 using System.IO;
 
 namespace mTiler.Core.Data
@@ -107,6 +108,50 @@ namespace mTiler.Core.Data
                 }
             }
             return true;
+        }
+
+        /// <summary>
+        /// Merges two map tiles together
+        /// </summary>
+        /// <param name="tileA">Tile "A" for the merge</param>
+        /// <param name="tileB">Tile "B" for the merge</param>
+        /// <param name="outputDir">The directory to write the resulting tile image to</param>
+        /// <returns>The path to the resulting tile image</returns>
+        public static String mergeTiles(MapTile tileA, MapTile tileB, String outputDir)
+        {
+            Bitmap tileAImage = tileA.getBitmap();
+            Bitmap tileBImage = tileB.getBitmap();
+
+            int width = tileAImage.Width;
+            int height = tileBImage.Height;
+
+            // Create the result bitmap
+            PixelFormat pixelFormat = tileAImage.PixelFormat;
+            Bitmap resultingTile = new Bitmap(width, height, pixelFormat);
+
+            // Perform the merge
+            for (int w=0; w < width; w++)
+            {
+                for (int h=0; h < height; h++)
+                {
+                    Color pixelA = tileAImage.GetPixel(w, h);
+                    Color pixelB = tileBImage.GetPixel(w, h);
+
+                    if (pixelA.ToArgb() != WHITE_POINT.ToArgb())
+                    {
+                        // This pixel has data, copy it
+                        resultingTile.SetPixel(w, h, pixelA);
+                    }
+                    else
+                    {
+                        // else, just copy what's in pixelB
+                        resultingTile.SetPixel(w, h, pixelB);
+                    }
+                }
+            }
+
+            // Write the bitmap to disk and return the URI
+            return FS.writeBitmapToPng(resultingTile, outputDir, tileA.getName());
         }
 
         /// <summary>

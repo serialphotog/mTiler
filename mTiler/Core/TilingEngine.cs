@@ -327,7 +327,35 @@ namespace mTiler.Core
                         {
                             // We have multiple incomplete tiles with this id, handle them
                             logger.log("\tHandling " + currentTileCrop.Count + " tiles with ID " + tileID + " in zoom level " + zoomLevelName + " and map region " + mapRegionName);
-                            // TODO: Handle these tiles
+
+                            // Handle the tiles in the current tile corp
+                            String[] tileCrop = currentTileCrop.ToArray();
+                            MapTile tileA = new MapTile(tileCrop[0], logger);
+                            MapTile tileB = new MapTile(tileCrop[1], logger);
+                            String resultPath = Path.Combine(tempDir, zoomLevelName, mapRegionName);
+
+                            // Merge the first two tiles
+                            String mergeResult = MapTile.mergeTiles(tileA, tileB, resultPath);
+                            MapTile resultingTile = new MapTile(mergeResult, logger);
+
+                            updateProgress(++totalProgress);
+
+                            if (currentTileCrop.Count > 2)
+                            {
+                                for (int j=2; j < currentTileCrop.Count; j++)
+                                {
+                                    tileA = resultingTile;
+                                    tileB = new MapTile(tileCrop[i], logger);
+                                    mergeResult = MapTile.mergeTiles(tileA, tileB, resultPath);
+                                    resultingTile = new MapTile(mergeResult, logger);
+                                    updateProgress(++totalProgress);
+                                }
+                            }
+
+                            // Copy the merged tile result to the final location
+                            String copyToDir = FS.buildOutputDir(outputPath, zoomLevelName, mapRegionName);
+                            String copyPath = Path.Combine(copyToDir, FS.getTileID(mergeResult));
+                            File.Copy(mergeResult, copyPath, true);
                         }
                         else
                         {
