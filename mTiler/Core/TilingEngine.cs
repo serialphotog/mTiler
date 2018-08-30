@@ -278,6 +278,10 @@ namespace mTiler.Core
             // Handle all of the temporary tiles
             logger.log("Processing incomplete tiles...");
             processTempTiles();
+
+            // Delete the temp directory
+            logger.log("Cleaning up the temporary directory");
+            Directory.Delete(FS.buildTempDir(outputPath), true);
         }
 
         /// <summary>
