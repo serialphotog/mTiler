@@ -24,5 +24,19 @@ namespace mTiler.Core.Util
             return (r * r + g * g + b * b) <= threshold * threshold;
         }
 
+        /// <summary>
+        /// Averages two colors
+        /// </summary>
+        /// <param name="c1">Color 1 for the average</param>
+        /// <param name="c2">Color 2 for the average</param>
+        /// <returns>The resulting, averaged color</returns>
+        public static Color averageColor(Color c1, Color c2)
+        {
+            byte r = (byte)Math.Sqrt((c1.R * c1.R + c2.R * c2.R) / 2);
+            byte g = (byte)Math.Sqrt((c1.G * c1.G + c2.G * c2.G) / 2);
+            byte b = (byte)Math.Sqrt((c1.B * c1.B + c2.B * c2.B) / 2);
+            return Color.FromArgb(r, g, b);
+        }
+
     }
 }

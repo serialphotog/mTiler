@@ -136,12 +136,17 @@ namespace mTiler.Core.Data
                     Color pixelA = tileAImage.GetPixel(w, h);
                     Color pixelB = tileBImage.GetPixel(w, h);
 
-                    if (!ImageUtil.colorWithinThresholdOfWhite(pixelA, WHITE_THRESHOLD))
+                    if (!ImageUtil.colorWithinThresholdOfWhite(pixelA, WHITE_THRESHOLD) && !ImageUtil.colorWithinThresholdOfWhite(pixelB, WHITE_THRESHOLD))
+                    {
+                        // Set to the average of the two pixels
+                        resultingTile.SetPixel(w, h, ImageUtil.averageColor(pixelA, pixelB));
+                    }
+                    else if (!ImageUtil.colorWithinThresholdOfWhite(pixelA, WHITE_THRESHOLD))
                     {
                         // This pixel has data, copy it
                         resultingTile.SetPixel(w, h, pixelA);
                     }
-                    else if (!ImageUtil.colorWithinThresholdOfWhite(pixelB, WHITE_THRESHOLD))
+                    else
                     {
                         // Pixel b has valid data to copy
                         resultingTile.SetPixel(w, h, pixelB);
