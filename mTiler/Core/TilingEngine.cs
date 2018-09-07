@@ -253,10 +253,7 @@ namespace mTiler.Core
                                 {
                                     // Copy the tiles to a temporary working directory for further processing.
                                     tileIsHandled = false;
-                                    String tempDir = FS.BuildTempDir(OutputPath);
-                                    String copyTo = FS.BuildTempPath(tempDir, zoomLevelID, regionID, tileID, atlasID);
-                                    String copyFromPath = FS.GetTilePath(InputPath, atlasID, zoomLevelID, regionID, tileID);
-                                    File.Copy(copyFromPath, copyTo, true);
+                                    HandleIncompleteTile(atlasID, zoomLevelID, regionID, tileID);
                                 }
                             }
 
@@ -387,8 +384,23 @@ namespace mTiler.Core
         {
             String copyToDir = FS.BuildOutputDir(OutputPath, zoomLevelId, regionId);
             String copyPath = Path.Combine(copyToDir, tileId);
-            String copyFromPath = FS.GetTilePath(InputPath, atlasId, zoomLevelId, regionId, tileId);
-            File.Copy(copyFromPath, copyPath, true);
+            String copyFrom = FS.GetTilePath(InputPath, atlasId, zoomLevelId, regionId, tileId);
+            File.Copy(copyFrom, copyPath, true);
+        }
+
+        /// <summary>
+        /// Handles an incomplete tile by copying it to the temporary working directory
+        /// </summary>
+        /// <param name="atlasId">The atlas the tile is in</param>
+        /// <param name="zoomLevelId">The zoom level of the tile</param>
+        /// <param name="regionId">The region the tile is in</param>
+        /// <param name="tileId">The tile ID</param>
+        private void HandleIncompleteTile(String atlasId, String zoomLevelId, String regionId, String tileId)
+        {
+            String tmpDir = FS.BuildTempDir(OutputPath);
+            String copyTo = FS.BuildTempPath(tmpDir, zoomLevelId, regionId, tileId, atlasId);
+            String copyFrom = FS.GetTilePath(InputPath, atlasId, zoomLevelId, regionId, tileId);
+            File.Copy(copyFrom, copyTo, true);
         }
 
         /// <summary>
