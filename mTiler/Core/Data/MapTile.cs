@@ -24,7 +24,7 @@ namespace mTiler.Core.Data
         /// <summary>
         /// The amount of the back pixel color to keep when performing blends
         /// </summary>
-        private static readonly double BLEND_AMOUNT = 0.9;
+        private static readonly double BLEND_AMOUNT = 0.95;
 
         /// <summary>
         /// The path to the map tile on disk
@@ -155,8 +155,19 @@ namespace mTiler.Core.Data
                         }
                         else
                         {
-                            //Color workingBPixel = ImageUtil.averageColor(pixelA, pixelB);
-                            Color blendedPixel = ImageUtil.blend(pixelA, pixelB, BLEND_AMOUNT);
+                            int brightnessA = ImageUtil.getBrightness(pixelA);
+                            int brightnessB = ImageUtil.getBrightness(pixelB);
+                            Color blendedPixel;
+
+                            // Determine which order to mix the pixels in
+                            if (brightnessA > brightnessB)
+                            {
+                                blendedPixel = ImageUtil.blend(pixelB, pixelA, BLEND_AMOUNT);
+                            }
+                            else
+                            {
+                                blendedPixel = ImageUtil.blend(pixelA, pixelB, BLEND_AMOUNT);
+                            }
                             resultingTile.SetPixel(w, h, blendedPixel);
                         }
                     }

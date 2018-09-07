@@ -44,7 +44,7 @@ namespace mTiler.Core.Util
         /// <param name="c1">Color 1 for comparison</param>
         /// <param name="c2">Color 2 for comparison</param>
         /// <param name="threshold">The threshold for likeness</param>
-        /// <returns></returns>
+        /// <returns>True if colors are within closness threshold, else false</returns>
         public static bool colorsAreClose(Color c1, Color c2, int threshold)
         {
             int r = c1.R - c2.R;
@@ -59,7 +59,7 @@ namespace mTiler.Core.Util
         /// <param name="front">The front color for the blend</param>
         /// <param name="back">The back color</param>
         /// <param name="amt">The amount of the color to keep</param>
-        /// <returns></returns>
+        /// <returns>The blended color</returns>
         public static Color blend(Color front, Color back, double amt)
         {
             byte r = (byte)((front.R * amt) + back.R * (1 - amt));
@@ -67,6 +67,16 @@ namespace mTiler.Core.Util
             byte b = (byte)((front.B * amt) + back.B * (1 - amt));
 
             return Color.FromArgb(r, g, b);
+        }
+
+        /// <summary>
+        /// Calculates the brightness value of a color
+        /// </summary>
+        /// <param name="c">The color to calculate brightness value of</param>
+        /// <returns>The brightness of the color</returns>
+        public static int getBrightness(Color c)
+        {
+            return (int)Math.Sqrt(c.R * c.R * 0.241 + c.G * c.G * 0.691 + c.B * c.B * 0.068);
         }
 
     }
