@@ -247,12 +247,7 @@ namespace mTiler.Core
                                     Logger.Log("\tTile " + tileID + " from atlas " + atlasID + " at zoom level " + zoomLevelID + " for map region " + regionID + " is already complete.");
 
                                     // Copy the complete tile to the output path
-                                    String copyToDir = FS.BuildOutputDir(OutputPath, zoomLevelID, regionID);
-                                    String copyPath = Path.Combine(copyToDir, tileID);
-                                    String copyFromPath = FS.GetTilePath(InputPath, atlasID, zoomLevelID, regionID, tileID);
-                                    File.Copy(copyFromPath, copyPath, true);
-
-                                    // Update the progress
+                                    HandleCompleteTile(atlasID, zoomLevelID, regionID, tileID);
                                     UpdateProgress(++TotalProgress);
                                 } else
                                 {
@@ -379,6 +374,21 @@ namespace mTiler.Core
                     }
                 }
             }
+        }
+
+        /// <summary>
+        /// Handles a tile which is already complete by copying it to its final destination.
+        /// </summary>
+        /// <param name="atlasId">The ID for the atlas</param>
+        /// <param name="zoomLevelId">The zoom level for the tile</param>
+        /// <param name="regionId">The region the tile is in</param>
+        /// <param name="tileId">The tile ID</param>
+        private void HandleCompleteTile(String atlasId, String zoomLevelId, String regionId, String tileId)
+        {
+            String copyToDir = FS.BuildOutputDir(OutputPath, zoomLevelId, regionId);
+            String copyPath = Path.Combine(copyToDir, tileId);
+            String copyFromPath = FS.GetTilePath(InputPath, atlasId, zoomLevelId, regionId, tileId);
+            File.Copy(copyFromPath, copyPath, true);
         }
 
         /// <summary>
