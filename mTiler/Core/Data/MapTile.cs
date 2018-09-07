@@ -24,7 +24,7 @@ namespace mTiler.Core.Data
         /// <summary>
         /// The amount of the back pixel color to keep when performing blends
         /// </summary>
-        private static readonly double BLEND_AMOUNT = 0.95;
+        private static readonly double BLEND_AMOUNT = 0.999;
 
         /// <summary>
         /// The path to the map tile on disk
