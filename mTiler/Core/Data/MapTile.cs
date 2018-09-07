@@ -17,6 +17,11 @@ namespace mTiler.Core.Data
         private static readonly int WHITE_THRESHOLD = 50;
 
         /// <summary>
+        /// Threshold that is used when determining how alike colors are
+        /// </summary>
+        private static readonly int LIKENESS_THRESHOLD = 30;
+
+        /// <summary>
         /// The path to the map tile on disk
         /// </summary>
         private String path;
@@ -139,7 +144,15 @@ namespace mTiler.Core.Data
                     if (!ImageUtil.colorWithinThresholdOfWhite(pixelA, WHITE_THRESHOLD) && !ImageUtil.colorWithinThresholdOfWhite(pixelB, WHITE_THRESHOLD))
                     {
                         // Set to the average of the two pixels
-                        resultingTile.SetPixel(w, h, ImageUtil.averageColor(pixelA, pixelB));
+                        if (ImageUtil.colorsAreClose(pixelA, pixelB, LIKENESS_THRESHOLD))
+                        {
+                            resultingTile.SetPixel(w, h, pixelA);
+                        }
+                        else
+                        {
+                            //resultingTile.SetPixel(w, h, Color.FromArgb(255, 255, 0, 0));
+                            resultingTile.SetPixel(w, h, ImageUtil.averageColor(pixelA, pixelB));
+                        }
                     }
                     else if (!ImageUtil.colorWithinThresholdOfWhite(pixelA, WHITE_THRESHOLD))
                     {

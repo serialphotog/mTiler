@@ -38,5 +38,20 @@ namespace mTiler.Core.Util
             return Color.FromArgb(r, g, b);
         }
 
+        /// <summary>
+        /// Determines rather two colors are within a certain threshold of 'likeness'
+        /// </summary>
+        /// <param name="c1">Color 1 for comparison</param>
+        /// <param name="c2">Color 2 for comparison</param>
+        /// <param name="threshold">The threshold for likeness</param>
+        /// <returns></returns>
+        public static bool colorsAreClose(Color c1, Color c2, int threshold)
+        {
+            int r = c1.R - c2.R;
+            int g = c1.G - c2.G;
+            int b = c1.B - c2.B;
+            return (r * r + g * g + b * b) <= threshold * threshold;
+        }
+
     }
 }
