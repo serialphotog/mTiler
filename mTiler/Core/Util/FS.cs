@@ -12,7 +12,7 @@ namespace mTiler.Core.Util
         /// </summary>
         /// <param name="path">The path to enumerate directories for</param>
         /// <returns>String[] - All the directories within the path, or null if none</returns>
-        public static String[] enumerateDir(String path)
+        public static String[] EnumerateDir(String path)
         {
             if (!Directory.Exists(path))
             {
@@ -26,7 +26,7 @@ namespace mTiler.Core.Util
         /// </summary>
         /// <param name="path">The path to enumerate files for</param>
         /// <returns>String[] of files, else null</returns>
-        public static String[] enumerateFiles(String path)
+        public static String[] EnumerateFiles(String path)
         {
             if (!Directory.Exists(path))
             {
@@ -40,7 +40,7 @@ namespace mTiler.Core.Util
         /// </summary>
         /// <param name="path">The path</param>
         /// <returns>The name of the end item of the path</returns>
-        public static String getPathName(String path)
+        public static String GetPathName(String path)
         {
             return new DirectoryInfo(path).Name;
         }
@@ -50,7 +50,7 @@ namespace mTiler.Core.Util
         /// </summary>
         /// <param name="path">The path to get filename from</param>
         /// <returns>The name of the file in the path</returns>
-        public static String getFilename(String path)
+        public static String GetFilename(String path)
         {
             return Path.GetFileName(path);
         }
@@ -62,7 +62,7 @@ namespace mTiler.Core.Util
         /// <param name="zoomLevel">The zoom level</param>
         /// <param name="mapRegion">The map Region</param>
         /// <returns>The output path</returns>
-        public static String buildOutputDir(String outputDir, String zoomLevel, String mapRegion)
+        public static String BuildOutputDir(String outputDir, String zoomLevel, String mapRegion)
         {
             String output = Path.Combine(outputDir, zoomLevel, mapRegion);
             if (!Directory.Exists(output))
@@ -77,7 +77,7 @@ namespace mTiler.Core.Util
         /// </summary>
         /// <param name="outputDir">The output directory path</param>
         /// <returns>The path to the temporary directory</returns>
-        public static String buildTempDir(String outputDir)
+        public static String BuildTempDir(String outputDir)
         {
             String output = Path.Combine(outputDir, "_temp");
             if (!Directory.Exists(output))
@@ -96,7 +96,7 @@ namespace mTiler.Core.Util
         /// <param name="tileID">The tile ID</param>
         /// <param name="atlasID">The atlas ID</param>
         /// <returns>The output path</returns>
-        public static String buildTempPath(String tempDir, String zoomLevel, String regionID, String tileID, String atlasID)
+        public static String BuildTempPath(String tempDir, String zoomLevel, String regionID, String tileID, String atlasID)
         {
             String outPath = Path.Combine(tempDir, zoomLevel, regionID);
             if (!Directory.Exists(outPath))
@@ -115,7 +115,7 @@ namespace mTiler.Core.Util
         /// <param name="regionID">The region id for the tile</param>
         /// <param name="tileID">The tile id</param>
         /// <returns>The path to the tile</returns>
-        public static String getTilePath(String inputDir, String atlasID, String zoomLevelID, String regionID, String tileID)
+        public static String GetTilePath(String inputDir, String atlasID, String zoomLevelID, String regionID, String tileID)
         {
             return (String)Path.Combine(inputDir, atlasID, zoomLevelID, regionID, tileID);
         }
@@ -125,11 +125,11 @@ namespace mTiler.Core.Util
         /// </summary>
         /// <param name="tilePath">The path to the tile</param>
         /// <returns>The tile ID</returns>
-        public static String getTileID(String tilePath)
+        public static String GetTileID(String tilePath)
         {
             if (!String.IsNullOrWhiteSpace(tilePath))
             {
-                String tileFileName = FS.getFilename(tilePath);
+                String tileFileName = FS.GetFilename(tilePath);
                 int spacerLoc = tileFileName.IndexOf("_", StringComparison.Ordinal);
                 if (spacerLoc > 0)
                 {
@@ -143,7 +143,7 @@ namespace mTiler.Core.Util
         /// Deletes a given file from the filesystem
         /// </summary>
         /// <param name="path">The path to the file to delete</param>
-        public static void deleteFile(String path)
+        public static void DeleteFile(String path)
         {
             if (File.Exists(path))
             {
@@ -158,7 +158,7 @@ namespace mTiler.Core.Util
         /// <param name="outputDir">The directory to write to</param>
         /// <param name="name">The name to use</param>
         /// <returns>The path to the resulting PNG</returns>
-        public static String writeBitmapToJpeg(Bitmap bmp, String outputDir, String name)
+        public static String WriteBitmapToJpeg(Bitmap bmp, String outputDir, String name)
         {
             String path = (String)Path.Combine(outputDir, name + "_mergeresult" + ".png");
 

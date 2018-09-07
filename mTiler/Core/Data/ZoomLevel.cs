@@ -12,27 +12,27 @@ namespace mTiler.Core.Data
         /// <summary>
         /// The name of this zoom level
         /// </summary>
-        private String name;
+        private String Name;
 
         /// <summary>
         /// The path to this zoom level on disk
         /// </summary>
-        private String path;
+        private String Path;
 
         /// <summary>
         /// Reference to the logger component
         /// </summary>
-        private Logger logger;
+        private Logger Logger;
 
         /// <summary>
         /// The map regions within this zoom level
         /// </summary>
-        private MapRegion[] mapRegions;
+        private MapRegion[] MapRegions;
 
         /// <summary>
         /// The total number of tiles in this zoom level
         /// </summary>
-        public int nTiles = 0;
+        public int NTiles = 0;
 
         /// <summary>
         /// Initializes this zoom level
@@ -40,45 +40,45 @@ namespace mTiler.Core.Data
         /// <param name="path">The path to this zoom level on disk</param>
         public ZoomLevel(String path, Logger logger)
         {
-            this.path = path;
-            this.logger = logger;
-            this.name = FS.getPathName(path);
+            this.Path = path;
+            this.Logger = logger;
+            this.Name = FS.GetPathName(path);
 
             // Load the map regions within this zoom level
-            loadRegions();
+            LoadRegions();
         }
 
         /// <summary>
         /// Loads the map regions contained within this zoom level
         /// </summary>
-        private void loadRegions()
+        private void LoadRegions()
         {
-            logger.log("\tLoading map regions for zoom level: " + name);
+            Logger.Log("\tLoading map regions for zoom level: " + Name);
 
             // Find all of the map regions
-            String[] regionPaths = FS.enumerateDir(path);
+            String[] regionPaths = FS.EnumerateDir(Path);
             if (regionPaths != null && regionPaths.Length > 0)
             {
                 List<MapRegion> regions = new List<MapRegion>();
                 foreach (String dir in regionPaths)
                 {
-                    logger.log("\t\tFound map region: " + dir);
-                    MapRegion region = new MapRegion(dir, logger);
-                    nTiles += region.nTiles;
+                    Logger.Log("\t\tFound map region: " + dir);
+                    MapRegion region = new MapRegion(dir, Logger);
+                    NTiles += region.NTiles;
                     regions.Add(region);
                 }
 
                 // Check that we actually found some regions
                 if (regions == null || !(regions.Count > 0))
                 {
-                    logger.error("\tNo map regions found for zoom level: " + name);
+                    Logger.Error("\tNo map regions found for zoom level: " + Name);
                 } else
                 {
-                    this.mapRegions = regions.ToArray();
+                    this.MapRegions = regions.ToArray();
                 }
             } else
             {
-                logger.error("\tNo map regions found for zoom level: " + name);
+                Logger.Error("\tNo map regions found for zoom level: " + Name);
             }
         }
 
@@ -86,18 +86,18 @@ namespace mTiler.Core.Data
         /// Gets the map regions within this zoom level
         /// </summary>
         /// <returns></returns>
-        public MapRegion[] getMapRegions()
+        public MapRegion[] GetMapRegions()
         {
-            return mapRegions;
+            return MapRegions;
         }
 
         /// <summary>
         /// Returns the name of this zoom level.
         /// </summary>
         /// <returns></returns>
-        public String getName()
+        public String GetName()
         {
-            return name;
+            return Name;
         }
     }
 }

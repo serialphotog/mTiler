@@ -12,27 +12,27 @@ namespace mTiler.Core.Data
         /// <summary>
         /// The name of the atlas
         /// </summary>
-        private String name;
+        private String Name;
 
         /// <summary>
         /// The path to this atlas
         /// </summary>
-        private String path;
+        private String Path;
 
         /// <summary>
         /// Reference to the logger component
         /// </summary>
-        private Logger logger;
+        private Logger Logger;
 
         /// <summary>
         /// The zoom levels within this atlas
         /// </summary>
-        private ZoomLevel[] zoomLevels;
+        private ZoomLevel[] ZoomLevels;
 
         /// <summary>
         /// The total number of tiles in this atlas
         /// </summary>
-        public int nTiles = 0;
+        public int NTiles = 0;
 
         /// <summary>
         /// Initializes the atlas
@@ -41,45 +41,45 @@ namespace mTiler.Core.Data
         /// <param name="logger">Reference to the logger component</param>
         public Atlas(String path, Logger logger)
         {
-            this.logger = logger;
-            this.path = path;
-            this.name = FS.getPathName(path);
+            this.Logger = logger;
+            this.Path = path;
+            this.Name = FS.GetPathName(path);
 
             // Load the zoom levels
-            loadZoomLevels();
+            LoadZoomLevels();
         }
 
         /// <summary>
         /// Loads all of the zoom levels within this atlas project
         /// </summary>
-        private void loadZoomLevels()
+        private void LoadZoomLevels()
         {
-            logger.log("Loading zoom levels for atlas: " + name);
+            Logger.Log("Loading zoom levels for atlas: " + Name);
 
             // Find all of the zoom levels
-            String[] zoomPaths = FS.enumerateDir(path);
+            String[] zoomPaths = FS.EnumerateDir(Path);
             if (zoomPaths != null && zoomPaths.Length > 0)
             {
                 List<ZoomLevel> zooms = new List<ZoomLevel>();
                 foreach (String dir in zoomPaths)
                 {
-                    logger.log("\tFound zoom level: " + dir);
-                    ZoomLevel zoom = new ZoomLevel(dir, logger);
-                    nTiles += zoom.nTiles;
+                    Logger.Log("\tFound zoom level: " + dir);
+                    ZoomLevel zoom = new ZoomLevel(dir, Logger);
+                    NTiles += zoom.NTiles;
                     zooms.Add(zoom);
                 }
 
                 // Check that we actually found some zoom levels
                 if (zooms == null || !(zooms.Count > 0))
                 {
-                    logger.error("No zoom levels found for atlas project: " + name);
+                    Logger.Error("No zoom levels found for atlas project: " + Name);
                 } else
                 {
-                    this.zoomLevels = zooms.ToArray();
+                    this.ZoomLevels = zooms.ToArray();
                 }
             } else
             {
-                logger.error("No zoom levels found for atlas project: " + name);
+                Logger.Error("No zoom levels found for atlas project: " + Name);
             }
         }
 
@@ -87,18 +87,18 @@ namespace mTiler.Core.Data
         /// Returns the zoom levels within this atlas project
         /// </summary>
         /// <returns>ZoomLevel[] - The zoom levels</returns>
-        public ZoomLevel[] getZoomLevels()
+        public ZoomLevel[] GetZoomLevels()
         {
-            return zoomLevels;
+            return ZoomLevels;
         }
 
         /// <summary>
         /// Returns the name of this atlas.
         /// </summary>
         /// <returns></returns>
-        public String getName()
+        public String GetName()
         {
-            return name;
+            return Name;
         }
     }
 }

@@ -12,27 +12,27 @@ namespace mTiler.Core.Data
         /// <summary>
         /// The path to this region on disk
         /// </summary>
-        private String path;
+        private String Path;
 
         /// <summary>
         /// The name of this map region
         /// </summary>
-        private String name;
+        private String Name;
 
         /// <summary>
         /// Reference to the logging instance
         /// </summary>
-        private Logger logger;
+        private Logger Logger;
 
         /// <summary>
         /// The map tiles within this map region.
         /// </summary>
-        private MapTile[] mapTiles;
+        private MapTile[] MapTiles;
 
         /// <summary>
         /// Tracks the total number of tiles in this region
         /// </summary>
-        public int nTiles = 0;
+        public int NTiles = 0;
 
         /// <summary>
         /// Initializes a map region
@@ -40,44 +40,44 @@ namespace mTiler.Core.Data
         /// <param name="path">The path to this map region on disk</param>
         public MapRegion(String path, Logger logger)
         {
-            this.path = path;
-            this.logger = logger;
-            this.name = FS.getPathName(path);
+            this.Path = path;
+            this.Logger = logger;
+            this.Name = FS.GetPathName(path);
 
             // Load the tiles in this region
-            loadTiles();
+            LoadTiles();
         }
 
         /// <summary>
         /// Loads the tiles within this map region
         /// </summary>
-        private void loadTiles()
+        private void LoadTiles()
         {
-            logger.log("\t\tLoading tiles for map region: " + name);
+            Logger.Log("\t\tLoading tiles for map region: " + Name);
 
             // Find all of the tiles
-            String[] tilePaths = FS.enumerateFiles(path);
+            String[] tilePaths = FS.EnumerateFiles(Path);
             if (tilePaths != null && tilePaths.Length > 0)
             {
                 List<MapTile> tiles = new List<MapTile>();
                 foreach (String dir in tilePaths)
                 {
-                    logger.log("\t\t\tFound tile: " + dir);
-                    nTiles++;
-                    MapTile tile = new MapTile(dir, logger);
+                    Logger.Log("\t\t\tFound tile: " + dir);
+                    NTiles++;
+                    MapTile tile = new MapTile(dir, Logger);
                     tiles.Add(tile);
                 }
 
                 if (tiles == null || !(tiles.Count > 0))
                 {
-                    logger.error("\t\tNo tiles found for region " + name);
+                    Logger.Error("\t\tNo tiles found for region " + Name);
                 } else
                 {
-                    this.mapTiles = tiles.ToArray();
+                    this.MapTiles = tiles.ToArray();
                 }
             } else
             {
-                logger.error("\t\tNo tiles found for region " + name);
+                Logger.Error("\t\tNo tiles found for region " + Name);
             }
         }
 
@@ -85,18 +85,18 @@ namespace mTiler.Core.Data
         /// Returns the map tiles within this region
         /// </summary>
         /// <returns></returns>
-        public MapTile[] getMapTiles()
+        public MapTile[] GetMapTiles()
         {
-            return mapTiles;
+            return MapTiles;
         }
 
         /// <summary>
         /// Returns the name of this map region
         /// </summary>
         /// <returns></returns>
-        public String getName()
+        public String GetName()
         {
-            return name;
+            return Name;
         }
     }
 }

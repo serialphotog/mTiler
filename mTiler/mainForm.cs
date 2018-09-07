@@ -5,27 +5,27 @@ using System.Windows.Forms;
 
 namespace mTiler
 {
-    public partial class mainForm : Form
+    public partial class MainForm : Form
     {
         /// <summary>
         /// Reference to the logger instance
         /// </summary>
-        private Logger logger { get; set; }
+        private Logger Logger { get; set; }
 
         /// <summary>
         /// Reference to the tiling engine.
         /// </summary>
-        private TilingEngine tilingEngine;
+        private TilingEngine TilingEngine;
 
         /// <summary>
         /// The thread the tiling engine runs in
         /// </summary>
-        private Thread tilingEngineThread;
+        private Thread TilingEngineThread;
 
         /// <summary>
         /// Tracks the total work for the progress bar
         /// </summary>
-        private int totalWork = 0;
+        private int TotalWork = 0;
 
         /// <summary>
         /// Delegates to update the progress bar
@@ -37,7 +37,7 @@ namespace mTiler
         /// <summary>
         /// Initializes the main form
         /// </summary>
-        public mainForm()
+        public MainForm()
         {
             InitializeComponent();
 
@@ -49,14 +49,14 @@ namespace mTiler
             outputConsole.WordWrap = false;
 
             // Initialize the logger component 
-            this.logger = new Logger(this.outputConsole);
+            this.Logger = new Logger(this.outputConsole);
         }
 
         /// <summary>
         /// Allows the user to select a folder
         /// </summary>
         /// <returns>String - The path to the folder</returns>
-        private String openFolderPath()
+        private String OpenFolderPath()
         {
             FolderBrowserDialog dialog = new FolderBrowserDialog();
             if (dialog.ShowDialog() == DialogResult.OK)
@@ -73,9 +73,9 @@ namespace mTiler
         /// <param name="e"></param>
         private void btnCancel_Click(object sender, EventArgs e)
         {
-            if (tilingEngine != null)
-                tilingEngine.stopRequested = true;
-            logger.stopRequested = true;
+            if (TilingEngine != null)
+                TilingEngine.StopRequested = true;
+            Logger.StopRequested = true;
             Application.Exit();
         }
 
@@ -87,7 +87,7 @@ namespace mTiler
         private void inputPathBtn_Click(object sender, EventArgs e)
         {
             // Get the input path
-            String path = openFolderPath();
+            String path = OpenFolderPath();
             inputPathTxt.Text = path;
         }
 
@@ -98,7 +98,7 @@ namespace mTiler
         /// <param name="e"></param>
         private void outputPathBtn_Click(object sender, EventArgs e)
         {
-            String path = openFolderPath();
+            String path = OpenFolderPath();
             outputPathTxt.Text = path;
         }
 
@@ -110,23 +110,23 @@ namespace mTiler
         private async void btnStart_Click(object sender, EventArgs e)
         {
             // Initialize the tiling engine
-            tilingEngine = new TilingEngine(inputPathTxt.Text, outputPathTxt.Text, logger, this);
-            await tilingEngine.init();
+            TilingEngine = new TilingEngine(inputPathTxt.Text, outputPathTxt.Text, Logger, this);
+            await TilingEngine.Init();
 
             // Setup the progress bar
-            totalWork = tilingEngine.getNTiles();
-            progressBar.Maximum = totalWork;
+            TotalWork = TilingEngine.GetNTiles();
+            progressBar.Maximum = TotalWork;
             progressBar.Step = 1;
             progressBar.Value = 0;
             lblProgress.Text = "0%";
 
             // Spawn the thread for the tiling engine
-            if (totalWork > 0)
+            if (TotalWork > 0)
             {
-                tilingEngine.stopRequested = false;
-                ThreadStart tilingThreadChildRef = new ThreadStart(tilingEngine.tile);
-                tilingEngineThread = new Thread(tilingThreadChildRef);
-                tilingEngineThread.Start();
+                TilingEngine.StopRequested = false;
+                ThreadStart tilingThreadChildRef = new ThreadStart(TilingEngine.Tile);
+                TilingEngineThread = new Thread(tilingThreadChildRef);
+                TilingEngineThread.Start();
             }
         }
 
@@ -137,7 +137,7 @@ namespace mTiler
         /// <param name="progress"></param>
         private void updateProgress(int progress)
         {
-            double progressPercent = ((double)progress / totalWork) * 100;
+            double progressPercent = ((double)progress / TotalWork) * 100;
             lblProgress.Text = Decimal.Round((decimal)progressPercent, 0, MidpointRounding.AwayFromZero) + "%";
             progressBar.Value = progress;
         }

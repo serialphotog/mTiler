@@ -15,7 +15,7 @@ namespace mTiler.Core.Util
         /// <param name="color">The color to check</param>
         /// <param name="threshold">The threshold within white</param>
         /// <returns>True if within white threshold, else false</returns>
-        public static Boolean colorWithinThresholdOfWhite(Color color, int threshold)
+        public static Boolean ColorWithinThresholdOfWhite(Color color, int threshold)
         {
             int r = (int)(255 - color.R);
             int g = (int)(255 - color.G);
@@ -30,7 +30,7 @@ namespace mTiler.Core.Util
         /// <param name="c1">Color 1 for the average</param>
         /// <param name="c2">Color 2 for the average</param>
         /// <returns>The resulting, averaged color</returns>
-        public static Color averageColor(Color c1, Color c2)
+        public static Color AverageColor(Color c1, Color c2)
         {
             byte r = (byte)Math.Sqrt((c1.R * c1.R + c2.R * c2.R) / 2);
             byte g = (byte)Math.Sqrt((c1.G * c1.G + c2.G * c2.G) / 2);
@@ -45,7 +45,7 @@ namespace mTiler.Core.Util
         /// <param name="c2">Color 2 for comparison</param>
         /// <param name="threshold">The threshold for likeness</param>
         /// <returns>True if colors are within closness threshold, else false</returns>
-        public static bool colorsAreClose(Color c1, Color c2, int threshold)
+        public static bool ColorsAreClose(Color c1, Color c2, int threshold)
         {
             int r = c1.R - c2.R;
             int g = c1.G - c2.G;
@@ -60,7 +60,7 @@ namespace mTiler.Core.Util
         /// <param name="back">The back color</param>
         /// <param name="amt">The amount of the color to keep</param>
         /// <returns>The blended color</returns>
-        public static Color blend(Color front, Color back, double amt)
+        public static Color Blend(Color front, Color back, double amt)
         {
             byte r = (byte)((front.R * amt) + back.R * (1 - amt));
             byte g = (byte)((front.G * amt) + back.G * (1 - amt));
@@ -74,7 +74,7 @@ namespace mTiler.Core.Util
         /// </summary>
         /// <param name="c">The color to calculate brightness value of</param>
         /// <returns>The brightness of the color</returns>
-        public static int getBrightness(Color c)
+        public static int GetBrightness(Color c)
         {
             return (int)Math.Sqrt(c.R * c.R * 0.241 + c.G * c.G * 0.691 + c.B * c.B * 0.068);
         }

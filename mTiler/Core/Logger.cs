@@ -10,17 +10,17 @@ namespace mTiler.Core
 {
     class Logger
     {
-        delegate void loggingDelegate(String text);
+        delegate void LoggingDelegate(String text);
 
         /// <summary>
         /// Reference to the output window
         /// </summary>
-        private RichTextBox outputWindow { get; set; }
+        private RichTextBox OutputWindow { get; set; }
 
         /// <summary>
         /// Used to determine if an application exit has been requested
         /// </summary>
-        public volatile bool stopRequested = false;
+        public volatile bool StopRequested = false;
 
         /// <summary>
         /// Initializes the logger component
@@ -28,7 +28,7 @@ namespace mTiler.Core
         /// <param name="outputWindow">Reference to the output window textbox</param>
         public Logger(RichTextBox outputWindow)
         {
-            this.outputWindow = outputWindow;
+            this.OutputWindow = outputWindow;
         }
 
         /// <summary>
@@ -37,15 +37,15 @@ namespace mTiler.Core
         /// <param name="header">The header that gets printed before each message</param>
         /// <param name="msg">The message to log</param>
         /// <param name="color">The text color to log the message in</param>
-        private void log(String header, String msg, Color color)
+        private void Log(String header, String msg, Color color)
         {
-            if (!stopRequested)
+            if (!StopRequested)
             {
-                outputWindow.Invoke((Action)delegate // Make things thread-safe
+                OutputWindow.Invoke((Action)delegate // Make things thread-safe
                 {
-                    outputWindow.Select(outputWindow.TextLength, 0);
-                    outputWindow.SelectionColor = color;
-                    outputWindow.AppendText(header + msg + Environment.NewLine);
+                    OutputWindow.Select(OutputWindow.TextLength, 0);
+                    OutputWindow.SelectionColor = color;
+                    OutputWindow.AppendText(header + msg + Environment.NewLine);
                 });
             }
         }
@@ -54,18 +54,18 @@ namespace mTiler.Core
         /// Logs a message to the output window
         /// </summary>
         /// <param name="msg">The message to log</param>
-        public void log(String msg)
+        public void Log(String msg)
         {
-            log("[INFO]: ", msg, Color.Black);
+            Log("[INFO]: ", msg, Color.Black);
         }
 
         /// <summary>
         /// Logs an error to the output console
         /// </summary>
         /// <param name="msg">The error message to log</param>
-        public void error(String msg)
+        public void Error(String msg)
         {
-            log("[ERROR]: ", msg, Color.Red);
+            Log("[ERROR]: ", msg, Color.Red);
         }
     }
 }

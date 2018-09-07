@@ -14,32 +14,32 @@ namespace mTiler.Core.Data
         /// <summary>
         /// The threshold to use when checking for "white" pixels
         /// </summary>
-        private static readonly int WHITE_THRESHOLD = 50;
+        private static readonly int WhiteThreshold = 50;
 
         /// <summary>
         /// Threshold that is used when determining how alike colors are
         /// </summary>
-        private static readonly int LIKENESS_THRESHOLD = 30;
+        private static readonly int LikenessThreshold = 30;
 
         /// <summary>
         /// The amount of the back pixel color to keep when performing blends
         /// </summary>
-        private static readonly double BLEND_AMOUNT = 0.999;
+        private static readonly double BlendAmount = 0.999;
 
         /// <summary>
         /// The path to the map tile on disk
         /// </summary>
-        private String path;
+        private String Path;
 
         /// <summary>
         /// The name of this tile
         /// </summary>
-        private String name;
+        private String Name;
 
         /// <summary>
         /// The logger instance
         /// </summary>
-        private Logger logger;
+        private Logger Logger;
 
         /// <summary>
         /// Initializes a map tile.
@@ -47,19 +47,19 @@ namespace mTiler.Core.Data
         /// <param name="path">The path to the tile on disk</param>
         public MapTile(String path, Logger logger)
         {
-            this.path = path;
-            this.logger = logger;
-            this.name = FS.getFilename(path);
+            this.Path = path;
+            this.Logger = logger;
+            this.Name = FS.GetFilename(path);
         }
 
         /// <summary>
         /// Gets this tile as a Bitmap image
         /// </summary>
         /// <returns>The bitmap representation of this tile</returns>
-        public Bitmap getBitmap()
+        public Bitmap GetBitmap()
         {
             Bitmap result;
-            using (Stream bmpStream = File.Open(path, FileMode.Open))
+            using (Stream bmpStream = File.Open(Path, FileMode.Open))
             {
                 Image image = Image.FromStream(bmpStream);
                 result = new Bitmap(image);
@@ -71,9 +71,9 @@ namespace mTiler.Core.Data
         /// Determines if this tile is dataless (all white pixels).
         /// </summary>
         /// <returns>True if dataless, else false</returns>
-        public Boolean isDatalessTile()
+        public Boolean IsDatalessTile()
         {
-            Bitmap tileImage = getBitmap();
+            Bitmap tileImage = GetBitmap();
             int width = tileImage.Width;
             int height = tileImage.Height;
 
@@ -83,7 +83,7 @@ namespace mTiler.Core.Data
                 for (int y=0; y < height; y++) // loop over height
                 {
                     Color currentPixel = tileImage.GetPixel(x, y);
-                    if (ImageUtil.colorWithinThresholdOfWhite(currentPixel, WHITE_THRESHOLD))
+                    if (ImageUtil.ColorWithinThresholdOfWhite(currentPixel, WhiteThreshold))
                     {
                         return false;
                     }
@@ -97,9 +97,9 @@ namespace mTiler.Core.Data
         /// Determines if this is a complete tile (no empty pixels)
         /// </summary>
         /// <returns>True if tile data is complete, else false</returns>
-        public Boolean isComplete()
+        public Boolean IsComplete()
         {
-            Bitmap tileImage = getBitmap();
+            Bitmap tileImage = GetBitmap();
             int width = tileImage.Width;
             int height = tileImage.Height;
 
@@ -109,7 +109,7 @@ namespace mTiler.Core.Data
                 for (int y=0; y < height; y++)
                 {
                     Color currentPixel = tileImage.GetPixel(x, y);
-                    if (ImageUtil.colorWithinThresholdOfWhite(currentPixel, WHITE_THRESHOLD))
+                    if (ImageUtil.ColorWithinThresholdOfWhite(currentPixel, WhiteThreshold))
                     {
                         // Found a dataless pixel, tile is not complete
                         return false;
@@ -126,10 +126,10 @@ namespace mTiler.Core.Data
         /// <param name="tileB">Tile "B" for the merge</param>
         /// <param name="outputDir">The directory to write the resulting tile image to</param>
         /// <returns>The path to the resulting tile image</returns>
-        public static String mergeTiles(MapTile tileA, MapTile tileB, String outputDir)
+        public static String MergeTiles(MapTile tileA, MapTile tileB, String outputDir)
         {
-            Bitmap tileAImage = tileA.getBitmap();
-            Bitmap tileBImage = tileB.getBitmap();
+            Bitmap tileAImage = tileA.GetBitmap();
+            Bitmap tileBImage = tileB.GetBitmap();
 
             int width = tileAImage.Width;
             int height = tileBImage.Height;
@@ -146,32 +146,32 @@ namespace mTiler.Core.Data
                     Color pixelA = tileAImage.GetPixel(w, h);
                     Color pixelB = tileBImage.GetPixel(w, h);
 
-                    if (!ImageUtil.colorWithinThresholdOfWhite(pixelA, WHITE_THRESHOLD) && !ImageUtil.colorWithinThresholdOfWhite(pixelB, WHITE_THRESHOLD))
+                    if (!ImageUtil.ColorWithinThresholdOfWhite(pixelA, WhiteThreshold) && !ImageUtil.ColorWithinThresholdOfWhite(pixelB, WhiteThreshold))
                     {
                         // Set to the average of the two pixels
-                        if (ImageUtil.colorsAreClose(pixelA, pixelB, LIKENESS_THRESHOLD))
+                        if (ImageUtil.ColorsAreClose(pixelA, pixelB, LikenessThreshold))
                         {
                             resultingTile.SetPixel(w, h, pixelA);
                         }
                         else
                         {
-                            int brightnessA = ImageUtil.getBrightness(pixelA);
-                            int brightnessB = ImageUtil.getBrightness(pixelB);
+                            int brightnessA = ImageUtil.GetBrightness(pixelA);
+                            int brightnessB = ImageUtil.GetBrightness(pixelB);
                             Color blendedPixel;
 
                             // Determine which order to mix the pixels in
                             if (brightnessA > brightnessB)
                             {
-                                blendedPixel = ImageUtil.blend(pixelB, pixelA, BLEND_AMOUNT);
+                                blendedPixel = ImageUtil.Blend(pixelB, pixelA, BlendAmount);
                             }
                             else
                             {
-                                blendedPixel = ImageUtil.blend(pixelA, pixelB, BLEND_AMOUNT);
+                                blendedPixel = ImageUtil.Blend(pixelA, pixelB, BlendAmount);
                             }
                             resultingTile.SetPixel(w, h, blendedPixel);
                         }
                     }
-                    else if (!ImageUtil.colorWithinThresholdOfWhite(pixelA, WHITE_THRESHOLD))
+                    else if (!ImageUtil.ColorWithinThresholdOfWhite(pixelA, WhiteThreshold))
                     {
                         // This pixel has data, copy it
                         resultingTile.SetPixel(w, h, pixelA);
@@ -185,16 +185,16 @@ namespace mTiler.Core.Data
             }
 
             // Write the bitmap to disk and return the URI
-            return FS.writeBitmapToJpeg(resultingTile, outputDir, tileA.getName());
+            return FS.WriteBitmapToJpeg(resultingTile, outputDir, tileA.GetName());
         }
 
         /// <summary>
         /// Returns the name of this tile.
         /// </summary>
         /// <returns></returns>
-        public String getName()
+        public String GetName()
         {
-            return name;
+            return Name;
         }
     }
 }
