@@ -22,6 +22,11 @@ namespace mTiler.Core.Data
         private static readonly int LIKENESS_THRESHOLD = 30;
 
         /// <summary>
+        /// The amount of the back pixel color to keep when performing blends
+        /// </summary>
+        private static readonly double BLEND_AMOUNT = 0.9;
+
+        /// <summary>
         /// The path to the map tile on disk
         /// </summary>
         private String path;
@@ -150,8 +155,9 @@ namespace mTiler.Core.Data
                         }
                         else
                         {
-                            //resultingTile.SetPixel(w, h, Color.FromArgb(255, 255, 0, 0));
-                            resultingTile.SetPixel(w, h, ImageUtil.averageColor(pixelA, pixelB));
+                            //Color workingBPixel = ImageUtil.averageColor(pixelA, pixelB);
+                            Color blendedPixel = ImageUtil.blend(pixelA, pixelB, BLEND_AMOUNT);
+                            resultingTile.SetPixel(w, h, blendedPixel);
                         }
                     }
                     else if (!ImageUtil.colorWithinThresholdOfWhite(pixelA, WHITE_THRESHOLD))

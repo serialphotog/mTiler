@@ -53,5 +53,21 @@ namespace mTiler.Core.Util
             return (r * r + g * g + b * b) <= threshold * threshold;
         }
 
+        /// <summary>
+        /// Blends two colors together.
+        /// </summary>
+        /// <param name="front">The front color for the blend</param>
+        /// <param name="back">The back color</param>
+        /// <param name="amt">The amount of the color to keep</param>
+        /// <returns></returns>
+        public static Color blend(Color front, Color back, double amt)
+        {
+            byte r = (byte)((front.R * amt) + back.R * (1 - amt));
+            byte g = (byte)((front.G * amt) + back.G * (1 - amt));
+            byte b = (byte)((front.B * amt) + back.B * (1 - amt));
+
+            return Color.FromArgb(r, g, b);
+        }
+
     }
 }
