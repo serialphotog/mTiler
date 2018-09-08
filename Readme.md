@@ -36,6 +36,12 @@ The vast majority of these tiles contain incomplete data. For example:
 
 The purpose of this app is to compare the tiles from the map regions across all of the atlas project to align them and create a new tile with all of the missing data filled in.
 
+# Usage
+
+mTiler is designed to be extremely easy to use. Simply set the input path to point to the raw tiles that need to be merged and the output path to be the directory you want the resulting, merged tiles to be written to. Once this is done, simply hit the *Start* button and let mTiler do its thing!
+
+**NOTE:** I recommend making your output directory seperate from the input directory, though it isn't necessary.It'll simply keep things cleaner ;)
+
 # License
 
 Copyright 2018 Adam Thompson
