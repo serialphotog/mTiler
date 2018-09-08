@@ -70,6 +70,11 @@ namespace mTiler.Core
         private int TotalProgress = 0;
 
         /// <summary>
+        /// Used to store tiles that need to be processed
+        /// </summary>
+        private List<String> ProcessQueue = new List<string>();
+
+        /// <summary>
         /// Initializes the tiling engine
         /// </summary>
         /// <param name="inputPath">The path to the input directory</param>
@@ -263,6 +268,12 @@ namespace mTiler.Core
                                     tileIsHandled = true;
                                     Logger.Log("\tTile " + tileID + " from atlas " + atlasID + " at zoom level " + zoomLevelID + " for map region " + regionID + " is already complete.");
 
+                                    // Remove any incomplete versions of the tile from the process queue
+                                    if (ProcessQueue.Contains(regionTileID))
+                                    {
+                                        ProcessQueue.RemoveAll(s => s == regionTileID);
+                                    }
+
                                     // Copy the complete tile to the output path
                                     HandleCompleteTile(atlasID, zoomLevelID, regionID, tileID);
                                     UpdateProgress(++TotalProgress);
@@ -270,6 +281,7 @@ namespace mTiler.Core
                                 {
                                     // Copy the tiles to a temporary working directory for further processing.
                                     tileIsHandled = false;
+                                    ProcessQueue.Add(regionTileID);
                                     HandleIncompleteTile(atlasID, zoomLevelID, regionID, tileID);
                                 }
                             }
@@ -321,6 +333,15 @@ namespace mTiler.Core
 
                         // Get the tileID
                         String tileID = FS.GetTileID(tiles[i]);
+
+                        // Ensure that this tile still needs to be processed
+                        String regionTileID = zoomLevelName + mapRegionName + tileID;
+                        if (!ProcessQueue.Contains(regionTileID))
+                        {
+                            UpdateProgress(++TotalProgress);
+                            continue;
+                        }
+
                         Logger.Log("Handling incomplete tile with id: " + tileID);
                         List<String> currentTileCrop = new List<string>();
                         currentTileCrop.Add(tiles[i]);
