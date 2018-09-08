@@ -273,6 +273,10 @@ namespace mTiler.Core
                                     HandleIncompleteTile(atlasID, zoomLevelID, regionID, tileID);
                                 }
                             }
+                            else
+                            {
+                                UpdateProgress(++TotalProgress);
+                            }
 
                             if (tileIsHandled)
                             {
