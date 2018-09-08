@@ -29,6 +29,11 @@ namespace mTiler.Core.Data
     class MapTile
     {
         /// <summary>
+        /// The white point for determining if tiles are dataless
+        /// </summary>
+        private static readonly Color WhitePoint = Color.FromArgb(255, 253, 253, 253);
+
+        /// <summary>
         /// The threshold to use when checking for "white" pixels
         /// </summary>
         private static readonly int WhiteThreshold = 75;
@@ -100,7 +105,7 @@ namespace mTiler.Core.Data
                 for (int y=0; y < height; y++) // loop over height
                 {
                     Color currentPixel = tileImage.GetPixel(x, y);
-                    if (ImageUtil.ColorWithinThresholdOfWhite(currentPixel, WhiteThreshold))
+                    if (currentPixel != WhitePoint)
                     {
                         return false;
                     }
