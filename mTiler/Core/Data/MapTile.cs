@@ -49,6 +49,11 @@ namespace mTiler.Core.Data
         private static readonly double BlendAmount = 0.999;
 
         /// <summary>
+        /// The threshold for determining rather a tile is dataless or not
+        /// </summary>
+        private static readonly int DatalessThreshold = (int)((256 * 256) * 0.01);
+
+        /// <summary>
         /// The path to the map tile on disk
         /// </summary>
         private String Path;
@@ -125,16 +130,21 @@ namespace mTiler.Core.Data
             int width = tileImage.Width;
             int height = tileImage.Height;
 
+            int datalessCount = 0; // Tracks the total number of dataless pixels found
+
             // Determine if the image lacks all white pixels
             for (int x=0; x < width; x++)
             {
                 for (int y=0; y < height; y++)
                 {
+                    if (datalessCount >= DatalessThreshold)
+                        return false;
+
                     Color currentPixel = tileImage.GetPixel(x, y);
-                    if (ImageUtil.ColorWithinThresholdOfWhite(currentPixel, WhiteThreshold))
+                    if (currentPixel == WhitePoint)
                     {
                         // Found a dataless pixel, tile is not complete
-                        return false;
+                        datalessCount++;
                     }
                 }
             }
