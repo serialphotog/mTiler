@@ -220,6 +220,7 @@ namespace mTiler.Core
 
                 // Iterate through the zoom levels
                 ZoomLevel[] zoomLevels = Atlases[currentAtlas].GetZoomLevels();
+                if (zoomLevels == null || zoomLevels.Length <= 0) continue;
                 for (int currentZoom = 0; currentZoom < zoomLevels.Length; currentZoom++)
                 {
                     ZoomLevel zoom = zoomLevels[currentZoom];
@@ -227,6 +228,7 @@ namespace mTiler.Core
 
                     // Iterate through the map regions
                     MapRegion[] mapRegions = zoomLevels[currentZoom].GetMapRegions();
+                    if (mapRegions == null || mapRegions.Length <= 0) continue;
                     for (int currentRegion = 0; currentRegion < mapRegions.Length; currentRegion++)
                     {
                         MapRegion region = mapRegions[currentRegion];
@@ -234,6 +236,7 @@ namespace mTiler.Core
 
                         // Iterate through the tiles
                         MapTile[] mapTiles = mapRegions[currentRegion].GetMapTiles();
+                        if (mapTiles == null || mapTiles.Length <= 0) continue;
                         for (int currentTile = 0; currentTile < mapTiles.Length; currentTile++)
                         {
                             if (StopRequested) // User requested thread be stopped
