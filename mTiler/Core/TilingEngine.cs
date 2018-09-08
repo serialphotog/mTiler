@@ -350,17 +350,13 @@ namespace mTiler.Core
                             }
 
                             // Copy the merged tile result to the final location
-                            String copyToDir = FS.BuildOutputDir(OutputPath, zoomLevelName, mapRegionName);
-                            String copyPath = Path.Combine(copyToDir, FS.GetTileID(mergeResult));
-                            File.Copy(mergeResult, copyPath, true);
+                            HandleMergedTile(zoomLevelName, mapRegionName, mergeResult);
                         }
                         else
                         {
                             // There are not multiple of these tiles, just copy it to the output directory
                             Logger.Log("\tThere is only one incomplete tile with id " + tileID + " in zoom level " + zoomLevelName + " and map region " + mapRegionName + ". copying it to output directory");
-                            String copyToDir = FS.BuildOutputDir(OutputPath, zoomLevelName, mapRegionName);
-                            String copyPath = Path.Combine(copyToDir, tileID);
-                            File.Copy(tiles[i], copyPath, true);
+                            HandleIncompleteNonMergedTile(zoomLevelName, mapRegionName, tileID, tiles[i]);
 
                             // Delete the temporary tile file
                             FS.DeleteFile(tiles[i]);
@@ -401,6 +397,33 @@ namespace mTiler.Core
             String copyTo = FS.BuildTempPath(tmpDir, zoomLevelId, regionId, tileId, atlasId);
             String copyFrom = FS.GetTilePath(InputPath, atlasId, zoomLevelId, regionId, tileId);
             File.Copy(copyFrom, copyTo, true);
+        }
+
+        /// <summary>
+        /// Handles a merged tile by copying it to the final destination.
+        /// </summary>
+        /// <param name="zoomLevelId">The zoom level of this tile</param>
+        /// <param name="regionId">The region this tile is in</param>
+        /// <param name="mergedTile">The path to the merged tile file</param>
+        private void HandleMergedTile(String zoomLevelId, String regionId, String mergedTile)
+        {
+            String copyTo = FS.BuildOutputDir(OutputPath, zoomLevelId, regionId);
+            String copyFrom = Path.Combine(copyTo, FS.GetTileID(mergedTile));
+            File.Copy(mergedTile, copyFrom, true);
+        }
+
+        /// <summary>
+        /// Handles incomplete tiles that could not be merged by copying them to the final destination
+        /// </summary>
+        /// <param name="zoomLevelId">The zoom level of the tile</param>
+        /// <param name="regionId">The region the tile is in</param>
+        /// <param name="tileId">The tile id</param>
+        /// <param name="tile">The path to the tile on disk</param>
+        private void HandleIncompleteNonMergedTile(String zoomLevelId, String regionId, String tileId, String tile)
+        {
+            String copyTo = FS.BuildOutputDir(OutputPath, zoomLevelId, regionId);
+            String copyPath = Path.Combine(copyTo, tileId);
+            File.Copy(tile, copyPath, true);
         }
 
         /// <summary>
