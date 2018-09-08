@@ -295,6 +295,7 @@ namespace mTiler.Core
             // Delete the temp directory
             Logger.Log("Cleaning up the temporary directory");
             Directory.Delete(FS.BuildTempDir(OutputPath), true);
+            Logger.Log("Complete!");
         }
 
         /// <summary>
