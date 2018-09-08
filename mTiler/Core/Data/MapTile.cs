@@ -152,6 +152,34 @@ namespace mTiler.Core.Data
         }
 
         /// <summary>
+        /// Returns a completeness rating for this tile.
+        /// Completeness is just a measure of how many data pixels there are
+        /// </summary>
+        /// <returns>int representing the completeness.</returns>
+        public int GetCompleteness()
+        {
+            Bitmap tileImage = GetBitmap();
+            int width = tileImage.Width;
+            int height = tileImage.Height;
+            int dataPixels = 0;
+
+            // Count the data-containing pixels
+            for (int x=0; x < width; x++)
+            {
+                for (int y=0; y < height; y++)
+                {
+                    Color currentPixel = tileImage.GetPixel(x, y);
+                    if (currentPixel != WhitePoint)
+                    {
+                        dataPixels++;
+                    }
+                }
+            }
+
+            return dataPixels;
+        }
+
+        /// <summary>
         /// Merges two map tiles together
         /// </summary>
         /// <param name="tileA">Tile "A" for the merge</param>

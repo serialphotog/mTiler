@@ -250,6 +250,26 @@ namespace mTiler.Core
                             // future search. This is done for the case in which we have an all-white tile (a tile with no usuable data).
                             Boolean tileIsHandled = false;
 
+                            // There are some instances in which a tile will be marked as complete, but
+                            // there is a slightly more complete version available. This is a result of
+                            // the way we are checking for completeness. This check is to fix that.
+                            Boolean tileIsComplete = tile.IsComplete();
+                            if (visitedTiles.Contains(regionTileID) && tileIsComplete)
+                            {
+                                String currentCompleteTilePath = FS.GetTileFromOutput(OutputPath, zoomLevelID, regionID, tileID);
+                                MapTile currentCompleteTile = new MapTile(currentCompleteTilePath, Logger);
+
+                                // Determine which tile to keep by measuring completeness
+                                int currentComp = currentCompleteTile.GetCompleteness();
+                                int thisComp = tile.GetCompleteness();
+
+                                if (thisComp > currentComp)
+                                {
+                                    // This tile is more complete than the old one, replace it
+                                    HandleCompleteTile(atlasID, zoomLevelID, regionID, tileID);
+                                }
+                            }
+
                             // Don't handle the tile more than once
                             if (!visitedTiles.Contains(regionTileID))
                             {
@@ -262,7 +282,7 @@ namespace mTiler.Core
                                     Logger.Log("\tTile " + tileID + " from atlas " + atlasID + " at zoom level " + zoomLevelID + " for map region " + regionID + " has no data. Ignoring it...");
                                     UpdateProgress(++TotalProgress);
                                 }
-                                else if (tile.IsComplete())
+                                else if (tileIsComplete)
                                 {
                                     // This tile is complete, ignore other versions of it and copy it to destination
                                     tileIsHandled = true;

@@ -192,5 +192,19 @@ namespace mTiler.Core.Util
             return path;
         }
 
+        /// <summary>
+        /// Gets the path to a tile in the output directory
+        /// </summary>
+        /// <param name="output">The output path</param>
+        /// <param name="zoomLevel">The zoom level of the tile</param>
+        /// <param name="mapRegion">The region the tile is in</param>
+        /// <param name="tileId">The tile's id</param>
+        /// <returns>The path to the tile on disk</returns>
+        public static String GetTileFromOutput(String output, String zoomLevel, String mapRegion, String tileId)
+        {
+            String outputDir = FS.BuildOutputDir(output, zoomLevel, mapRegion);
+            return Path.Combine(outputDir, tileId);
+        }
+
     }
 }
