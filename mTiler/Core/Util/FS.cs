@@ -19,11 +19,17 @@ using System;
 using System.Drawing;
 using System.Drawing.Imaging;
 using System.IO;
+using System.Linq;
 
 namespace mTiler.Core.Util
 {
     class FS
     {
+        /// <summary>
+        /// Used to help generate random strings for merge result file names
+        /// </summary>
+        private static Random rand = new Random();
+
         /// <summary>
         /// Enumerates all of the directories within a path.
         /// </summary>
@@ -169,6 +175,29 @@ namespace mTiler.Core.Util
         }
 
         /// <summary>
+        /// Generates a random string to be used on the end of merge result file names
+        /// </summary>
+        /// <param name="length">The length of the random string</param>
+        /// <returns>The random string</returns>
+        private static String RandomString(int length)
+        {
+            const string chars = "ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789";
+            return new string(Enumerable.Repeat(chars, length).Select(s => s[rand.Next(s.Length)]).ToArray());
+        }
+
+        private static String CleanupMergeName(String name)
+        {
+            if (name.Contains("_mergeresult"))
+            {
+                name = name.Substring(name.Length - 20);
+                String uuid = RandomString(4);
+                name += "_mergeresult" + uuid + ".jpg";
+            }
+
+            return name;
+        }
+
+        /// <summary>
         /// Writes a bitmap to disk as a PNG
         /// </summary>
         /// <param name="bmp">The bitmap to write to disk</param>
@@ -177,7 +206,10 @@ namespace mTiler.Core.Util
         /// <returns>The path to the resulting PNG</returns>
         public static String WriteBitmapToJpeg(Bitmap bmp, String outputDir, String name)
         {
-            String path = (String)Path.Combine(outputDir, name + "_mergeresult" + ".png");
+            // Cleanup the name
+
+
+            String path = (String)Path.Combine(outputDir, CleanupMergeName(name));
 
             using (MemoryStream memory = new MemoryStream())
             {
