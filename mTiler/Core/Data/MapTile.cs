@@ -121,57 +121,33 @@ namespace mTiler.Core.Data
         }
 
         /// <summary>
-        /// Determines if this is a complete tile (no empty pixels)
+        /// Determines if a tile is complete and, if so, how complete it is.
         /// </summary>
-        /// <returns>True if tile data is complete, else false</returns>
-        public Boolean IsComplete()
-        {
-            Bitmap tileImage = GetBitmap();
-            int width = tileImage.Width;
-            int height = tileImage.Height;
-
-            int datalessCount = 0; // Tracks the total number of dataless pixels found
-
-            // Determine if the image lacks all white pixels
-            for (int x=0; x < width; x++)
-            {
-                for (int y=0; y < height; y++)
-                {
-                    if (datalessCount >= DatalessThreshold)
-                        return false;
-
-                    Color currentPixel = tileImage.GetPixel(x, y);
-                    if (currentPixel == WhitePoint)
-                    {
-                        // Found a dataless pixel, tile is not complete
-                        datalessCount++;
-                    }
-                }
-            }
-            return true;
-        }
-
-        /// <summary>
-        /// Returns a completeness rating for this tile.
-        /// Completeness is just a measure of how many data pixels there are
-        /// </summary>
-        /// <returns>int representing the completeness.</returns>
-        public int GetCompleteness()
+        /// <returns>-1 if not complete, else returns a value representing how complete a pixel is</returns>
+        public int IsComplete()
         {
             Bitmap tileImage = GetBitmap();
             int width = tileImage.Width;
             int height = tileImage.Height;
             int dataPixels = 0;
+            int datalessPixels = 0;
 
             // Count the data-containing pixels
-            for (int x=0; x < width; x++)
+            for (int x = 0; x < width; x++)
             {
-                for (int y=0; y < height; y++)
+                for (int y = 0; y < height; y++)
                 {
+                    if (datalessPixels >= DatalessThreshold)
+                        return -1;
+
                     Color currentPixel = tileImage.GetPixel(x, y);
                     if (currentPixel != WhitePoint)
                     {
                         dataPixels++;
+                    }
+                    else
+                    {
+                        datalessPixels++;
                     }
                 }
             }

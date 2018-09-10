@@ -19,6 +19,7 @@ using mTiler.Core.Data;
 using mTiler.Core.Util;
 using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.IO;
 using System.Threading.Tasks;
 
@@ -73,6 +74,11 @@ namespace mTiler.Core
         /// Used to store tiles that need to be processed
         /// </summary>
         private List<String> ProcessQueue = new List<string>();
+
+        /// <summary>
+        /// Used to time execution.
+        /// </summary>
+        private Stopwatch Stopwatch;
 
         /// <summary>
         /// Initializes the tiling engine
@@ -204,6 +210,7 @@ namespace mTiler.Core
         /// </summary>
         public void Tile()
         {
+            this.Stopwatch = Stopwatch.StartNew();
             Logger.Log("Performing the tiling operations...");
             TotalProgress = 0;
 
@@ -256,15 +263,15 @@ namespace mTiler.Core
                             // There are some instances in which a tile will be marked as complete, but
                             // there is a slightly more complete version available. This is a result of
                             // the way we are checking for completeness. This check is to fix that.
-                            Boolean tileIsComplete = tile.IsComplete();
-                            if (visitedTiles.Contains(regionTileID) && tileIsComplete)
+                            int tileIsComplete = tile.IsComplete();
+                            if (visitedTiles.Contains(regionTileID) && (tileIsComplete > 0))
                             {
                                 String currentCompleteTilePath = FS.GetTileFromOutput(OutputPath, zoomLevelID, regionID, tileID);
                                 MapTile currentCompleteTile = new MapTile(currentCompleteTilePath, Logger);
 
                                 // Determine which tile to keep by measuring completeness
-                                int currentComp = currentCompleteTile.GetCompleteness();
-                                int thisComp = tile.GetCompleteness();
+                                int currentComp = tileIsComplete;
+                                int thisComp = tile.IsComplete();
 
                                 if (thisComp > currentComp)
                                 {
@@ -285,7 +292,7 @@ namespace mTiler.Core
                                     Logger.Log("\tTile " + tileID + " from atlas " + atlasID + " at zoom level " + zoomLevelID + " for map region " + regionID + " has no data. Ignoring it...");
                                     UpdateProgress(++TotalProgress);
                                 }
-                                else if (tileIsComplete)
+                                else if (tileIsComplete > 0)
                                 {
                                     // This tile is complete, ignore other versions of it and copy it to destination
                                     tileIsHandled = true;
@@ -330,7 +337,9 @@ namespace mTiler.Core
             // Delete the temp directory
             Logger.Log("Cleaning up the temporary directory");
             Directory.Delete(FS.BuildTempDir(OutputPath), true);
-            Logger.Log("Complete!");
+            Stopwatch.Stop();
+            var elapsedTime = Stopwatch.ElapsedMilliseconds;
+            Logger.Log("Complete! Tiling took " + elapsedTime + "ms");
         }
 
         /// <summary>
