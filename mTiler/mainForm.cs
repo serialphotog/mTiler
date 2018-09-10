@@ -18,6 +18,7 @@ TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR TH
 using mTiler.Core;
 using System;
 using System.Threading;
+using System.Threading.Tasks;
 using System.Windows.Forms;
 
 namespace mTiler
@@ -128,7 +129,9 @@ namespace mTiler
         {
             // Initialize the tiling engine
             TilingEngine = new TilingEngine(inputPathTxt.Text, outputPathTxt.Text, Logger, this);
-            await TilingEngine.Init();
+
+            // Load the data for the tiling engine
+            await Task.Run(() => TilingEngine.Init());
 
             // Setup the progress bar
             TotalWork = TilingEngine.GetNTiles();
