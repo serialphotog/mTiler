@@ -32,6 +32,11 @@ namespace mTiler.Core.Data
         private String Path;
 
         /// <summary>
+        /// The zoom level this region is a part of
+        /// </summary>
+        private ZoomLevel Zoom;
+
+        /// <summary>
         /// The name of this map region
         /// </summary>
         private String Name;
@@ -55,11 +60,12 @@ namespace mTiler.Core.Data
         /// Initializes a map region
         /// </summary>
         /// <param name="path">The path to this map region on disk</param>
-        public MapRegion(String path, Logger logger)
+        public MapRegion(String path, ZoomLevel zoomLevel, Logger logger)
         {
-            this.Path = path;
-            this.Logger = logger;
-            this.Name = FS.GetPathName(path);
+            Path = path;
+            Zoom = zoomLevel;
+            Logger = logger;
+            Name = FS.GetPathName(path);
 
             // Load the tiles in this region
             LoadTiles();
@@ -81,7 +87,7 @@ namespace mTiler.Core.Data
                 {
                     Logger.Log("\t\t\tFound tile: " + dir);
                     NTiles++;
-                    MapTile tile = new MapTile(dir, Logger);
+                    MapTile tile = new MapTile(dir, Zoom, this, Logger);
                     tiles.Add(tile);
                 }
 
@@ -114,6 +120,15 @@ namespace mTiler.Core.Data
         public String GetName()
         {
             return Name;
+        }
+
+        /// <summary>
+        /// Gets the zoom level this map region is a part of
+        /// </summary>
+        /// <returns></returns>
+        public ZoomLevel GetZoomLevel()
+        {
+            return Zoom;
         }
     }
 }
