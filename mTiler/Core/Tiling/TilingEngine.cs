@@ -23,7 +23,7 @@ using System.Diagnostics;
 using System.IO;
 using System.Threading.Tasks;
 
-namespace mTiler.Core
+namespace mTiler.Core.Tiling
 {
     /// <summary>
     /// The tiling engine. Performs the actual tiling work.
