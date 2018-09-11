@@ -23,7 +23,7 @@ using System.Text;
 using System.Threading.Tasks;
 using System.Windows.Forms;
 
-namespace mTiler.Core
+namespace mTiler.Core.Util
 {
     class Logger
     {
