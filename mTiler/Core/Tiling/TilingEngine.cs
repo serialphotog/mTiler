@@ -296,6 +296,7 @@ namespace mTiler.Core.Tiling
                         // Remove any incomplete version from the process queue, if present
                         if (MergeQueue.ContainsKey(currentTileRegionId))
                         {
+                            Progress.Update(MergeQueue[currentTileRegionId].Count);
                             MergeQueue.Remove(currentTileRegionId);
                         }
 
