@@ -142,7 +142,7 @@ namespace mTiler
             await Task.Run(() => TilingEngine.Init());
 
             // Setup the progress bar
-            TotalWork = TilingEngine.GetNTiles();
+            TotalWork = TilingEngine.GetTotalTiles();
             progressBar.Maximum = TotalWork;
             progressBar.Step = 1;
             progressBar.Value = 0;
