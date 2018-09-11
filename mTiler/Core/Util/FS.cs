@@ -129,6 +129,16 @@ namespace mTiler.Core.Util
             return (String)Path.Combine(outPath, tileID + "_" + atlasID + ".jpg");
         }
 
+        public static String BuildTempPath(String tempDir, String zoomLevel, String regionID, String tileID)
+        {
+            String outPath = Path.Combine(tempDir, zoomLevel, regionID);
+            if (!Directory.Exists(outPath))
+            {
+                Directory.CreateDirectory(outPath);
+            }
+            return (String)Path.Combine(outPath, tileID + ".jpg");
+        }
+
         /// <summary>
         /// Gets the path of a tile
         /// </summary>

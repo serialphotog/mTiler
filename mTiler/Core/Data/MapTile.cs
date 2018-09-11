@@ -59,6 +59,11 @@ namespace mTiler.Core.Data
         private String Path;
 
         /// <summary>
+        /// The atlas this tile orginally belongs to
+        /// </summary>
+        private Atlas Atlas;
+
+        /// <summary>
         /// The zoom level of this tile
         /// </summary>
         private ZoomLevel Zoom;
@@ -82,11 +87,12 @@ namespace mTiler.Core.Data
         /// Initializes a map tile.
         /// </summary>
         /// <param name="path">The path to the tile on disk</param>
-        public MapTile(String path, ZoomLevel zoomLevel, MapRegion mapRegion, Logger logger)
+        public MapTile(String path, Atlas atlas, ZoomLevel zoomLevel, MapRegion mapRegion, Logger logger)
         {
             Path = path;
             Zoom = zoomLevel;
             Region = mapRegion;
+            Atlas = atlas;
             Logger = logger;
             Name = FS.GetFilename(path);
         }
@@ -268,6 +274,24 @@ namespace mTiler.Core.Data
         public MapRegion GetMapRegion()
         {
             return Region;
+        }
+
+        /// <summary>
+        /// The atlas this tile belongs to
+        /// </summary>
+        /// <returns></returns>
+        public Atlas GetAtlas()
+        {
+            return Atlas;
+        }
+
+        /// <summary>
+        /// Gets the path to the tile on disk
+        /// </summary>
+        /// <returns></returns>
+        public String GetPath()
+        {
+            return Path;
         }
     }
 }

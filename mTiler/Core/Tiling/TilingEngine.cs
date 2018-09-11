@@ -53,7 +53,7 @@ namespace mTiler.Core.Tiling
         /// <summary>
         /// The atlases within the project
         /// </summary>
-        private Atlas[] Atlases;
+        private List<Atlas> Atlases;
 
         /// <summary>
         /// The total number of loaded tiles
@@ -74,6 +74,11 @@ namespace mTiler.Core.Tiling
         /// Used to time execution.
         /// </summary>
         private Stopwatch Stopwatch;
+
+        /// <summary>
+        /// The buffer the tiles are initially loaded into before they are processed.
+        /// </summary>
+        private List<MapTile> TileLoadBuffer;
 
         /// <summary>
         /// Initializes the tiling engine
@@ -102,7 +107,7 @@ namespace mTiler.Core.Tiling
                 if (ValidateOutputPath(OutputPath))
                 {
                     // Enumerate the atlases and kick off loading all of the data
-                    await LoadAtlases();
+                    await PerformInitialLoad();
                 }
             }
         }
@@ -157,190 +162,164 @@ namespace mTiler.Core.Tiling
             return true;
         }
 
-        /// <summary>
-        /// Loads all the atlas projects from the input directory
-        /// </summary>
 #pragma warning disable 1998
-        private async Task LoadAtlases()
+        /// <summary>
+        /// Performs the initial data load
+        /// </summary>
+        /// <returns></returns>
+        private async Task PerformInitialLoad()
         {
-            Logger.Log("Loading atlas projects from " + InputPath);
+            Logger.Log("Performing initial data load from " + InputPath);
+            LoadAtlases();
+            LoadTiles();
+        }
+#pragma warning restore 1998
 
-            // Find all of the atlas projects in the input path
+        /// <summary>
+        /// Loads all of the atlases in the project directory
+        /// </summary>
+        private void LoadAtlases()
+        {
+            Logger.Log("Loading atlases...");
+
             String[] potentialAtlases = FS.EnumerateDir(InputPath);
-
+            Atlases = new List<Atlas>();
             if (potentialAtlases != null && potentialAtlases.Length > 0)
             {
-                List<Atlas> atlases = new List<Atlas>();
                 foreach (String dir in potentialAtlases)
                 {
-                    // Filter out all non atlas dirs.
-                    // For now, the filtering is very basic and just looks for directories that end in "_atlas"
+                    // Filter out anything that is not an atlas directory
                     if (dir.EndsWith("_atlas"))
                     {
-                        Logger.Log("Found atals project " + dir);
+                        // This is an atlas
+                        Logger.Log("\tFound atlas " + dir);
                         Atlas atlas = new Atlas(dir, Logger);
-                        NTiles += atlas.NTiles;
-                        atlases.Add(atlas);
+                        NTiles += atlas.NTiles; // TODO: This will no longer be needed with the new architecture
+                        Atlases.Add(atlas);
                     }
                 }
-
-                // Check that we actually found some atlas projects
-                if (atlases != null && !(atlases.Count > 0))
-                {
-                    Logger.Error("No atlas projects were found in " + InputPath);
-                }
-                else
-                {
-                    this.Atlases = atlases.ToArray();
-                }
-            } else
+            }
+            else
             {
-                Logger.Error("No atlas projects were found in " + InputPath);
+                Logger.Error("No atlases found in input path " + InputPath);
             }
         }
 
         /// <summary>
-        /// Resets the tiling engine to a clean state.
+        /// Loads all of the tiles into the tile load buffer
         /// </summary>
-        private void Reset()
+        private void LoadTiles()
         {
-            Progress.Reset();
-            this.Stopwatch = Stopwatch.StartNew();
-        }
+            TileLoadBuffer = new List<MapTile>();
 
-#pragma warning restore 1998
-        /// <summary>
-        /// Perform the tiling operations
-        /// </summary>
-        public void Tile()
-        {
-            Reset();
-            Logger.Log("Performing the tiling operations...");
-
-            // Tracks the tiles that have already been handled, based off the tile's name. There is no need
-            // to handle anyone tile of a given ID more than once.
-            List<String> visitedTiles = new List<string>();
-
-            // Iterate through all of the atlas projects
-            int nAtlases = Atlases.Length - 1;
-            for (int currentAtlas=0; currentAtlas <= nAtlases; currentAtlas++)
+            // Iterate through each atlas
+            foreach (Atlas atlas in Atlases)
             {
-                Atlas atlas = Atlases[currentAtlas];
-                String atlasID = atlas.GetName();
-
                 // Iterate through the zoom levels
-                ZoomLevel[] zoomLevels = Atlases[currentAtlas].GetZoomLevels();
-                if (zoomLevels == null || zoomLevels.Length <= 0) continue;
-                for (int currentZoom = 0; currentZoom < zoomLevels.Length; currentZoom++)
+                foreach (ZoomLevel zoom in atlas.GetZoomLevels())
                 {
-                    ZoomLevel zoom = zoomLevels[currentZoom];
-                    String zoomLevelID = zoom.GetName();
-
-                    // Iterate through the map regions
-                    MapRegion[] mapRegions = zoomLevels[currentZoom].GetMapRegions();
-                    if (mapRegions == null || mapRegions.Length <= 0) continue;
-                    for (int currentRegion = 0; currentRegion < mapRegions.Length; currentRegion++)
+                    // Iterate through each map region
+                    foreach (MapRegion region in zoom.GetMapRegions())
                     {
-                        MapRegion region = mapRegions[currentRegion];
-                        String regionID = region.GetName();
-
-                        // Iterate through the tiles
-                        MapTile[] mapTiles = mapRegions[currentRegion].GetMapTiles();
-                        if (mapTiles == null || mapTiles.Length <= 0) continue;
-                        for (int currentTile = 0; currentTile < mapTiles.Length; currentTile++)
+                        // Iterate over each tile
+                        foreach (MapTile tile in region.GetMapTiles())
                         {
-                            if (StopRequested)
-                            {
-                                // User requested thread be stopped
-                                return;
-                            }
-
-                            // For each tile, perform a forward search in the other atlas projects for matching tiles.
-                            // It should be noted that there should be no need to search backwards over previous atlas projects, since
-                            // all the tiles within those should have already been handled.
-                            MapTile tile = mapTiles[currentTile];
-                            String tileID = tile.GetName();
-                            String regionTileID = zoomLevelID + regionID + tileID;
-
-                            // Tracks rather or not this tile has been fully handled. If it hasn't, we don't mark it as being ignored for
-                            // future search. This is done for the case in which we have an all-white tile (a tile with no usuable data).
-                            Boolean tileIsHandled = false;
-
-                            // There are some instances in which a tile will be marked as complete, but
-                            // there is a slightly more complete version available. This is a result of
-                            // the way we are checking for completeness. This check is to fix that.
-                            int tileIsComplete = tile.IsComplete();
-                            if (visitedTiles.Contains(regionTileID) && (tileIsComplete > 0))
-                            {
-                                String currentCompleteTilePath = FS.GetTileFromOutput(OutputPath, zoomLevelID, regionID, tileID);
-                                MapTile currentCompleteTile = new MapTile(currentCompleteTilePath, Logger);
-
-                                // Determine which tile to keep by measuring completeness
-                                int currentComp = tileIsComplete;
-                                int thisComp = tile.IsComplete();
-
-                                if (thisComp > currentComp)
-                                {
-                                    // This tile is more complete than the old one, replace it
-                                    HandleCompleteTile(atlasID, zoomLevelID, regionID, tileID);
-                                }
-                            }
-
-                            // Don't handle the tile more than once
-                            if (!visitedTiles.Contains(regionTileID))
-                            {
-                                Logger.Log("Analyzing tile " + tileID + " from atlas " + atlasID + " at zoom level " + zoomLevelID + " for map region " + regionID);
-
-                                if (tile.IsDatalessTile())
-                                {
-                                    // This tile has no data, ignore it
-                                    tileIsHandled = false;
-                                    Logger.Log("\tTile " + tileID + " from atlas " + atlasID + " at zoom level " + zoomLevelID + " for map region " + regionID + " has no data. Ignoring it...");
-                                    Progress.Update(1);
-                                }
-                                else if (tileIsComplete > 0)
-                                {
-                                    // This tile is complete, ignore other versions of it and copy it to destination
-                                    tileIsHandled = true;
-                                    Logger.Log("\tTile " + tileID + " from atlas " + atlasID + " at zoom level " + zoomLevelID + " for map region " + regionID + " is already complete.");
-
-                                    // Remove any incomplete versions of the tile from the process queue
-                                    if (ProcessQueue.Contains(regionTileID))
-                                    {
-                                        ProcessQueue.RemoveAll(s => s == regionTileID);
-                                    }
-
-                                    // Copy the complete tile to the output path
-                                    HandleCompleteTile(atlasID, zoomLevelID, regionID, tileID);
-                                    Progress.Update(1);
-                                } else
-                                {
-                                    // Copy the tiles to a temporary working directory for further processing.
-                                    tileIsHandled = false;
-                                    ProcessQueue.Add(regionTileID);
-                                    HandleIncompleteTile(atlasID, zoomLevelID, regionID, tileID);
-                                }
-                            }
-                            else
-                            {
-                                Progress.Update(1);
-                            }
-
-                            if (tileIsHandled)
-                            {
-                                // Add this tile to the visited tiles list
-                                visitedTiles.Add(regionTileID);
-                            }
+                            // Add the tile to the tile load buffer
+                            TileLoadBuffer.Add(tile);
                         }
                     }
                 }
             }
+        }
 
-            // Handle all of the temporary tiles
-            Logger.Log("Processing incomplete tiles...");
+        /// <summary>
+        /// Performs the actual tiling operations.
+        /// </summary>
+        public void Tile()
+        {
+            // Start from a clean state
+            Reset();
+            Logger.Log("Performing the tiling operations...");
+
+            // Tracks the visited tiles
+            Dictionary<String, MapTile> visitedTiles = new Dictionary<string, MapTile>();
+
+            // Handle the tiles
+            foreach (MapTile currentTile in TileLoadBuffer)
+            {
+                if (StopRequested)
+                {
+                    // User requested the tiling operations be canceled
+                    return;
+                }
+
+                // Load the tile properties
+                String currentTileName = currentTile.GetName();
+                ZoomLevel currentTileZoom = currentTile.GetZoomLevel();
+                MapRegion currentTileRegion = currentTile.GetMapRegion();
+                String currentTileRegionId = currentTileZoom.GetName() + currentTileRegion.GetName() + currentTileName;
+                int currentTileCompleteness = currentTile.IsComplete();
+
+                // Check if the current tile is more complete than any previous complete versions
+                if (currentTileCompleteness > 0 && visitedTiles.ContainsKey(currentTileRegionId))
+                {
+                    // Load the previous complete tile
+                    MapTile previousTile = visitedTiles[currentTileRegionId];
+                    int previousTileCompleteness = previousTile.IsComplete();
+
+                    if (currentTileCompleteness > previousTileCompleteness)
+                    {
+                        // This tile is more complete than the previous one, overwrite it
+                        HandleCompleteTile(currentTile);
+                    }
+                }
+
+                // Don't mess with a tile when we've already found a complete version of it
+                if (!visitedTiles.ContainsKey(currentTileRegionId))
+                {
+                    Logger.Log("Analyzing tile " + currentTileName + " for zoom level " + currentTileZoom.GetName() + " and region " + currentTileRegion.GetName());
+
+                    if (currentTile.IsDatalessTile())
+                    {
+                        // This tile has no data, ignore it
+                        Logger.Log("\tTile " + currentTileName + " has no usable data. Ignoring it.");
+                        Progress.Update(1);
+                    }
+                    else if (currentTileCompleteness > 0)
+                    {
+                        // This tile is complete. Ignore other non-complete versions and copy to final destination
+                        Logger.Log("\tTile " + currentTileName + " is already complte. Copying it to final destination.");
+
+                        // Remove any incomplete version from the process queue, if present
+                        if (ProcessQueue.Contains(currentTileRegionId))
+                        {
+                            ProcessQueue.RemoveAll(s => s == currentTileRegionId);
+                        }
+
+                        visitedTiles.Add(currentTileRegionId, currentTile);
+
+                        HandleCompleteTile(currentTile);
+                        Progress.Update(1);
+                    }
+                    else
+                    {
+                        // Copy the tile to the temporary working directory for merging
+                        Logger.Log("\tTile " + currentTileName + " is incomplete. Adding it to the merge queue.");
+                        ProcessQueue.Add(currentTileRegionId);
+                        HandleIncompleteTile(currentTile);
+                    }
+                }
+                else
+                {
+                    Progress.Update(1);
+                }
+            }
+
+            // Perform the merge jobs
+            Logger.Log("Handling the merge queue...");
             ProcessTempTiles();
 
-            // Delete the temp directory
+            // Cleanup
             Logger.Log("Cleaning up the temporary directory");
             Directory.Delete(FS.BuildTempDir(OutputPath), true);
             Stopwatch.Stop();
@@ -454,6 +433,15 @@ namespace mTiler.Core.Tiling
         }
 
         /// <summary>
+        /// Resets the tiling engine to a clean state.
+        /// </summary>
+        private void Reset()
+        {
+            Progress.Reset();
+            this.Stopwatch = Stopwatch.StartNew();
+        }
+
+        /// <summary>
         /// Handles a tile which is already complete by copying it to its final destination.
         /// </summary>
         /// <param name="atlasId">The ID for the atlas</param>
@@ -466,6 +454,13 @@ namespace mTiler.Core.Tiling
             String copyPath = Path.Combine(copyToDir, tileId);
             String copyFrom = FS.GetTilePath(InputPath, atlasId, zoomLevelId, regionId, tileId);
             File.Copy(copyFrom, copyPath, true);
+        }
+
+        private void HandleCompleteTile(MapTile tile)
+        {
+            String copyToDir = FS.BuildOutputDir(OutputPath, tile.GetZoomLevel().GetName(), tile.GetMapRegion().GetName());
+            String copyPath = Path.Combine(copyToDir, tile.GetName());
+            File.Copy(tile.GetPath(), copyPath, true);
         }
 
         /// <summary>
@@ -481,6 +476,13 @@ namespace mTiler.Core.Tiling
             String copyTo = FS.BuildTempPath(tmpDir, zoomLevelId, regionId, tileId, atlasId);
             String copyFrom = FS.GetTilePath(InputPath, atlasId, zoomLevelId, regionId, tileId);
             File.Copy(copyFrom, copyTo, true);
+        }
+
+        private void HandleIncompleteTile(MapTile tile)
+        {
+            String tmpDir = FS.BuildTempDir(OutputPath);
+            String copyTo = FS.BuildTempPath(tmpDir, tile.GetZoomLevel().GetName(), tile.GetMapRegion().GetName(), tile.GetName(), tile.GetAtlas().GetName());
+            File.Copy(tile.GetPath(), copyTo, true);
         }
 
         /// <summary>
