@@ -33,12 +33,12 @@ namespace mTiler.Core.Tiling
         /// <summary>
         /// The input path that stores our atlas directories
         /// </summary>
-        private String InputPath;
+        private string InputPath;
 
         /// <summary>
         /// The output path, where we will write the final tiles
         /// </summary>
-        private String OutputPath;
+        private string OutputPath;
 
         /// <summary>
         /// Reference to the logger component
@@ -73,7 +73,7 @@ namespace mTiler.Core.Tiling
         /// <summary>
         /// The merge queue
         /// </summary>
-        private Dictionary<String, List<MapTile>> MergeQueue;
+        private Dictionary<string, List<MapTile>> MergeQueue;
 
         /// <summary>
         /// Initializes the tiling engine
@@ -82,7 +82,7 @@ namespace mTiler.Core.Tiling
         /// <param name="outputPath">The path for the output directory</param>
         /// <param name="logger">Reference to the logging component</param>
         /// <param name="form">Reference to the main form (for progress bar updating)</param>
-        public TilingEngine(String inputPath, String outputPath, Logger logger, ProgressMonitor progressMonitor)
+        public TilingEngine(string inputPath, string outputPath, Logger logger, ProgressMonitor progressMonitor)
         {
             Logger = logger;
             InputPath = inputPath;
@@ -112,7 +112,7 @@ namespace mTiler.Core.Tiling
         /// </summary>
         /// <param name="path">The output path</param>
         /// <returns>True on success, else false</returns>
-        private Boolean ValidateOutputPath(String path)
+        private bool ValidateOutputPath(string path)
         {
             if (!(path.Length >= 3))
             {
@@ -142,7 +142,7 @@ namespace mTiler.Core.Tiling
         /// </summary>
         /// <param name="path">The path to validate</param>
         /// <returns>True if valid, else false</returns>
-        private Boolean ValidateInputPath(String path)
+        private bool ValidateInputPath(string path)
         {
             if (!(path.Length >= 3))
             {
@@ -177,11 +177,11 @@ namespace mTiler.Core.Tiling
         {
             Logger.Log("Loading atlases...");
 
-            String[] potentialAtlases = FS.EnumerateDir(InputPath);
+            string[] potentialAtlases = FS.EnumerateDir(InputPath);
             Atlases = new List<Atlas>();
             if (potentialAtlases != null && potentialAtlases.Length > 0)
             {
-                foreach (String dir in potentialAtlases)
+                foreach (string dir in potentialAtlases)
                 {
                     // Filter out anything that is not an atlas directory
                     if (dir.EndsWith("_atlas"))
@@ -236,7 +236,7 @@ namespace mTiler.Core.Tiling
             Logger.Log("Performing the tiling operations...");
 
             // Tracks the visited tiles
-            Dictionary<String, MapTile> visitedTiles = new Dictionary<string, MapTile>();
+            Dictionary<string, MapTile> visitedTiles = new Dictionary<string, MapTile>();
 
             // Handle the tiles
             foreach (MapTile currentTile in TileLoadBuffer)
@@ -248,10 +248,10 @@ namespace mTiler.Core.Tiling
                 }
 
                 // Load the tile properties
-                String currentTileName = currentTile.GetName();
+                string currentTileName = currentTile.GetName();
                 ZoomLevel currentTileZoom = currentTile.GetZoomLevel();
                 MapRegion currentTileRegion = currentTile.GetMapRegion();
-                String currentTileRegionId = currentTileZoom.GetName() + currentTileRegion.GetName() + currentTileName;
+                string currentTileRegionId = currentTileZoom.GetName() + currentTileRegion.GetName() + currentTileName;
                 int currentTileCompleteness = currentTile.IsComplete();
 
                 // Check if the current tile is more complete than any previous complete versions
@@ -307,8 +307,10 @@ namespace mTiler.Core.Tiling
                         }
                         else
                         {
-                            List<MapTile> jobTiles = new List<MapTile>();
-                            jobTiles.Add(currentTile);
+                            List<MapTile> jobTiles = new List<MapTile>
+                            {
+                                currentTile
+                            };
                             MergeQueue.Add(currentTileRegionId, jobTiles);
                         }
                         HandleIncompleteTile(currentTile);
@@ -359,7 +361,7 @@ namespace mTiler.Core.Tiling
             int jobSize = mergeJob.Count;
             if (jobSize > 0)
             {
-                String tmpDir = FS.BuildTempDir(OutputPath);
+                string tmpDir = FS.BuildTempDir(OutputPath);
                 MapTile currentTile = mergeJob[0];
                     
                 if (jobSize > 1)
@@ -367,10 +369,10 @@ namespace mTiler.Core.Tiling
                     // There are multiple tiles to merge
                     Logger.Log("Handling " + jobSize + " tiles with ID " + currentTile.GetName() + " in zoom level " + currentTile.GetZoomLevel().GetName() + " and region " + currentTile.GetMapRegion().GetName());
                     MapTile nextTile = mergeJob[1];
-                    String resultPath = Path.Combine(tmpDir, currentTile.GetZoomLevel().GetName(), currentTile.GetMapRegion().GetName());
+                    string resultPath = Path.Combine(tmpDir, currentTile.GetZoomLevel().GetName(), currentTile.GetMapRegion().GetName());
 
                     // Merge the first two tiles
-                    String mergeResult = MapTile.MergeTiles(currentTile, nextTile, resultPath);
+                    string mergeResult = MapTile.MergeTiles(currentTile, nextTile, resultPath);
                     MapTile resultingTile = new MapTile(mergeResult, null, currentTile.GetZoomLevel(), currentTile.GetMapRegion(), Logger);
                     Progress.Update(2);
 
@@ -416,8 +418,8 @@ namespace mTiler.Core.Tiling
         /// <param name="tile">The complete tile to copy</param>
         private void HandleCompleteTile(MapTile tile)
         {
-            String copyToDir = FS.BuildOutputDir(OutputPath, tile.GetZoomLevel().GetName(), tile.GetMapRegion().GetName());
-            String copyPath = Path.Combine(copyToDir, tile.GetName());
+            string copyToDir = FS.BuildOutputDir(OutputPath, tile.GetZoomLevel().GetName(), tile.GetMapRegion().GetName());
+            string copyPath = Path.Combine(copyToDir, tile.GetName());
             File.Copy(tile.GetPath(), copyPath, true);
         }
 
@@ -427,8 +429,8 @@ namespace mTiler.Core.Tiling
         /// <param name="tile">The incomplete tile to copy</param>
         private void HandleIncompleteTile(MapTile tile)
         {
-            String tmpDir = FS.BuildTempDir(OutputPath);
-            String copyTo = FS.BuildTempPath(tmpDir, tile.GetZoomLevel().GetName(), tile.GetMapRegion().GetName(), tile.GetName(), tile.GetAtlas().GetName());
+            string tmpDir = FS.BuildTempDir(OutputPath);
+            string copyTo = FS.BuildTempPath(tmpDir, tile.GetZoomLevel().GetName(), tile.GetMapRegion().GetName(), tile.GetName(), tile.GetAtlas().GetName());
             File.Copy(tile.GetPath(), copyTo, true);
         }
 
@@ -438,8 +440,8 @@ namespace mTiler.Core.Tiling
         /// <param name="tile">The merged tile to move</param>
         private void HandleMergedTile(MapTile tile)
         {
-            String copyTo = FS.BuildOutputDir(OutputPath, tile.GetZoomLevel().GetName(), tile.GetMapRegion().GetName());
-            String copyPath = Path.Combine(copyTo, tile.GetName());
+            string copyTo = FS.BuildOutputDir(OutputPath, tile.GetZoomLevel().GetName(), tile.GetMapRegion().GetName());
+            string copyPath = Path.Combine(copyTo, tile.GetName());
             File.Copy(tile.GetPath(), copyPath, true);
         }
 
@@ -449,8 +451,8 @@ namespace mTiler.Core.Tiling
         /// <param name="tile">The tile to copy</param>
         private void HandleIncompleteNonMergedTile(MapTile tile)
         {
-            String copyTo = FS.BuildOutputDir(OutputPath, tile.GetZoomLevel().GetName(), tile.GetMapRegion().GetName());
-            String copyPath = Path.Combine(copyTo, tile.GetName());
+            string copyTo = FS.BuildOutputDir(OutputPath, tile.GetZoomLevel().GetName(), tile.GetMapRegion().GetName());
+            string copyPath = Path.Combine(copyTo, tile.GetName());
             File.Copy(tile.GetPath(), copyPath, true);
         }
 

@@ -29,7 +29,7 @@ namespace mTiler.Core.Data
         /// <summary>
         /// The path to this region on disk
         /// </summary>
-        private String Path;
+        private string Path;
 
         /// <summary>
         /// The atlas this region was originally part of
@@ -44,7 +44,7 @@ namespace mTiler.Core.Data
         /// <summary>
         /// The name of this map region
         /// </summary>
-        private String Name;
+        private string Name;
 
         /// <summary>
         /// Reference to the logging instance
@@ -65,7 +65,7 @@ namespace mTiler.Core.Data
         /// Initializes a map region
         /// </summary>
         /// <param name="path">The path to this map region on disk</param>
-        public MapRegion(String path, Atlas atlas, ZoomLevel zoomLevel, Logger logger)
+        public MapRegion(string path, Atlas atlas, ZoomLevel zoomLevel, Logger logger)
         {
             Path = path;
             Zoom = zoomLevel;
@@ -85,11 +85,11 @@ namespace mTiler.Core.Data
             Logger.Log("\t\tLoading tiles for map region: " + Name);
 
             // Find all of the tiles
-            String[] tilePaths = FS.EnumerateFiles(Path);
+            string[] tilePaths = FS.EnumerateFiles(Path);
             if (tilePaths != null && tilePaths.Length > 0)
             {
                 List<MapTile> tiles = new List<MapTile>();
-                foreach (String dir in tilePaths)
+                foreach (string dir in tilePaths)
                 {
                     Logger.Log("\t\t\tFound tile: " + dir);
                     NTiles++;
@@ -123,7 +123,7 @@ namespace mTiler.Core.Data
         /// Returns the name of this map region
         /// </summary>
         /// <returns></returns>
-        public String GetName()
+        public string GetName()
         {
             return Name;
         }

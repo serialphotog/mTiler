@@ -32,7 +32,7 @@ namespace mTiler.Core.Util
         /// <param name="color">The color to check</param>
         /// <param name="threshold">The threshold within white</param>
         /// <returns>True if within white threshold, else false</returns>
-        public static Boolean ColorWithinThresholdOfWhite(Color color, int threshold)
+        public static bool ColorWithinThresholdOfWhite(Color color, int threshold)
         {
             int r = (int)(255 - color.R);
             int g = (int)(255 - color.G);

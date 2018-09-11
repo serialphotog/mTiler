@@ -27,7 +27,7 @@ namespace mTiler.Core.Util
 {
     class Logger
     {
-        delegate void LoggingDelegate(String text);
+        delegate void LoggingDelegate(string text);
 
         /// <summary>
         /// Reference to the output window
@@ -54,7 +54,7 @@ namespace mTiler.Core.Util
         /// <param name="header">The header that gets printed before each message</param>
         /// <param name="msg">The message to log</param>
         /// <param name="color">The text color to log the message in</param>
-        private void Log(String header, String msg, Color color)
+        private void Log(string header, string msg, Color color)
         {
             if (!StopRequested)
             {
@@ -71,7 +71,7 @@ namespace mTiler.Core.Util
         /// Logs a message to the output window
         /// </summary>
         /// <param name="msg">The message to log</param>
-        public void Log(String msg)
+        public void Log(string msg)
         {
             Log("[INFO]: ", msg, Color.Black);
         }
@@ -80,7 +80,7 @@ namespace mTiler.Core.Util
         /// Logs an error to the output console
         /// </summary>
         /// <param name="msg">The error message to log</param>
-        public void Error(String msg)
+        public void Error(string msg)
         {
             Log("[ERROR]: ", msg, Color.Red);
         }

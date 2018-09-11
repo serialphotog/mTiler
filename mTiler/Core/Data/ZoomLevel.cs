@@ -29,7 +29,7 @@ namespace mTiler.Core.Data
         /// <summary>
         /// The name of this zoom level
         /// </summary>
-        private String Name;
+        private string Name;
 
         /// <summary>
         /// The atlas this zoom level originall belongs to
@@ -39,7 +39,7 @@ namespace mTiler.Core.Data
         /// <summary>
         /// The path to this zoom level on disk
         /// </summary>
-        private String Path;
+        private string Path;
 
         /// <summary>
         /// Reference to the logger component
@@ -60,7 +60,7 @@ namespace mTiler.Core.Data
         /// Initializes this zoom level
         /// </summary>
         /// <param name="path">The path to this zoom level on disk</param>
-        public ZoomLevel(String path, Atlas atlas, Logger logger)
+        public ZoomLevel(string path, Atlas atlas, Logger logger)
         {
             Path = path;
             Logger = logger;
@@ -79,11 +79,11 @@ namespace mTiler.Core.Data
             Logger.Log("\tLoading map regions for zoom level: " + Name);
 
             // Find all of the map regions
-            String[] regionPaths = FS.EnumerateDir(Path);
+            string[] regionPaths = FS.EnumerateDir(Path);
             if (regionPaths != null && regionPaths.Length > 0)
             {
                 List<MapRegion> regions = new List<MapRegion>();
-                foreach (String dir in regionPaths)
+                foreach (string dir in regionPaths)
                 {
                     Logger.Log("\t\tFound map region: " + dir);
                     MapRegion region = new MapRegion(dir, Atlas, this, Logger);
@@ -118,7 +118,7 @@ namespace mTiler.Core.Data
         /// Returns the name of this zoom level.
         /// </summary>
         /// <returns></returns>
-        public String GetName()
+        public string GetName()
         {
             return Name;
         }

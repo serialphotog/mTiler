@@ -56,7 +56,7 @@ namespace mTiler.Core.Data
         /// <summary>
         /// The path to the map tile on disk
         /// </summary>
-        private String Path;
+        private string Path;
 
         /// <summary>
         /// The atlas this tile orginally belongs to
@@ -76,7 +76,7 @@ namespace mTiler.Core.Data
         /// <summary>
         /// The name of this tile
         /// </summary>
-        private String Name;
+        private string Name;
 
         /// <summary>
         /// The logger instance
@@ -87,7 +87,7 @@ namespace mTiler.Core.Data
         /// Initializes a map tile.
         /// </summary>
         /// <param name="path">The path to the tile on disk</param>
-        public MapTile(String path, Atlas atlas, ZoomLevel zoomLevel, MapRegion mapRegion, Logger logger)
+        public MapTile(string path, Atlas atlas, ZoomLevel zoomLevel, MapRegion mapRegion, Logger logger)
         {
             Path = path;
             Zoom = zoomLevel;
@@ -97,7 +97,7 @@ namespace mTiler.Core.Data
             Name = FS.GetFilename(path);
         }
 
-        public MapTile(String path, Logger logger)
+        public MapTile(string path, Logger logger)
         {
             Path = path;
             Logger = logger;
@@ -123,7 +123,7 @@ namespace mTiler.Core.Data
         /// Determines if this tile is dataless (all white pixels).
         /// </summary>
         /// <returns>True if dataless, else false</returns>
-        public Boolean IsDatalessTile()
+        public bool IsDatalessTile()
         {
             Bitmap tileImage = GetBitmap();
             int width = tileImage.Width;
@@ -187,7 +187,7 @@ namespace mTiler.Core.Data
         /// <param name="tileB">Tile "B" for the merge</param>
         /// <param name="outputDir">The directory to write the resulting tile image to</param>
         /// <returns>The path to the resulting tile image</returns>
-        public static String MergeTiles(MapTile tileA, MapTile tileB, String outputDir)
+        public static string MergeTiles(MapTile tileA, MapTile tileB, string outputDir)
         {
             Bitmap tileAImage = tileA.GetBitmap();
             Bitmap tileBImage = tileB.GetBitmap();
@@ -253,7 +253,7 @@ namespace mTiler.Core.Data
         /// Returns the name of this tile.
         /// </summary>
         /// <returns></returns>
-        public String GetName()
+        public string GetName()
         {
             return Name;
         }
@@ -289,7 +289,7 @@ namespace mTiler.Core.Data
         /// Gets the path to the tile on disk
         /// </summary>
         /// <returns></returns>
-        public String GetPath()
+        public string GetPath()
         {
             return Path;
         }

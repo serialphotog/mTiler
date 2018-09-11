@@ -81,7 +81,7 @@ namespace mTiler
         /// Allows the user to select a folder
         /// </summary>
         /// <returns>String - The path to the folder</returns>
-        private String OpenFolderPath()
+        private string OpenFolderPath()
         {
             FolderBrowserDialog dialog = new FolderBrowserDialog();
             if (dialog.ShowDialog() == DialogResult.OK)
@@ -113,7 +113,7 @@ namespace mTiler
         private void inputPathBtn_Click(object sender, EventArgs e)
         {
             // Get the input path
-            String path = OpenFolderPath();
+            string path = OpenFolderPath();
             inputPathTxt.Text = path;
         }
 
@@ -124,7 +124,7 @@ namespace mTiler
         /// <param name="e"></param>
         private void outputPathBtn_Click(object sender, EventArgs e)
         {
-            String path = OpenFolderPath();
+            string path = OpenFolderPath();
             outputPathTxt.Text = path;
         }
 
@@ -166,7 +166,7 @@ namespace mTiler
         private void updateProgress(int progress)
         {
             double progressPercent = ((double)progress / TotalWork) * 100;
-            lblProgress.Text = Decimal.Round((decimal)progressPercent, 0, MidpointRounding.AwayFromZero) + "%";
+            lblProgress.Text = decimal.Round((decimal)progressPercent, 0, MidpointRounding.AwayFromZero) + "%";
             progressBar.Value = progress;
         }
 
