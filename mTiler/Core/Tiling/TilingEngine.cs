@@ -46,9 +46,9 @@ namespace mTiler.Core.Tiling
         private Logger Logger;
 
         /// <summary>
-        /// Reference to the form
+        /// Reference to the progress monitor instance
         /// </summary>
-        private MainForm Form;
+        private ProgressMonitor Progress;
 
         /// <summary>
         /// The atlases within the project
@@ -64,11 +64,6 @@ namespace mTiler.Core.Tiling
         /// Used to request that the tiling thread process be stopped
         /// </summary>
         public volatile bool StopRequested = false;
-
-        /// <summary>
-        /// Tracks the total progress by the tiling task
-        /// </summary>
-        private int TotalProgress = 0;
 
         /// <summary>
         /// Used to store tiles that need to be processed
@@ -87,12 +82,12 @@ namespace mTiler.Core.Tiling
         /// <param name="outputPath">The path for the output directory</param>
         /// <param name="logger">Reference to the logging component</param>
         /// <param name="form">Reference to the main form (for progress bar updating)</param>
-        public TilingEngine(String inputPath, String outputPath, Logger logger, MainForm form)
+        public TilingEngine(String inputPath, String outputPath, Logger logger, ProgressMonitor progressMonitor)
         {
-            this.Form = form;
-            this.Logger = logger;
-            this.InputPath = inputPath;
-            this.OutputPath = outputPath;
+            Logger = logger;
+            InputPath = inputPath;
+            OutputPath = outputPath;
+            Progress = progressMonitor;
         }
 
         /// <summary>
@@ -203,16 +198,24 @@ namespace mTiler.Core.Tiling
                 Logger.Error("No atlas projects were found in " + InputPath);
             }
         }
-#pragma warning restore 1998
 
+        /// <summary>
+        /// Resets the tiling engine to a clean state.
+        /// </summary>
+        private void Reset()
+        {
+            Progress.Reset();
+            this.Stopwatch = Stopwatch.StartNew();
+        }
+
+#pragma warning restore 1998
         /// <summary>
         /// Perform the tiling operations
         /// </summary>
         public void Tile()
         {
-            this.Stopwatch = Stopwatch.StartNew();
+            Reset();
             Logger.Log("Performing the tiling operations...");
-            TotalProgress = 0;
 
             // Tracks the tiles that have already been handled, based off the tile's name. There is no need
             // to handle anyone tile of a given ID more than once.
@@ -246,8 +249,11 @@ namespace mTiler.Core.Tiling
                         if (mapTiles == null || mapTiles.Length <= 0) continue;
                         for (int currentTile = 0; currentTile < mapTiles.Length; currentTile++)
                         {
-                            if (StopRequested) // User requested thread be stopped
+                            if (StopRequested)
+                            {
+                                // User requested thread be stopped
                                 return;
+                            }
 
                             // For each tile, perform a forward search in the other atlas projects for matching tiles.
                             // It should be noted that there should be no need to search backwards over previous atlas projects, since
@@ -290,7 +296,7 @@ namespace mTiler.Core.Tiling
                                     // This tile has no data, ignore it
                                     tileIsHandled = false;
                                     Logger.Log("\tTile " + tileID + " from atlas " + atlasID + " at zoom level " + zoomLevelID + " for map region " + regionID + " has no data. Ignoring it...");
-                                    UpdateProgress(++TotalProgress);
+                                    Progress.Update(1);
                                 }
                                 else if (tileIsComplete > 0)
                                 {
@@ -306,7 +312,7 @@ namespace mTiler.Core.Tiling
 
                                     // Copy the complete tile to the output path
                                     HandleCompleteTile(atlasID, zoomLevelID, regionID, tileID);
-                                    UpdateProgress(++TotalProgress);
+                                    Progress.Update(1);
                                 } else
                                 {
                                     // Copy the tiles to a temporary working directory for further processing.
@@ -317,7 +323,7 @@ namespace mTiler.Core.Tiling
                             }
                             else
                             {
-                                UpdateProgress(++TotalProgress);
+                                Progress.Update(1);
                             }
 
                             if (tileIsHandled)
@@ -361,7 +367,9 @@ namespace mTiler.Core.Tiling
                     for (int i=0; i < nTiles; i++)
                     {
                         if (StopRequested)
+                        {
                             return;
+                        }
 
                         // Get the tileID
                         String tileID = FS.GetTileID(tiles[i]);
@@ -370,7 +378,7 @@ namespace mTiler.Core.Tiling
                         String regionTileID = zoomLevelName + mapRegionName + tileID;
                         if (!ProcessQueue.Contains(regionTileID))
                         {
-                            UpdateProgress(++TotalProgress);
+                            Progress.Update(1);
                             continue;
                         }
 
@@ -382,7 +390,9 @@ namespace mTiler.Core.Tiling
                         while (!(i+1 > nTiles-1))
                         {
                             if (StopRequested)
+                            {
                                 return;
+                            }
 
                             if (FS.GetTileID(tiles[i + 1]) == tileID)
                             {
@@ -409,8 +419,7 @@ namespace mTiler.Core.Tiling
                             String mergeResult = MapTile.MergeTiles(tileA, tileB, resultPath);
                             MapTile resultingTile = new MapTile(mergeResult, Logger);
 
-                            TotalProgress += 2;
-                            UpdateProgress(TotalProgress);
+                            Progress.Update(2);
 
                             if (currentTileCrop.Count > 2)
                             {
@@ -420,7 +429,7 @@ namespace mTiler.Core.Tiling
                                     tileB = new MapTile(tileCrop[j], Logger);
                                     mergeResult = MapTile.MergeTiles(tileA, tileB, resultPath);
                                     resultingTile = new MapTile(mergeResult, Logger);
-                                    UpdateProgress(++TotalProgress);
+                                    Progress.Update(1);
                                 }
                             }
 
@@ -437,7 +446,7 @@ namespace mTiler.Core.Tiling
                             FS.DeleteFile(tiles[i]);
 
                             // Update the progress tracker
-                            UpdateProgress(++TotalProgress);
+                            Progress.Update(1);
                         }
                     }
                 }
@@ -499,21 +508,6 @@ namespace mTiler.Core.Tiling
             String copyTo = FS.BuildOutputDir(OutputPath, zoomLevelId, regionId);
             String copyPath = Path.Combine(copyTo, tileId);
             File.Copy(tile, copyPath, true);
-        }
-
-        /// <summary>
-        /// updates the progress
-        /// </summary>
-        /// <param name="progress">The progress</param>
-        private void UpdateProgress(int progress)
-        {
-            if (!StopRequested)
-            {
-                Form.Invoke((Action)delegate
-                {
-                    Form.UpdateProgress(progress);
-                });
-            }
         }
 
         /// <summary>

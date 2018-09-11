@@ -37,6 +37,11 @@ namespace mTiler
         private TilingEngine TilingEngine;
 
         /// <summary>
+        /// The progress monitor instance
+        /// </summary>
+        private ProgressMonitor Progress;
+
+        /// <summary>
         /// The thread the tiling engine runs in
         /// </summary>
         private Thread TilingEngineThread;
@@ -62,6 +67,7 @@ namespace mTiler
 
             // Initialize the update progress delegate handler
             UpdateProgress = new UpdateProgressDelegate(updateProgress);
+            Progress = new ProgressMonitor(this);
 
             // Setup some output console properties
             outputConsole.ReadOnly = true;
@@ -95,6 +101,7 @@ namespace mTiler
             if (TilingEngine != null)
                 TilingEngine.StopRequested = true;
             Logger.StopRequested = true;
+            Progress.StopRequested = true;
             Application.Exit();
         }
 
@@ -129,7 +136,7 @@ namespace mTiler
         private async void btnStart_Click(object sender, EventArgs e)
         {
             // Initialize the tiling engine
-            TilingEngine = new TilingEngine(inputPathTxt.Text, outputPathTxt.Text, Logger, this);
+            TilingEngine = new TilingEngine(inputPathTxt.Text, outputPathTxt.Text, Logger, Progress);
 
             // Load the data for the tiling engine
             await Task.Run(() => TilingEngine.Init());
