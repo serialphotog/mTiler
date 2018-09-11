@@ -207,16 +207,23 @@ namespace mTiler.Core.Tiling
             TileLoadBuffer = new List<MapTile>();
 
             // Iterate through each atlas
+            if (Atlases == null || Atlases.Count <= 0) return;
             foreach (Atlas atlas in Atlases)
             {
                 // Iterate through the zoom levels
-                foreach (ZoomLevel zoom in atlas.GetZoomLevels())
+                ZoomLevel[] zoomLevels = atlas.GetZoomLevels();
+                if (zoomLevels == null || zoomLevels.Length <= 0) continue;
+                foreach (ZoomLevel zoom in zoomLevels)
                 {
                     // Iterate through each map region
-                    foreach (MapRegion region in zoom.GetMapRegions())
+                    MapRegion[] mapRegions = zoom.GetMapRegions();
+                    if (mapRegions == null || mapRegions.Length <= 0) continue;
+                    foreach (MapRegion region in mapRegions)
                     {
                         // Iterate over each tile
-                        foreach (MapTile tile in region.GetMapTiles())
+                        MapTile[] mapTiles = region.GetMapTiles();
+                        if (mapTiles == null || mapTiles.Length <= 0) continue;
+                        foreach (MapTile tile in mapTiles)
                         {
                             // Add the tile to the tile load buffer
                             TileLoadBuffer.Add(tile);
