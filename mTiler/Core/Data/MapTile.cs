@@ -84,6 +84,11 @@ namespace mTiler.Core.Data
         private Logger Logger;
 
         /// <summary>
+        /// Cached tile image bitmap
+        /// </summary>
+        private Bitmap TileImage;
+
+        /// <summary>
         /// Initializes a map tile.
         /// </summary>
         /// <param name="path">The path to the tile on disk</param>
@@ -107,13 +112,15 @@ namespace mTiler.Core.Data
         /// <returns>The bitmap representation of this tile</returns>
         public Bitmap GetBitmap()
         {
-            Bitmap result;
-            using (Stream bmpStream = File.Open(Path, FileMode.Open))
+            if (TileImage == null)
             {
-                Image image = Image.FromStream(bmpStream);
-                result = new Bitmap(image);
+                using (Stream bmpStream = File.Open(Path, FileMode.Open))
+                {
+                    Image image = Image.FromStream(bmpStream);
+                    TileImage = new Bitmap(image);
+                }
             }
-            return result;
+            return TileImage;
         }
 
         /// <summary>
