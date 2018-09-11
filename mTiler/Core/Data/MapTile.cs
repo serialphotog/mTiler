@@ -87,19 +87,16 @@ namespace mTiler.Core.Data
         /// Initializes a map tile.
         /// </summary>
         /// <param name="path">The path to the tile on disk</param>
+        /// <param name="atlas">The atlas this tile is orginally in</param>
+        /// <param name="zoomLevel">The zoom level of this tile</param>
+        /// <param name="mapRegion">The map region this tile belongs to</param>
+        /// <param name="logger">Reference to the logger</param>
         public MapTile(string path, Atlas atlas, ZoomLevel zoomLevel, MapRegion mapRegion, Logger logger)
         {
             Path = path;
             Zoom = zoomLevel;
             Region = mapRegion;
             Atlas = atlas;
-            Logger = logger;
-            Name = FS.GetFilename(path);
-        }
-
-        public MapTile(string path, Logger logger)
-        {
-            Path = path;
             Logger = logger;
             Name = FS.GetFilename(path);
         }
