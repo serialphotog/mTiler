@@ -246,7 +246,7 @@ namespace mTiler.Core.Tiling
             Dictionary<string, MapTile> visitedTiles = new Dictionary<string, MapTile>();
 
             // Handle the tiles
-            foreach (MapTile currentTile in TileLoadBuffer)
+            for (int i = 0; i < TileLoadBuffer.Count; i++)
             {
                 if (StopRequested)
                 {
@@ -255,6 +255,7 @@ namespace mTiler.Core.Tiling
                 }
 
                 // Load the tile properties
+                MapTile currentTile = TileLoadBuffer[i];
                 string currentTileName = currentTile.GetName();
                 ZoomLevel currentTileZoom = currentTile.GetZoomLevel();
                 MapRegion currentTileRegion = currentTile.GetMapRegion();
@@ -273,6 +274,7 @@ namespace mTiler.Core.Tiling
                         // This tile is more complete than the previous one, overwrite it
                         HandleCompleteTile(currentTile);
                     }
+                    previousTile.Clean();
                 }
 
                 // Don't mess with a tile when we've already found a complete version of it
@@ -322,12 +324,20 @@ namespace mTiler.Core.Tiling
                         }
                         HandleIncompleteTile(currentTile);
                     }
+                    currentTile.Clean();
+                    currentTile = null;
                 }
                 else
                 {
                     Progress.Update(1);
                 }
             }
+
+            // Clear some memory
+            TileLoadBuffer = null;
+            visitedTiles.Clear();
+            visitedTiles = null;
+            GC.Collect();
 
             // Perform the merge jobs
             Logger.Log("Handling the merge queue...");
@@ -356,7 +366,10 @@ namespace mTiler.Core.Tiling
                 }
 
                 HandleMergeJob(mergeJob);
+                // Free up some memory
+                mergeJob.Clear();
             }
+            MergeQueue = null; // Free memory
         }
 
         /// <summary>
@@ -388,6 +401,7 @@ namespace mTiler.Core.Tiling
                         // Merge all the remaining tiles together
                         for (int i = 2; i < jobSize; i++)
                         {
+                            currentTile.Clean();
                             currentTile = resultingTile;
                             nextTile = mergeJob[i];
                             mergeResult = MapTile.MergeTiles(currentTile, nextTile, resultPath);
@@ -398,6 +412,11 @@ namespace mTiler.Core.Tiling
 
                     // Copy the merge tile to the final location
                     HandleMergedTile(resultingTile);
+
+                    // Clean up tile memory
+                    currentTile.Clean();
+                    nextTile.Clean();
+                    GC.Collect();
                 }
                 else
                 {

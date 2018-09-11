@@ -297,5 +297,18 @@ namespace mTiler.Core.Data
         {
             return Path;
         }
+
+        /// <summary>
+        /// Cleans up the memory used by this tile
+        /// </summary>
+        public void Clean()
+        {
+            if (TileImage != null)
+            {
+                TileImage.Dispose();
+                TileImage = null;
+                GC.Collect();
+            }
+        }
     }
 }
