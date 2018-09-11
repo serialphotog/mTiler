@@ -325,13 +325,15 @@ namespace mTiler.Core.Tiling
                         }
                         HandleIncompleteTile(currentTile);
                     }
-                    currentTile.Clean();
-                    currentTile = null;
                 }
                 else
                 {
                     Progress.Update(1);
                 }
+
+                // Memory cleanup
+                currentTile.Clean();
+                currentTile = null;
             }
 
             // Clear some memory
@@ -370,6 +372,7 @@ namespace mTiler.Core.Tiling
                 // Free up some memory
                 mergeJob.Clear();
             }
+            MergeQueue.Clear();
             MergeQueue = null; // Free memory
         }
 
@@ -402,7 +405,12 @@ namespace mTiler.Core.Tiling
                         // Merge all the remaining tiles together
                         for (int i = 2; i < jobSize; i++)
                         {
+                            // Clean some memory
                             currentTile.Clean();
+                            currentTile = null;
+                            nextTile.Clean();
+                            nextTile = null;
+
                             currentTile = resultingTile;
                             nextTile = mergeJob[i];
                             mergeResult = MapTile.MergeTiles(currentTile, nextTile, resultPath);
