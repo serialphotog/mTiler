@@ -226,7 +226,7 @@ namespace mTiler.Core.Tiling
                 else
                 {
                     // There are not multiple copies of this tile. Just copy it to final destination
-                    Logger.Log("\tThere is only one instance of this tile. Copying it to final destination");
+                    Logger.Log("There is only one instance of tile " + currentTile.GetName() + " in zoom level " + currentTile.GetZoomLevel().GetName() + " and region " + currentTile.GetMapRegion().GetName() + ". Copying it to final destination");
                     HandleIncompleteNonMergedTile(currentTile);
                     Progress.Update(1);
                 }
