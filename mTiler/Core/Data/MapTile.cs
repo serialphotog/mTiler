@@ -41,7 +41,7 @@ namespace mTiler.Core.Data
         /// <summary>
         /// Threshold that is used when determining how alike colors are
         /// </summary>
-        private static readonly int LikenessThreshold = 30;
+        private static readonly int LikenessThreshold = 10;
 
         /// <summary>
         /// The amount of the back pixel color to keep when performing blends
@@ -103,7 +103,7 @@ namespace mTiler.Core.Data
             Region = mapRegion;
             Atlas = atlas;
             Logger = logger;
-            Name = FS.GetFilename(path);
+            Name = GetName();
         }
 
         /// <summary>
@@ -259,6 +259,25 @@ namespace mTiler.Core.Data
         /// <returns></returns>
         public string GetName()
         {
+            if (String.IsNullOrEmpty(Name))
+            {
+                // Fix issues with some tiles having a .bcnav.png extension
+                if (System.IO.Path.GetExtension(Path) == ".bcnav")
+                {
+                    Logger.Error("Fixing incorrect extension issue");
+                    string originalPath = Path;
+                    Path = System.IO.Path.ChangeExtension(Path, "");
+                    if (System.IO.Path.GetExtension(Path) == ".png")
+                    {
+                        Path = System.IO.Path.ChangeExtension(Path, ".jpg");
+                    }
+
+                    File.Move(originalPath, Path);
+                }
+
+                Name = FS.GetFilename(Path);
+            }
+
             return Name;
         }
 
