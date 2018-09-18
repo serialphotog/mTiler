@@ -91,7 +91,7 @@ namespace mTiler.Core.Util
         /// <param name="msg">The warning message to log</param>
         public void Warn(string msg)
         {
-            Log("[WARNING]: ", msg, Color.Yellow);
+            Log("[WARNING]: ", msg, Color.Orange);
         }
     }
 }
