@@ -336,7 +336,7 @@ namespace mTiler.Core.Tiling
             Directory.Delete(FS.BuildTempDir(OutputPath), true);
             Stopwatch.Stop();
             var elapsedTime = Stopwatch.ElapsedMilliseconds;
-            Logger.Log("Complete! Tiling took " + elapsedTime + "ms");
+            Logger.Log("Complete! Tiling took " + TimeSpan.FromMilliseconds(elapsedTime).TotalMinutes + " minutes.");
         }
 
         /// <summary>
