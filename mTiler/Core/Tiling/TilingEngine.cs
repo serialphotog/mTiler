@@ -292,7 +292,7 @@ namespace mTiler.Core.Tiling
                     else if (currentTileCompleteness > 0)
                     {
                         // This tile is complete. Ignore other non-complete versions and copy to final destination
-                        Logger.Log("\tTile " + currentTileName + " is already complte. Copying it to final destination.");
+                        Logger.Log("\tTile " + currentTileName + " is already complete. Copying it to final destination.");
 
                         // Remove any incomplete version from the process queue, if present
                         if (MergeEngine.HasJob(currentTileRegionId))
