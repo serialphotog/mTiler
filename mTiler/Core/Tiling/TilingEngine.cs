@@ -261,22 +261,6 @@ namespace mTiler.Core.Tiling
                 ZoomLevel currentTileZoom = currentTile.GetZoomLevel();
                 MapRegion currentTileRegion = currentTile.GetMapRegion();
                 string currentTileRegionId = currentTileZoom.GetName() + currentTileRegion.GetName() + currentTileName;
-                int currentTileCompleteness = currentTile.IsComplete();
-
-                // Check if the current tile is more complete than any previous complete versions
-                if (currentTileCompleteness > 0 && visitedTiles.ContainsKey(currentTileRegionId))
-                {
-                    // Load the previous complete tile
-                    MapTile previousTile = visitedTiles[currentTileRegionId];
-                    int previousTileCompleteness = previousTile.IsComplete();
-
-                    if (currentTileCompleteness > previousTileCompleteness)
-                    {
-                        // This tile is more complete than the previous one, overwrite it
-                        HandleCompleteTile(currentTile);
-                    }
-                    previousTile.Clean();
-                }
 
                 // Don't mess with a tile when we've already found a complete version of it
                 if (!visitedTiles.ContainsKey(currentTileRegionId))
@@ -289,7 +273,7 @@ namespace mTiler.Core.Tiling
                         Logger.Log("\tTile " + currentTileName + " has no usable data. Ignoring it.");
                         Progress.Update(1);
                     }
-                    else if (currentTileCompleteness > 0)
+                    else if (currentTile.IsComplete())
                     {
                         // This tile is complete. Ignore other non-complete versions and copy to final destination
                         Logger.Log("\tTile " + currentTileName + " is already complete. Copying it to final destination.");
