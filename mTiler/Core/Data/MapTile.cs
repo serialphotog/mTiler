@@ -264,7 +264,8 @@ namespace mTiler.Core.Data
                 // Fix issues with some tiles having a .bcnav.png extension
                 if (System.IO.Path.GetExtension(Path) == ".bcnav")
                 {
-                    Logger.Error("Fixing incorrect extension issue");
+                    Logger.Warn("Fixing incorrect BCNAV file extension issue");
+
                     string originalPath = Path;
                     Path = System.IO.Path.ChangeExtension(Path, "");
                     if (System.IO.Path.GetExtension(Path) == ".png")

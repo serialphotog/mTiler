@@ -84,5 +84,14 @@ namespace mTiler.Core.Util
         {
             Log("[ERROR]: ", msg, Color.Red);
         }
+
+        /// <summary>
+        /// Logs a warning message to the output console.
+        /// </summary>
+        /// <param name="msg">The warning message to log</param>
+        public void Warn(string msg)
+        {
+            Log("[WARNING]: ", msg, Color.Yellow);
+        }
     }
 }
