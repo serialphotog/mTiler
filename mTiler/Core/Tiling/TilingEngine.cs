@@ -71,9 +71,9 @@ namespace mTiler.Core.Tiling
         private List<MapTile> TileLoadBuffer;
 
         /// <summary>
-        /// The merge queue
+        /// Reference to the merge engine
         /// </summary>
-        private Dictionary<string, List<MapTile>> MergeQueue;
+        private MergeEngine MergeEngine;
 
         /// <summary>
         /// Initializes the tiling engine
@@ -82,12 +82,13 @@ namespace mTiler.Core.Tiling
         /// <param name="outputPath">The path for the output directory</param>
         /// <param name="logger">Reference to the logging component</param>
         /// <param name="form">Reference to the main form (for progress bar updating)</param>
-        public TilingEngine(string inputPath, string outputPath, Logger logger, ProgressMonitor progressMonitor)
+        public TilingEngine(string inputPath, string outputPath, Logger logger, ProgressMonitor progressMonitor, MergeEngine mergeEngine)
         {
             Logger = logger;
             InputPath = inputPath;
             OutputPath = outputPath;
             Progress = progressMonitor;
+            MergeEngine = mergeEngine;
         }
 
         /// <summary>
@@ -260,22 +261,6 @@ namespace mTiler.Core.Tiling
                 ZoomLevel currentTileZoom = currentTile.GetZoomLevel();
                 MapRegion currentTileRegion = currentTile.GetMapRegion();
                 string currentTileRegionId = currentTileZoom.GetName() + currentTileRegion.GetName() + currentTileName;
-                int currentTileCompleteness = currentTile.IsComplete();
-
-                // Check if the current tile is more complete than any previous complete versions
-                if (currentTileCompleteness > 0 && visitedTiles.ContainsKey(currentTileRegionId))
-                {
-                    // Load the previous complete tile
-                    MapTile previousTile = visitedTiles[currentTileRegionId];
-                    int previousTileCompleteness = previousTile.IsComplete();
-
-                    if (currentTileCompleteness > previousTileCompleteness)
-                    {
-                        // This tile is more complete than the previous one, overwrite it
-                        HandleCompleteTile(currentTile);
-                    }
-                    previousTile.Clean();
-                }
 
                 // Don't mess with a tile when we've already found a complete version of it
                 if (!visitedTiles.ContainsKey(currentTileRegionId))
@@ -288,16 +273,16 @@ namespace mTiler.Core.Tiling
                         Logger.Log("\tTile " + currentTileName + " has no usable data. Ignoring it.");
                         Progress.Update(1);
                     }
-                    else if (currentTileCompleteness > 0)
+                    else if (currentTile.IsComplete())
                     {
                         // This tile is complete. Ignore other non-complete versions and copy to final destination
-                        Logger.Log("\tTile " + currentTileName + " is already complte. Copying it to final destination.");
+                        Logger.Log("\tTile " + currentTileName + " is already complete. Copying it to final destination.");
 
                         // Remove any incomplete version from the process queue, if present
-                        if (MergeQueue.ContainsKey(currentTileRegionId))
+                        if (MergeEngine.HasJob(currentTileRegionId))
                         {
-                            Progress.Update(MergeQueue[currentTileRegionId].Count);
-                            MergeQueue.Remove(currentTileRegionId);
+                            Progress.Update(MergeEngine.GetCountForJob(currentTileRegionId));
+                            MergeEngine.Remove(currentTileRegionId);
                         }
 
                         visitedTiles.Add(currentTileRegionId, currentTile);
@@ -309,11 +294,11 @@ namespace mTiler.Core.Tiling
                     {
                         // Copy the tile to the temporary working directory for merging
                         Logger.Log("\tTile " + currentTileName + " is incomplete. Adding it to the merge queue.");
-                        if (MergeQueue.ContainsKey(currentTileRegionId))
+                        if (MergeEngine.HasJob(currentTileRegionId))
                         {
-                            List<MapTile> jobTiles = MergeQueue[currentTileRegionId];
+                            List<MapTile> jobTiles = MergeEngine.GetJob(currentTileRegionId);
                             jobTiles.Add(currentTile);
-                            MergeQueue[currentTileRegionId] = jobTiles;
+                            MergeEngine.Update(currentTileRegionId, jobTiles);
                         }
                         else
                         {
@@ -321,7 +306,7 @@ namespace mTiler.Core.Tiling
                             {
                                 currentTile
                             };
-                            MergeQueue.Add(currentTileRegionId, jobTiles);
+                            MergeEngine.Update(currentTileRegionId, jobTiles);
                         }
                         HandleIncompleteTile(currentTile);
                     }
@@ -344,7 +329,7 @@ namespace mTiler.Core.Tiling
 
             // Perform the merge jobs
             Logger.Log("Handling the merge queue...");
-            RunMergeQueue();
+            MergeEngine.Run();
 
             // Cleanup
             Logger.Log("Cleaning up the temporary directory");
@@ -355,95 +340,12 @@ namespace mTiler.Core.Tiling
         }
 
         /// <summary>
-        /// Processes the merge queue
-        /// </summary>
-        private void RunMergeQueue()
-        {
-            // Run the queue
-            foreach (List<MapTile> mergeJob in MergeQueue.Values)
-            {
-                if (StopRequested)
-                {
-                    // User requested the tiling operations be canceled
-                    return;
-                }
-
-                HandleMergeJob(mergeJob);
-                // Free up some memory
-                mergeJob.Clear();
-            }
-            MergeQueue.Clear();
-            MergeQueue = null; // Free memory
-        }
-
-        /// <summary>
-        /// Handles a single merge job
-        /// </summary>
-        /// <param name="mergeJob">The merge job to handle</param>
-        private void HandleMergeJob(List<MapTile> mergeJob)
-        {
-            int jobSize = mergeJob.Count;
-            if (jobSize > 0)
-            {
-                string tmpDir = FS.BuildTempDir(OutputPath);
-                MapTile currentTile = mergeJob[0];
-                    
-                if (jobSize > 1)
-                {
-                    // There are multiple tiles to merge
-                    Logger.Log("Handling " + jobSize + " tiles with ID " + currentTile.GetName() + " in zoom level " + currentTile.GetZoomLevel().GetName() + " and region " + currentTile.GetMapRegion().GetName());
-                    MapTile nextTile = mergeJob[1];
-                    string resultPath = Path.Combine(tmpDir, currentTile.GetZoomLevel().GetName(), currentTile.GetMapRegion().GetName());
-
-                    // Merge the first two tiles
-                    string mergeResult = MapTile.MergeTiles(currentTile, nextTile, resultPath);
-                    MapTile resultingTile = new MapTile(mergeResult, null, currentTile.GetZoomLevel(), currentTile.GetMapRegion(), Logger);
-                    Progress.Update(2);
-
-                    if (jobSize > 2)
-                    {
-                        // Merge all the remaining tiles together
-                        for (int i = 2; i < jobSize; i++)
-                        {
-                            // Clean some memory
-                            currentTile.Clean();
-                            currentTile = null;
-                            nextTile.Clean();
-                            nextTile = null;
-
-                            currentTile = resultingTile;
-                            nextTile = mergeJob[i];
-                            mergeResult = MapTile.MergeTiles(currentTile, nextTile, resultPath);
-                            resultingTile = new MapTile(mergeResult, null, currentTile.GetZoomLevel(), currentTile.GetMapRegion(), Logger);
-                            Progress.Update(1);
-                        }
-                    }
-
-                    // Copy the merge tile to the final location
-                    HandleMergedTile(resultingTile);
-
-                    // Clean up tile memory
-                    currentTile.Clean();
-                    nextTile.Clean();
-                    GC.Collect();
-                }
-                else
-                {
-                    // There are not multiple copies of this tile. Just copy it to final destination
-                    Logger.Log("\tThere is only one instance of this tile. Copying it to final destination");
-                    HandleIncompleteNonMergedTile(currentTile);
-                    Progress.Update(1);
-                }
-            }
-        }
-
-        /// <summary>
         /// Resets the tiling engine to a clean state.
         /// </summary>
         private void Reset()
         {
             Progress.Reset();
-            MergeQueue = new Dictionary<string, List<MapTile>>(); // Reset the merge queue
+            MergeEngine.Reset();
             this.Stopwatch = Stopwatch.StartNew();
         }
 
@@ -467,28 +369,6 @@ namespace mTiler.Core.Tiling
             string tmpDir = FS.BuildTempDir(OutputPath);
             string copyTo = FS.BuildTempPath(tmpDir, tile.GetZoomLevel().GetName(), tile.GetMapRegion().GetName(), tile.GetName(), tile.GetAtlas().GetName());
             File.Copy(tile.GetPath(), copyTo, true);
-        }
-
-        /// <summary>
-        /// Handles a merged tile by copying it to the final destination.
-        /// </summary>
-        /// <param name="tile">The merged tile to move</param>
-        private void HandleMergedTile(MapTile tile)
-        {
-            string copyTo = FS.BuildOutputDir(OutputPath, tile.GetZoomLevel().GetName(), tile.GetMapRegion().GetName());
-            string copyPath = Path.Combine(copyTo, tile.GetName());
-            File.Copy(tile.GetPath(), copyPath, true);
-        }
-
-        /// <summary>
-        /// Handles an incomplete, but non-merged, tile by copying it to the final destination
-        /// </summary>
-        /// <param name="tile">The tile to copy</param>
-        private void HandleIncompleteNonMergedTile(MapTile tile)
-        {
-            string copyTo = FS.BuildOutputDir(OutputPath, tile.GetZoomLevel().GetName(), tile.GetMapRegion().GetName());
-            string copyPath = Path.Combine(copyTo, tile.GetName());
-            File.Copy(tile.GetPath(), copyPath, true);
         }
 
         /// <summary>

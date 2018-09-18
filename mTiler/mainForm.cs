@@ -37,6 +37,11 @@ namespace mTiler
         private TilingEngine TilingEngine;
 
         /// <summary>
+        /// The merge engine instance
+        /// </summary>
+        private MergeEngine MergeEngine;
+
+        /// <summary>
         /// The progress monitor instance
         /// </summary>
         private ProgressMonitor Progress;
@@ -73,8 +78,7 @@ namespace mTiler
             outputConsole.ReadOnly = true;
             outputConsole.WordWrap = false;
 
-            // Initialize the logger component 
-            this.Logger = new Logger(this.outputConsole);
+            Logger = new Logger(this.outputConsole);
         }
 
         /// <summary>
@@ -100,6 +104,8 @@ namespace mTiler
         {
             if (TilingEngine != null)
                 TilingEngine.StopRequested = true;
+            if (MergeEngine != null)
+                MergeEngine.StopRequested = true;
             Logger.StopRequested = true;
             Progress.StopRequested = true;
             Application.Exit();
@@ -135,8 +141,9 @@ namespace mTiler
         /// <param name="e"></param>
         private async void btnStart_Click(object sender, EventArgs e)
         {
-            // Initialize the tiling engine
-            TilingEngine = new TilingEngine(inputPathTxt.Text, outputPathTxt.Text, Logger, Progress);
+            // Initialize the merge & tiling engines
+            MergeEngine = new MergeEngine(outputPathTxt.Text, Progress, Logger);
+            TilingEngine = new TilingEngine(inputPathTxt.Text, outputPathTxt.Text, Logger, Progress, MergeEngine);
 
             // Load the data for the tiling engine
             await Task.Run(() => TilingEngine.Init());
