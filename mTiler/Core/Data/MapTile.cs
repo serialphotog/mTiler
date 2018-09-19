@@ -36,7 +36,7 @@ namespace mTiler.Core.Data
         /// <summary>
         /// The threshold to use when checking for "white" pixels
         /// </summary>
-        private static readonly int WhiteThreshold = 50;
+        private static readonly int WhiteThreshold = 30;
 
         /// <summary>
         /// Threshold that is used when determining how alike colors are
