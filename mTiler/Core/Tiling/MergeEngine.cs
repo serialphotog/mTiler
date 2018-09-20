@@ -21,6 +21,7 @@ using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.IO;
+using System.Threading.Tasks;
 
 namespace mTiler.Core.Tiling
 {
@@ -157,21 +158,20 @@ namespace mTiler.Core.Tiling
         /// </summary>
         private void RunMergeQueue()
         {
-            // Run the queue
-            foreach (List<MapTile> mergeJob in MergeQueue.Values)
+            // Run the merge queue
+            Parallel.ForEach(MergeQueue.Values, (mergeJob, state) =>
             {
                 if (StopRequested)
-                {
-                    // User requested the tiling operations be canceled
-                    return;
-                }
+                    state.Break();
 
                 HandleMergeJob(mergeJob);
                 // Free up some memory
                 mergeJob.Clear();
-            }
+            });
+
+            // Free up memory
             MergeQueue.Clear();
-            MergeQueue = null; // Free memory
+            MergeQueue = null; 
         }
 
         /// <summary>
