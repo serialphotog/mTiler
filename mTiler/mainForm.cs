@@ -166,6 +166,10 @@ namespace mTiler
                     TilingEngineThread = new Thread(tilingThreadChildRef);
                     TilingEngineThread.Start();
                 }
+                else
+                {
+                    Logger.Error("There is no work to be performed.");
+                }
             }
         }
 

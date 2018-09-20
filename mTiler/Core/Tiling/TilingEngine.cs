@@ -241,7 +241,11 @@ namespace mTiler.Core.Tiling
             TileLoadBuffer = new List<MapTile>();
 
             // Iterate through each atlas
-            if (Atlases == null || Atlases.Count <= 0) return;
+            if (Atlases == null || Atlases.Count <= 0)
+            {
+                Logger.Error("There are no atlases in " + InputPath);
+                return;
+            }
             foreach (Atlas atlas in Atlases)
             {
                 // Iterate through the zoom levels
