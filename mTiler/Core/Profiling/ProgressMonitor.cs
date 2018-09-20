@@ -17,7 +17,7 @@ TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR TH
 
 using System;
 
-namespace mTiler.Core.Util
+namespace mTiler.Core.Profiling
 {
     /// <summary>
     /// Acts as a basic interface between the interal tiling engine and the progress bar in the main form.
