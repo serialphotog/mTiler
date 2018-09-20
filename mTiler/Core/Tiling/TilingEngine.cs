@@ -18,6 +18,7 @@ TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR TH
 using mTiler.Core.Data;
 using mTiler.Core.Util;
 using System;
+using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
@@ -69,6 +70,10 @@ namespace mTiler.Core.Tiling
         /// The buffer the tiles are initially loaded into before they are processed.
         /// </summary>
         private List<MapTile> TileLoadBuffer;
+
+        private ConcurrentDictionary<string, MapTile> CompleteTiles;
+
+        private ConcurrentBag<MapTile> IncompleteTiles;
 
         /// <summary>
         /// Reference to the merge engine
@@ -243,27 +248,19 @@ namespace mTiler.Core.Tiling
             Reset();
             Logger.Log("Performing the tiling operations...");
 
-            // Tracks the visited tiles
-            Dictionary<string, MapTile> visitedTiles = new Dictionary<string, MapTile>();
-
-            // Handle the tiles
-            for (int i = 0; i < TileLoadBuffer.Count; i++)
+            Parallel.ForEach(TileLoadBuffer, (currentTile, state) =>
             {
-                if (StopRequested)
-                {
-                    // User requested the tiling operations be canceled
-                    return;
-                }
+                if (StopRequested) // User requested tiling thread be stopped
+                    state.Break();
 
-                // Load the tile properties
-                MapTile currentTile = TileLoadBuffer[i];
+                // Load tile properties
                 string currentTileName = currentTile.GetName();
                 ZoomLevel currentTileZoom = currentTile.GetZoomLevel();
                 MapRegion currentTileRegion = currentTile.GetMapRegion();
                 string currentTileRegionId = currentTileZoom.GetName() + currentTileRegion.GetName() + currentTileName;
 
                 // Don't mess with a tile when we've already found a complete version of it
-                if (!visitedTiles.ContainsKey(currentTileRegionId))
+                if (!CompleteTiles.ContainsKey(currentTileRegionId))
                 {
                     Logger.Log("Analyzing tile " + currentTileName + " for zoom level " + currentTileZoom.GetName() + " and region " + currentTileRegion.GetName());
 
@@ -285,9 +282,8 @@ namespace mTiler.Core.Tiling
                             MergeEngine.Remove(currentTileRegionId);
                         }
 
-                        visitedTiles.Add(currentTileRegionId, currentTile);
+                        CompleteTiles.TryAdd(currentTileRegionId, currentTile);
 
-                        HandleCompleteTile(currentTile);
                         Progress.Update(1);
                     }
                     else
@@ -308,7 +304,7 @@ namespace mTiler.Core.Tiling
                             };
                             MergeEngine.Update(currentTileRegionId, jobTiles);
                         }
-                        HandleIncompleteTile(currentTile);
+                        IncompleteTiles.Add(currentTile);
                     }
                 }
                 else
@@ -319,13 +315,25 @@ namespace mTiler.Core.Tiling
                 // Memory cleanup
                 currentTile.Clean();
                 currentTile = null;
+            });
+            TileLoadBuffer.Clear();
+            TileLoadBuffer = null;
+
+            // Perform the I/O operations.
+            Logger.Log("Performing file I/O operations...");
+            foreach (MapTile tile in CompleteTiles.Values)
+            {
+                HandleCompleteTile(tile);
+            }
+            foreach (MapTile tile in IncompleteTiles)
+            {
+                HandleIncompleteTile(tile);
             }
 
             // Clear some memory
-            TileLoadBuffer = null;
-            visitedTiles.Clear();
-            visitedTiles = null;
-            GC.Collect();
+            CompleteTiles.Clear();
+            CompleteTiles = null;
+            IncompleteTiles = null;
 
             // Perform the merge jobs
             Logger.Log("Handling the merge queue...");
@@ -346,6 +354,8 @@ namespace mTiler.Core.Tiling
         {
             Progress.Reset();
             MergeEngine.Reset();
+            CompleteTiles = new ConcurrentDictionary<string, MapTile>();
+            IncompleteTiles = new ConcurrentBag<MapTile>();
             this.Stopwatch = Stopwatch.StartNew();
         }
 

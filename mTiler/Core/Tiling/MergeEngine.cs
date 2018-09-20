@@ -18,6 +18,7 @@ TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR TH
 using mTiler.Core.Data;
 using mTiler.Core.Util;
 using System;
+using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.IO;
 
@@ -52,7 +53,7 @@ namespace mTiler.Core.Tiling
         /// <summary>
         /// The merge queue
         /// </summary>
-        private Dictionary<string, List<MapTile>> MergeQueue;
+        private ConcurrentDictionary<string, List<MapTile>> MergeQueue;
 
         /// <summary>
         /// initializes the merge engine
@@ -93,7 +94,8 @@ namespace mTiler.Core.Tiling
         {
             if (HasJob(jobId))
             {
-                MergeQueue.Remove(jobId);
+                List<MapTile> tmp;
+                MergeQueue.TryRemove(jobId, out tmp);
             }
         }
 
@@ -138,7 +140,7 @@ namespace mTiler.Core.Tiling
             }
             else
             {
-                MergeQueue.Add(jobId, job);
+                MergeQueue.TryAdd(jobId, job);
             }
         }
 
@@ -147,7 +149,7 @@ namespace mTiler.Core.Tiling
         /// </summary>
         public void Reset()
         {
-            MergeQueue = new Dictionary<string, List<MapTile>>();
+            MergeQueue = new ConcurrentDictionary<string, List<MapTile>>();
         }
 
         /// <summary>
