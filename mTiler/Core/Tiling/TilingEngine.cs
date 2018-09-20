@@ -71,8 +71,14 @@ namespace mTiler.Core.Tiling
         /// </summary>
         private List<MapTile> TileLoadBuffer;
 
+        /// <summary>
+        /// List of complete tiles. This is used to separate I/O operations from processing threads.
+        /// </summary>
         private ConcurrentDictionary<string, MapTile> CompleteTiles;
 
+        /// <summary>
+        /// List of incomplete tiles. This is used to separate I/O operations from processing threads.
+        /// </summary>
         private ConcurrentBag<MapTile> IncompleteTiles;
 
         /// <summary>

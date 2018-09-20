@@ -20,7 +20,6 @@ using System.Drawing;
 using System.Drawing.Imaging;
 using System.IO;
 using System.Linq;
-using System.Threading.Tasks;
 
 namespace mTiler.Core.Util
 {
@@ -130,61 +129,6 @@ namespace mTiler.Core.Util
             return (string)Path.Combine(outPath, tileID + "_" + atlasID + ".jpg");
         }
 
-        public static string BuildTempPath(string tempDir, string zoomLevel, string regionID, string tileID)
-        {
-            string outPath = Path.Combine(tempDir, zoomLevel, regionID);
-            if (!Directory.Exists(outPath))
-            {
-                Directory.CreateDirectory(outPath);
-            }
-            return (string)Path.Combine(outPath, tileID + ".jpg");
-        }
-
-        /// <summary>
-        /// Gets the path of a tile
-        /// </summary>
-        /// <param name="inputDir">The input directory</param>
-        /// <param name="atlasID">The atlas id of the tile</param>
-        /// <param name="zoomLevelID">The zoom level of the tile</param>
-        /// <param name="regionID">The region id for the tile</param>
-        /// <param name="tileID">The tile id</param>
-        /// <returns>The path to the tile</returns>
-        public static string GetTilePath(string inputDir, string atlasID, string zoomLevelID, string regionID, string tileID)
-        {
-            return (string)Path.Combine(inputDir, atlasID, zoomLevelID, regionID, tileID);
-        }
-
-        /// <summary>
-        /// Gets the tileID from a tile path
-        /// </summary>
-        /// <param name="tilePath">The path to the tile</param>
-        /// <returns>The tile ID</returns>
-        public static string GetTileID(string tilePath)
-        {
-            if (!string.IsNullOrWhiteSpace(tilePath))
-            {
-                string tileFileName = FS.GetFilename(tilePath);
-                int spacerLoc = tileFileName.IndexOf("_", StringComparison.Ordinal);
-                if (spacerLoc > 0)
-                {
-                    return tileFileName.Substring(0, spacerLoc);
-                }
-            }
-            return string.Empty;
-        }
-
-        /// <summary>
-        /// Deletes a given file from the filesystem
-        /// </summary>
-        /// <param name="path">The path to the file to delete</param>
-        public static void DeleteFile(string path)
-        {
-            if (File.Exists(path))
-            {
-                File.Delete(path);
-            }
-        }
-
         /// <summary>
         /// Generates a random string to be used on the end of merge result file names
         /// </summary>
@@ -196,6 +140,12 @@ namespace mTiler.Core.Util
             return new string(Enumerable.Repeat(chars, length).Select(s => s[rand.Next(s.Length)]).ToArray());
         }
 
+        /// <summary>
+        /// Cleans up the names of temporary merged tiles. This is to prevent us from overflowing the 
+        /// filesystem path length limit
+        /// </summary>
+        /// <param name="name">The name to clean up</param>
+        /// <returns>The cleaned up name.</returns>
         private static string CleanupMergeName(string name)
         {
             if (name.Contains("_mergeresult"))
@@ -233,20 +183,6 @@ namespace mTiler.Core.Util
             }
 
             return path;
-        }
-
-        /// <summary>
-        /// Gets the path to a tile in the output directory
-        /// </summary>
-        /// <param name="output">The output path</param>
-        /// <param name="zoomLevel">The zoom level of the tile</param>
-        /// <param name="mapRegion">The region the tile is in</param>
-        /// <param name="tileId">The tile's id</param>
-        /// <returns>The path to the tile on disk</returns>
-        public static string GetTileFromOutput(string output, string zoomLevel, string mapRegion, string tileId)
-        {
-            string outputDir = FS.BuildOutputDir(output, zoomLevel, mapRegion);
-            return Path.Combine(outputDir, tileId);
         }
 
     }

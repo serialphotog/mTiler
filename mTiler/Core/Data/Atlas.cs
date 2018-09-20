@@ -16,7 +16,6 @@ TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR TH
 */
 
 using mTiler.Core.Util;
-using System;
 using System.Collections.Generic;
 
 namespace mTiler.Core.Data
