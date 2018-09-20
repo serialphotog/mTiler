@@ -21,7 +21,6 @@ using mTiler.Core.Util;
 using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
-using System.Diagnostics;
 using System.IO;
 using System.Threading.Tasks;
 
@@ -63,11 +62,6 @@ namespace mTiler.Core.Tiling
         public volatile bool StopRequested = false;
 
         /// <summary>
-        /// Used to time execution.
-        /// </summary>
-        private Stopwatch Stopwatch;
-
-        /// <summary>
         /// The buffer the tiles are initially loaded into before they are processed.
         /// </summary>
         private List<MapTile> TileLoadBuffer;
@@ -86,6 +80,16 @@ namespace mTiler.Core.Tiling
         /// Reference to the merge engine
         /// </summary>
         private MergeEngine MergeEngine;
+
+        /// <summary>
+        /// Timer for the initial data load
+        /// </summary>
+        private Core.Profiling.Timer DataLoadTimer = new Core.Profiling.Timer();
+
+        /// <summary>
+        /// Timer for the tiling operations.
+        /// </summary>
+        private Core.Profiling.Timer TilingTimer = new Core.Profiling.Timer();
 
         /// <summary>
         /// Initializes the tiling engine
@@ -115,7 +119,9 @@ namespace mTiler.Core.Tiling
                 if (ValidateOutputPath(OutputPath))
                 {
                     // Enumerate the atlases and kick off loading all of the data
+                    DataLoadTimer.Start();
                     await PerformInitialLoad();
+                    DataLoadTimer.Stop();
                 }
             }
         }
@@ -349,9 +355,11 @@ namespace mTiler.Core.Tiling
             // Cleanup
             Logger.Log("Cleaning up the temporary directory");
             Directory.Delete(FS.BuildTempDir(OutputPath), true);
-            Stopwatch.Stop();
-            var elapsedTime = Stopwatch.ElapsedMilliseconds;
-            Logger.Log("Complete! Tiling took " + String.Format("{0:0.00}", TimeSpan.FromMilliseconds(elapsedTime).TotalMinutes) + " minutes.");
+
+            TilingTimer.Stop();
+            Logger.Log("Tiling is complete!");
+            Logger.Log("The initial data load took " + DataLoadTimer.GetMinutes() + " minutes");
+            Logger.Log("The tiling took " + TilingTimer.GetMinutes() + " minutes");
         }
 
         /// <summary>
@@ -363,7 +371,7 @@ namespace mTiler.Core.Tiling
             MergeEngine.Reset();
             CompleteTiles = new ConcurrentDictionary<string, MapTile>();
             IncompleteTiles = new ConcurrentBag<MapTile>();
-            this.Stopwatch = Stopwatch.StartNew();
+            TilingTimer.Start();
         }
 
         /// <summary>

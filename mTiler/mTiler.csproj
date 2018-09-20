@@ -84,6 +84,7 @@
     <Compile Include="Core\Data\MapTile.cs" />
     <Compile Include="Core\Data\MapRegion.cs" />
     <Compile Include="Core\Data\ZoomLevel.cs" />
+    <Compile Include="Core\Profiling\Timer.cs" />
     <Compile Include="Core\Tiling\MergeEngine.cs" />
     <Compile Include="Core\Util\Logger.cs" />
     <Compile Include="Core\Tiling\TilingEngine.cs" />
