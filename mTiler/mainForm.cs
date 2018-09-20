@@ -150,19 +150,22 @@ namespace mTiler
             await Task.Run(() => TilingEngine.Init());
 
             // Setup the progress bar
-            TotalWork = TilingEngine.GetTotalTiles();
-            progressBar.Maximum = TotalWork;
-            progressBar.Step = 1;
-            progressBar.Value = 0;
-            lblProgress.Text = "0%";
-
-            // Spawn the thread for the tiling engine
-            if (TotalWork > 0)
+            if (!TilingEngine.IOError)
             {
-                TilingEngine.StopRequested = false;
-                ThreadStart tilingThreadChildRef = new ThreadStart(TilingEngine.Tile);
-                TilingEngineThread = new Thread(tilingThreadChildRef);
-                TilingEngineThread.Start();
+                TotalWork = TilingEngine.GetTotalTiles();
+                progressBar.Maximum = TotalWork;
+                progressBar.Step = 1;
+                progressBar.Value = 0;
+                lblProgress.Text = "0%";
+
+                // Spawn the thread for the tiling engine
+                if (TotalWork > 0)
+                {
+                    TilingEngine.StopRequested = false;
+                    ThreadStart tilingThreadChildRef = new ThreadStart(TilingEngine.Tile);
+                    TilingEngineThread = new Thread(tilingThreadChildRef);
+                    TilingEngineThread.Start();
+                }
             }
         }
 

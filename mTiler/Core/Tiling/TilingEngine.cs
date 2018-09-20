@@ -62,6 +62,11 @@ namespace mTiler.Core.Tiling
         public volatile bool StopRequested = false;
 
         /// <summary>
+        /// Tracks rather or not there is an error with the input output paths
+        /// </summary>
+        public bool IOError = false;
+
+        /// <summary>
         /// The buffer the tiles are initially loaded into before they are processed.
         /// </summary>
         private List<MapTile> TileLoadBuffer;
@@ -116,13 +121,23 @@ namespace mTiler.Core.Tiling
             // Validate the input and output paths
             if (ValidateInputPath(InputPath))
             {
+                IOError = false;
                 if (ValidateOutputPath(OutputPath))
                 {
+                    IOError = false;
                     // Enumerate the atlases and kick off loading all of the data
                     DataLoadTimer.Start();
                     await PerformInitialLoad();
                     DataLoadTimer.Stop();
                 }
+                else
+                {
+                    IOError = true;
+                }
+            }
+            else
+            {
+                IOError = true;
             }
         }
 
