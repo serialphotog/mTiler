@@ -74,6 +74,11 @@ namespace mTiler.Core.Data
         private string Name;
 
         /// <summary>
+        /// The region id of the tile
+        /// </summary>
+        private string RegionId;
+
+        /// <summary>
         /// The logger instance
         /// </summary>
         private Logger Logger;
@@ -298,6 +303,19 @@ namespace mTiler.Core.Data
         public string GetPath()
         {
             return Path;
+        }
+
+        /// <summary>
+        /// Gets the region id of this tile
+        /// </summary>
+        /// <returns></returns>
+        public string GetRegionId()
+        {
+            if (String.IsNullOrEmpty(RegionId))
+            {
+                RegionId = GetZoomLevel().GetName() + GetMapRegion().GetName() + GetName();
+            }
+            return RegionId;
         }
 
         /// <summary>

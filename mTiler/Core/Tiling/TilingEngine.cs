@@ -209,77 +209,142 @@ namespace mTiler.Core.Tiling
             Reset();
             Logger.Log("Performing the tiling operations...");
 
+            // Handle the tiles in the tile load buffer
             Parallel.ForEach(TileLoadBuffer, (currentTile, state) =>
             {
                 if (StopRequested) // User requested tiling thread be stopped
                     state.Break();
 
-                // Load tile properties
-                string currentTileName = currentTile.GetName();
-                ZoomLevel currentTileZoom = currentTile.GetZoomLevel();
-                MapRegion currentTileRegion = currentTile.GetMapRegion();
-                string currentTileRegionId = currentTileZoom.GetName() + currentTileRegion.GetName() + currentTileName;
-
-                // Don't mess with a tile when we've already found a complete version of it
-                if (!CompleteTiles.ContainsKey(currentTileRegionId))
-                {
-                    Logger.Log("Analyzing tile " + currentTileName + " for zoom level " + currentTileZoom.GetName() + " and region " + currentTileRegion.GetName());
-
-                    if (currentTile.IsDatalessTile())
-                    {
-                        // This tile has no data, ignore it
-                        Logger.Log("\tTile " + currentTileName + " has no usable data. Ignoring it.");
-                        Progress.Update(1);
-                    }
-                    else if (currentTile.IsComplete())
-                    {
-                        // This tile is complete. Ignore other non-complete versions and copy to final destination
-                        Logger.Log("\tTile " + currentTileName + " is already complete. Copying it to final destination.");
-
-                        // Remove any incomplete version from the process queue, if present
-                        if (MergeEngine.HasJob(currentTileRegionId))
-                        {
-                            Progress.Update(MergeEngine.GetCountForJob(currentTileRegionId));
-                            MergeEngine.Remove(currentTileRegionId);
-                        }
-
-                        CompleteTiles.TryAdd(currentTileRegionId, currentTile);
-
-                        Progress.Update(1);
-                    }
-                    else
-                    {
-                        // Copy the tile to the temporary working directory for merging
-                        Logger.Log("\tTile " + currentTileName + " is incomplete. Adding it to the merge queue.");
-                        if (MergeEngine.HasJob(currentTileRegionId))
-                        {
-                            List<MapTile> jobTiles = MergeEngine.GetJob(currentTileRegionId);
-                            jobTiles.Add(currentTile);
-                            MergeEngine.Update(currentTileRegionId, jobTiles);
-                        }
-                        else
-                        {
-                            List<MapTile> jobTiles = new List<MapTile>
-                            {
-                                currentTile
-                            };
-                            MergeEngine.Update(currentTileRegionId, jobTiles);
-                        }
-                        IncompleteTiles.Add(currentTile);
-                    }
-                }
-                else
-                {
-                    Progress.Update(1);
-                }
-
-                // Memory cleanup
-                currentTile.Clean();
-                currentTile = null;
+                ProcessTile(currentTile);
             });
             TileLoadBuffer.Clear();
             TileLoadBuffer = null;
 
+            HandleTileIO();
+
+            // Clear some memory
+            CompleteTiles.Clear();
+            CompleteTiles = null;
+            IncompleteTiles = null;
+
+            // Perform the merge jobs
+            Logger.Log("Handling the merge queue...");
+            MergeEngine.Run();
+
+            // Cleanup
+            Cleanup();
+        }
+
+        /// <summary>
+        /// Performs the cleanup at the end of the tiling.
+        /// </summary>
+        private void Cleanup()
+        {
+            Logger.Log("Cleaning up the temporary directory");
+            Directory.Delete(FS.BuildTempDir(OutputPath), true);
+
+            TilingTimer.Stop();
+            Logger.Log("Tiling is complete!");
+            Logger.Log("The initial data load took " + DataLoadTimer.GetMinutes() + " minutes");
+            Logger.Log("The tiling took " + TilingTimer.GetMinutes() + " minutes");
+        }
+
+        /// <summary>
+        /// Performs the processing on a single tile.
+        /// </summary>
+        /// <param name="currentTile">The tile to process</param>
+        private void ProcessTile(MapTile currentTile)
+        {
+            // Don't mess with a tile when we've already found a complete version of it
+            if (!CompleteTiles.ContainsKey(currentTile.GetRegionId()))
+            {
+                Logger.Log("Analyzing tile " + currentTile.GetName() + " for zoom level " + currentTile.GetZoomLevel().GetName() + " and region " + currentTile.GetMapRegion().GetName());
+
+                if (currentTile.IsDatalessTile())
+                {
+                    ProcessDatalessTile(currentTile);
+                }
+                else if (currentTile.IsComplete())
+                {
+                    ProcessCompleteTile(currentTile);
+                }
+                else
+                {
+                    ProcessIncompleteTile(currentTile);
+                }
+            }
+            else
+            {
+                Progress.Update(1);
+            }
+
+            // Memory cleanup
+            currentTile.Clean();
+            currentTile = null;
+        }
+
+        /// <summary>
+        /// Performs the processing on a dataless tile
+        /// </summary>
+        /// <param name="tile">The dataless tile to process</param>
+        private void ProcessDatalessTile(MapTile tile)
+        {
+            // This tile has no data, ignore it
+            Logger.Log("\tTile " + tile.GetName() + " has no usable data. Ignoring it.");
+            Progress.Update(1);
+        }
+
+        /// <summary>
+        /// Performs the processing on an incomplete tile
+        /// </summary>
+        /// <param name="tile">The incomplete tile to process</param>
+        private void ProcessIncompleteTile(MapTile tile)
+        {
+            // Copy the tile to the temporary working directory for merging
+            Logger.Log("\tTile " + tile.GetName() + " is incomplete. Adding it to the merge queue.");
+            if (MergeEngine.HasJob(tile.GetRegionId()))
+            {
+                List<MapTile> jobTiles = MergeEngine.GetJob(tile.GetRegionId());
+                jobTiles.Add(tile);
+                MergeEngine.Update(tile.GetRegionId(), jobTiles);
+            }
+            else
+            {
+                List<MapTile> jobTiles = new List<MapTile>
+                {
+                    tile
+                };
+                MergeEngine.Update(tile.GetRegionId(), jobTiles);
+            }
+            IncompleteTiles.Add(tile);
+        }
+
+        /// <summary>
+        /// Performs the processing on a complete tile
+        /// </summary>
+        /// <param name="tile">The complete tile to process</param>
+        private void ProcessCompleteTile(MapTile tile)
+        {
+            // This tile is complete. Ignore other non-complete versions and copy to final destination
+            Logger.Log("\tTile " + tile.GetName() + " is already complete. Copying it to final destination.");
+
+            // Remove any incomplete version from the process queue, if present
+            if (MergeEngine.HasJob(tile.GetRegionId()))
+            {
+                Progress.Update(MergeEngine.GetCountForJob(tile.GetRegionId()));
+                MergeEngine.Remove(tile.GetRegionId());
+            }
+
+            CompleteTiles.TryAdd(tile.GetRegionId(), tile);
+
+            Progress.Update(1);
+        }
+
+        /// <summary>
+        /// Handles the tile I/O operations
+        /// </summary>
+        private void HandleTileIO()
+        {
             // Perform the I/O operations.
             Logger.Log("Performing file I/O operations...");
 
@@ -309,24 +374,6 @@ namespace mTiler.Core.Tiling
             incompleteTileThread.Start();
             completeTileThread.Join();
             incompleteTileThread.Join();
-
-            // Clear some memory
-            CompleteTiles.Clear();
-            CompleteTiles = null;
-            IncompleteTiles = null;
-
-            // Perform the merge jobs
-            Logger.Log("Handling the merge queue...");
-            MergeEngine.Run();
-
-            // Cleanup
-            Logger.Log("Cleaning up the temporary directory");
-            Directory.Delete(FS.BuildTempDir(OutputPath), true);
-
-            TilingTimer.Stop();
-            Logger.Log("Tiling is complete!");
-            Logger.Log("The initial data load took " + DataLoadTimer.GetMinutes() + " minutes");
-            Logger.Log("The tiling took " + TilingTimer.GetMinutes() + " minutes");
         }
 
         /// <summary>
