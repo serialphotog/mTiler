@@ -184,6 +184,9 @@ namespace mTiler
         /// <param name="progress"></param>
         private void updateProgress(int progress)
         {
+            if (progress > TotalWork)
+                progress = TotalWork;
+
             // Update the in-app progress bar
             double progressPercent = ((double)progress / TotalWork) * 100;
             lblProgress.Text = decimal.Round((decimal)progressPercent, 0, MidpointRounding.AwayFromZero) + "%";
