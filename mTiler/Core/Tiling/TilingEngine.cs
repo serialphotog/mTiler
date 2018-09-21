@@ -22,6 +22,7 @@ using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.IO;
+using System.Threading;
 using System.Threading.Tasks;
 
 namespace mTiler.Core.Tiling
@@ -353,14 +354,33 @@ namespace mTiler.Core.Tiling
 
             // Perform the I/O operations.
             Logger.Log("Performing file I/O operations...");
-            foreach (MapTile tile in CompleteTiles.Values)
+
+            Thread completeTileThread = new Thread(new ThreadStart(() =>
             {
-                HandleCompleteTile(tile);
-            }
-            foreach (MapTile tile in IncompleteTiles)
+                foreach (MapTile tile in CompleteTiles.Values)
+                {
+                    if (StopRequested)
+                        break;
+
+                    HandleCompleteTile(tile);
+                }
+            }));
+
+            Thread incompleteTileThread = new Thread(new ThreadStart(() =>
             {
-                HandleIncompleteTile(tile);
-            }
+                foreach (MapTile tile in IncompleteTiles)
+                {
+                    if (StopRequested)
+                        break;
+
+                    HandleIncompleteTile(tile);
+                }
+            }));
+
+            completeTileThread.Start();
+            incompleteTileThread.Start();
+            completeTileThread.Join();
+            incompleteTileThread.Join();
 
             // Clear some memory
             CompleteTiles.Clear();
