@@ -15,6 +15,7 @@ AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY
 TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 */
 
+using Microsoft.WindowsAPICodePack.Taskbar;
 using mTiler.Core.Profiling;
 using mTiler.Core.Tiling;
 using mTiler.Core.Util;
@@ -142,6 +143,9 @@ namespace mTiler
         /// <param name="e"></param>
         private async void btnStart_Click(object sender, EventArgs e)
         {
+            // Initialize the progress bar in the taskbar
+            TaskbarManager.Instance.SetProgressState(TaskbarProgressBarState.Normal);
+
             // Initialize the merge & tiling engines
             MergeEngine = new MergeEngine(outputPathTxt.Text, Progress, Logger);
             TilingEngine = new TilingEngine(inputPathTxt.Text, outputPathTxt.Text, Logger, Progress, MergeEngine);
@@ -180,9 +184,18 @@ namespace mTiler
         /// <param name="progress"></param>
         private void updateProgress(int progress)
         {
+            // Update the in-app progress bar
             double progressPercent = ((double)progress / TotalWork) * 100;
             lblProgress.Text = decimal.Round((decimal)progressPercent, 0, MidpointRounding.AwayFromZero) + "%";
             progressBar.Value = progress;
+
+            // Update the taskbar progress
+            // Updat the progress in the taskbar
+            TaskbarManager.Instance.SetProgressValue(progress, TotalWork);
+
+            // Check if we are done
+            if (progress >= TotalWork)
+                TaskbarManager.Instance.SetProgressState(TaskbarProgressBarState.NoProgress);
         }
 
     }
