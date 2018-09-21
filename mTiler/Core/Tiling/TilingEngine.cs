@@ -63,11 +63,6 @@ namespace mTiler.Core.Tiling
         public volatile bool StopRequested = false;
 
         /// <summary>
-        /// Tracks rather or not there is an error with the input output paths
-        /// </summary>
-        public bool IOError = false;
-
-        /// <summary>
         /// The buffer the tiles are initially loaded into before they are processed.
         /// </summary>
         private List<MapTile> TileLoadBuffer;
@@ -119,77 +114,10 @@ namespace mTiler.Core.Tiling
         /// <returns></returns>
         public async Task Init()
         {
-            // Validate the input and output paths
-            if (ValidateInputPath(InputPath))
-            {
-                IOError = false;
-                if (ValidateOutputPath(OutputPath))
-                {
-                    IOError = false;
-                    // Enumerate the atlases and kick off loading all of the data
-                    DataLoadTimer.Start();
-                    await PerformInitialLoad();
-                    DataLoadTimer.Stop();
-                }
-                else
-                {
-                    IOError = true;
-                }
-            }
-            else
-            {
-                IOError = true;
-            }
-        }
-
-        /// <summary>
-        /// Validates the output path. Will attempt to create it if it doesn't exist.
-        /// </summary>
-        /// <param name="path">The output path</param>
-        /// <returns>True on success, else false</returns>
-        private bool ValidateOutputPath(string path)
-        {
-            if (!(path.Length >= 3))
-            {
-                Logger.Error("Please enter a valid output path.");
-                return false;
-            }
-            else if (!Directory.Exists(path))
-            {
-                // The output path doesn't exist, attempt to create it
-                Logger.Log("The output path " + path + " does not exist. Attempting to create it...");
-                try
-                {
-                    Directory.CreateDirectory(path);
-                    Logger.Log("Successfully created the output directory at " + path);
-                    return true;
-                } catch (Exception e)
-                {
-                    Logger.Error("Failed to create output directory at " + path + " . " + e.ToString());
-                    return false;
-                }
-            }
-            return true;
-        }
-
-        /// <summary>
-        /// Validates that the input path is valid
-        /// </summary>
-        /// <param name="path">The path to validate</param>
-        /// <returns>True if valid, else false</returns>
-        private bool ValidateInputPath(string path)
-        {
-            if (!(path.Length >= 3))
-            {
-                Logger.Error("Please enter a valid input path.");
-                return false;
-            }
-            else if (!Directory.Exists(path))
-            {
-                Logger.Error("The input path " + path + " does not exist!");
-                return false;
-            }
-            return true;
+            // Enumerate the atlases and kick off loading all of the data
+            DataLoadTimer.Start();
+            await PerformInitialLoad();
+            DataLoadTimer.Stop();
         }
 
 #pragma warning disable 1998

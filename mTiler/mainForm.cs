@@ -20,6 +20,7 @@ using mTiler.Core.Profiling;
 using mTiler.Core.Tiling;
 using mTiler.Core.Util;
 using System;
+using System.IO;
 using System.Threading;
 using System.Threading.Tasks;
 using System.Windows.Forms;
@@ -143,6 +144,12 @@ namespace mTiler
         /// <param name="e"></param>
         private async void btnStart_Click(object sender, EventArgs e)
         {
+            // Validate the input and output paths
+            if (!ValidateInputPath(inputPathTxt.Text))
+                return;
+            if (!ValidateOutputPath(outputPathTxt.Text))
+                return;
+
             // Initialize the progress bar in the taskbar
             TaskbarManager.Instance.SetProgressState(TaskbarProgressBarState.Normal);
 
@@ -154,29 +161,76 @@ namespace mTiler
             await Task.Run(() => TilingEngine.Init());
 
             // Setup the progress bar
-            if (!TilingEngine.IOError)
-            {
-                TotalWork = TilingEngine.GetTotalTiles();
-                progressBar.Maximum = TotalWork;
-                progressBar.Step = 1;
-                progressBar.Value = 0;
-                lblProgress.Text = "0%";
+            TotalWork = TilingEngine.GetTotalTiles();
+            progressBar.Maximum = TotalWork;
+            progressBar.Step = 1;
+            progressBar.Value = 0;
+            lblProgress.Text = "0%";
 
-                // Spawn the thread for the tiling engine
-                if (TotalWork > 0)
-                {
-                    TilingEngine.StopRequested = false;
-                    ThreadStart tilingThreadChildRef = new ThreadStart(TilingEngine.Tile);
-                    TilingEngineThread = new Thread(tilingThreadChildRef);
-                    TilingEngineThread.Start();
-                }
-                else
-                {
-                    Logger.Error("There is no work to be performed.");
-                }
+            // Spawn the thread for the tiling engine
+            if (TotalWork > 0)
+            {
+                TilingEngine.StopRequested = false;
+                ThreadStart tilingThreadChildRef = new ThreadStart(TilingEngine.Tile);
+                TilingEngineThread = new Thread(tilingThreadChildRef);
+                TilingEngineThread.Start();
+            }
+            else
+            {
+                Logger.Error("There is no work to be performed.");
             }
         }
 
+        /// <summary>
+        /// Validates the input path
+        /// </summary>
+        /// <param name="path">The path to validate</param>
+        /// <returns>True if input path is valid, else false</returns>
+        private bool ValidateInputPath(string path)
+        {
+            if (!(path.Length >= 3))
+            {
+                Logger.Error("Please enter a valid input path.");
+                return false;
+            }
+            else if (!Directory.Exists(path))
+            {
+                Logger.Error("The input path " + path + " does not exist!");
+                return false;
+            }
+            return true;
+        }
+
+        /// <summary>
+        /// Validates the output path
+        /// </summary>
+        /// <param name="path">The path to validate</param>
+        /// <returns>True if valid, else false</returns>
+        private bool ValidateOutputPath(string path)
+        {
+            if (!(path.Length >= 3))
+            {
+                Logger.Error("Please enter a valid output path.");
+                return false;
+            }
+            else if (!Directory.Exists(path))
+            {
+                // The output path doesn't exist, attempt to create it
+                Logger.Log("The output path " + path + " does not exist. Attempting to create it...");
+                try
+                {
+                    Directory.CreateDirectory(path);
+                    Logger.Log("Successfully created the output directory at " + path);
+                    return true;
+                }
+                catch (Exception e)
+                {
+                    Logger.Error("Failed to create output directory at " + path + " . " + e.ToString());
+                    return false;
+                }
+            }
+            return true;
+        }
 
         /// <summary>
         /// Updates the progress bar
