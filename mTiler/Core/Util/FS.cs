@@ -16,6 +16,7 @@ TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR TH
 */
 
 using System;
+using System.Collections.Generic;
 using System.Drawing;
 using System.Drawing.Imaging;
 using System.IO;
@@ -35,13 +36,13 @@ namespace mTiler.Core.Util
         /// </summary>
         /// <param name="path">The path to enumerate directories for</param>
         /// <returns>String[] - All the directories within the path, or null if none</returns>
-        public static string[] EnumerateDir(string path)
+        public static List<string> EnumerateDir(string path)
         {
             if (!Directory.Exists(path))
             {
                 return null;
             }
-            return Directory.GetDirectories(path);
+            return new List<string>(Directory.EnumerateDirectories(path));
         }
 
         /// <summary>
@@ -49,13 +50,13 @@ namespace mTiler.Core.Util
         /// </summary>
         /// <param name="path">The path to enumerate files for</param>
         /// <returns>String[] of files, else null</returns>
-        public static string[] EnumerateFiles(string path)
+        public static List<String> EnumerateFiles(string path)
         {
             if (!Directory.Exists(path))
             {
                 return null;
             }
-            return Directory.GetFiles(path);
+            return new List<string>(Directory.EnumerateFiles(path));
         }
 
         /// <summary>

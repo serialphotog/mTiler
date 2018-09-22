@@ -78,8 +78,8 @@ namespace mTiler.Core.Data
             Logger.Log("\tLoading map regions for zoom level: " + Name);
 
             // Find all of the map regions
-            string[] regionPaths = FS.EnumerateDir(Path);
-            if (regionPaths != null && regionPaths.Length > 0)
+            List<string> regionPaths = FS.EnumerateDir(Path);
+            if (regionPaths != null && regionPaths.Count > 0)
             {
                 List<MapRegion> regions = new List<MapRegion>();
                 foreach (string dir in regionPaths)

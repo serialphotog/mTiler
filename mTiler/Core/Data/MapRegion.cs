@@ -84,8 +84,8 @@ namespace mTiler.Core.Data
             Logger.Log("\t\tLoading tiles for map region: " + Name);
 
             // Find all of the tiles
-            string[] tilePaths = FS.EnumerateFiles(Path);
-            if (tilePaths != null && tilePaths.Length > 0)
+            List<string> tilePaths = FS.EnumerateFiles(Path);
+            if (tilePaths != null && tilePaths.Count > 0)
             {
                 List<MapTile> tiles = new List<MapTile>();
                 foreach (string dir in tilePaths)

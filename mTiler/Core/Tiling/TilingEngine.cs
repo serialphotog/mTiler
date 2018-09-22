@@ -140,9 +140,9 @@ namespace mTiler.Core.Tiling
         {
             Logger.Log("Loading atlases...");
 
-            string[] potentialAtlases = FS.EnumerateDir(InputPath);
+            List<string> potentialAtlases = FS.EnumerateDir(InputPath);
             Atlases = new List<Atlas>();
-            if (potentialAtlases != null && potentialAtlases.Length > 0)
+            if (potentialAtlases != null && potentialAtlases.Count > 0)
             {
                 foreach (string dir in potentialAtlases)
                 {
