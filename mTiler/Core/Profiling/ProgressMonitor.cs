@@ -76,9 +76,17 @@ namespace mTiler.Core.Profiling
         {
             if (!StopRequested)
             {
+                // Don't overflow the progress bar
+                if (TotalProgress > FormRef.TotalWork)
+                    TotalProgress = FormRef.TotalWork;
+
+                // Build the string label for the progress
+                double progressPercent = ((double)TotalProgress / FormRef.TotalWork) * 100;
+                string progressText = decimal.Round((decimal)progressPercent, 0, MidpointRounding.AwayFromZero) + "%";
+
                 FormRef.Invoke((Action)delegate
                 {
-                    FormRef.UpdateProgress(TotalProgress);
+                    FormRef.UpdateProgress(TotalProgress, progressText);
                 });
             }
         }

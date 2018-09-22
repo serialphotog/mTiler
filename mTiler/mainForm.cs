@@ -57,13 +57,13 @@ namespace mTiler
         /// <summary>
         /// Tracks the total work for the progress bar
         /// </summary>
-        private int TotalWork = 0;
+        public int TotalWork = 0;
 
         /// <summary>
         /// Delegates to update the progress bar
         /// </summary>
         /// <param name="progress"></param>
-        public delegate void UpdateProgressDelegate(int progress);
+        public delegate void UpdateProgressDelegate(int progress, string lblText);
         public UpdateProgressDelegate UpdateProgress;
 
         /// <summary>
@@ -239,14 +239,10 @@ namespace mTiler
         /// Updates the progress bar
         /// </summary>
         /// <param name="progress"></param>
-        private void updateProgress(int progress)
+        private void updateProgress(int progress, string lblTxt)
         {
-            if (progress > TotalWork)
-                progress = TotalWork;
-
             // Update the in-app progress bar
-            double progressPercent = ((double)progress / TotalWork) * 100;
-            lblProgress.Text = decimal.Round((decimal)progressPercent, 0, MidpointRounding.AwayFromZero) + "%";
+            lblProgress.Text = lblTxt;
             progressBar.Value = progress;
 
             // Update the taskbar progress
