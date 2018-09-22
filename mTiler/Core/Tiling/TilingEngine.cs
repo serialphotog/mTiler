@@ -210,7 +210,7 @@ namespace mTiler.Core.Tiling
             Logger.Log("Performing the tiling operations...");
 
             // Handle the tiles in the tile load buffer
-            Parallel.ForEach(TileLoadBuffer, (currentTile, state) =>
+            Parallel.ForEach(TileLoadBuffer, new ParallelOptions { MaxDegreeOfParallelism = 4 }, (currentTile, state) =>
             {
                 if (StopRequested) // User requested tiling thread be stopped
                     state.Break();

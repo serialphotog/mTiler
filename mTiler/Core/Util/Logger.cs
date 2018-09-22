@@ -62,7 +62,9 @@ namespace mTiler.Core.Util
                 {
                     OutputWindow.Select(OutputWindow.TextLength, 0);
                     OutputWindow.SelectionColor = color;
-                    OutputWindow.AppendText(header + msg + Environment.NewLine);
+                    StringBuilder builder = new StringBuilder(header);
+                    builder.Append(msg).Append(Environment.NewLine);
+                    OutputWindow.AppendText(builder.ToString());
                 });
             }
         }

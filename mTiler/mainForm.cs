@@ -81,6 +81,9 @@ namespace mTiler
             outputConsole.ReadOnly = true;
             outputConsole.WordWrap = false;
 
+            // Enable double buffering
+            this.SetStyle(ControlStyles.AllPaintingInWmPaint | ControlStyles.UserPaint | ControlStyles.OptimizedDoubleBuffer, true);
+
             Logger = new Logger(this.outputConsole);
         }
 
