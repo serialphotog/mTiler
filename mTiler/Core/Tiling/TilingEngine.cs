@@ -95,7 +95,8 @@ namespace mTiler.Core.Tiling
                     if (dir.EndsWith("_atlas"))
                     {
                         // This is an atlas
-                        AppController.Logger.Log("\tFound atlas " + dir);
+                        if (ApplicationController.Instance.EnableVerboseLogging)
+                            AppController.Logger.Log("\tFound atlas " + dir);
                         Atlas atlas = new Atlas(dir, AppController.Logger);
                         Atlases.Add(atlas);
                     }
@@ -201,7 +202,8 @@ namespace mTiler.Core.Tiling
             // Don't mess with a tile when we've already found a complete version of it
             if (!CompleteTiles.ContainsKey(currentTile.GetRegionId()))
             {
-                AppController.Logger.Log("Analyzing tile " + currentTile.GetName() + " for zoom level " + currentTile.GetZoomLevel().GetName() + " and region " + currentTile.GetMapRegion().GetName());
+                if (ApplicationController.Instance.EnableVerboseLogging)
+                    AppController.Logger.Log("Analyzing tile " + currentTile.GetName() + " for zoom level " + currentTile.GetZoomLevel().GetName() + " and region " + currentTile.GetMapRegion().GetName());
 
                 if (currentTile.IsDatalessTile())
                 {
@@ -233,7 +235,8 @@ namespace mTiler.Core.Tiling
         private void ProcessDatalessTile(MapTile tile)
         {
             // This tile has no data, ignore it
-            AppController.Logger.Log("\tTile " + tile.GetName() + " has no usable data. Ignoring it.");
+            if (ApplicationController.Instance.EnableVerboseLogging)
+                AppController.Logger.Log("\tTile " + tile.GetName() + " has no usable data. Ignoring it.");
             AppController.Progress.Update(1);
         }
 
@@ -244,7 +247,8 @@ namespace mTiler.Core.Tiling
         private void ProcessIncompleteTile(MapTile tile)
         {
             // Copy the tile to the temporary working directory for merging
-            AppController.Logger.Log("\tTile " + tile.GetName() + " is incomplete. Adding it to the merge queue.");
+            if (ApplicationController.Instance.EnableVerboseLogging)
+                AppController.Logger.Log("\tTile " + tile.GetName() + " is incomplete. Adding it to the merge queue.");
             if (AppController.MergeEngine.HasJob(tile.GetRegionId()))
             {
                 List<MapTile> jobTiles = AppController.MergeEngine.GetJob(tile.GetRegionId());
@@ -269,7 +273,8 @@ namespace mTiler.Core.Tiling
         private void ProcessCompleteTile(MapTile tile)
         {
             // This tile is complete. Ignore other non-complete versions and copy to final destination
-            AppController.Logger.Log("\tTile " + tile.GetName() + " is already complete. Copying it to final destination.");
+            if (ApplicationController.Instance.EnableVerboseLogging)
+                AppController.Logger.Log("\tTile " + tile.GetName() + " is already complete. Copying it to final destination.");
 
             // Remove any incomplete version from the process queue, if present
             if (AppController.MergeEngine.HasJob(tile.GetRegionId()))

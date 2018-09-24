@@ -179,7 +179,8 @@ namespace mTiler.Core.Tiling
                 if (jobSize > 1)
                 {
                     // There are multiple tiles to merge
-                    AppController.Logger.Log("Handling " + jobSize + " tiles with ID " + currentTile.GetName() + " in zoom level " + currentTile.GetZoomLevel().GetName() + " and region " + currentTile.GetMapRegion().GetName());
+                    if (ApplicationController.Instance.EnableVerboseLogging)
+                        AppController.Logger.Log("Handling " + jobSize + " tiles with ID " + currentTile.GetName() + " in zoom level " + currentTile.GetZoomLevel().GetName() + " and region " + currentTile.GetMapRegion().GetName());
                     MapTile nextTile = mergeJob[1];
                     string resultPath = Path.Combine(tmpDir, currentTile.GetZoomLevel().GetName(), currentTile.GetMapRegion().GetName());
 
@@ -217,7 +218,8 @@ namespace mTiler.Core.Tiling
                 else
                 {
                     // There are not multiple copies of this tile. Just copy it to final destination
-                    AppController.Logger.Warn("There is only one instance of tile " + currentTile.GetName() + " in zoom level " + currentTile.GetZoomLevel().GetName() + " and region " + currentTile.GetMapRegion().GetName() + ". Copying it to final destination");
+                    if (ApplicationController.Instance.EnableVerboseLogging)
+                        AppController.Logger.Warn("There is only one instance of tile " + currentTile.GetName() + " in zoom level " + currentTile.GetZoomLevel().GetName() + " and region " + currentTile.GetMapRegion().GetName() + ". Copying it to final destination");
                     HandleIncompleteNonMergedTile(currentTile);
                     AppController.Progress.Update(1);
                 }

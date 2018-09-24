@@ -70,7 +70,8 @@ namespace mTiler.Core.Data
         /// </summary>
         private void LoadZoomLevels()
         {
-            Logger.Log("Loading zoom levels for atlas: " + Name);
+            if (ApplicationController.Instance.EnableVerboseLogging)
+                Logger.Log("Loading zoom levels for atlas: " + Name);
 
             // Find all of the zoom levels
             List<string> zoomPaths = FS.EnumerateDir(Path);
@@ -79,7 +80,8 @@ namespace mTiler.Core.Data
                 List<ZoomLevel> zooms = new List<ZoomLevel>();
                 foreach (string dir in zoomPaths)
                 {
-                    Logger.Log("\tFound zoom level: " + dir);
+                    if (ApplicationController.Instance.EnableVerboseLogging)
+                        Logger.Log("\tFound zoom level: " + dir);
                     ZoomLevel zoom = new ZoomLevel(dir, this, Logger);
                     NTiles += zoom.NTiles;
                     zooms.Add(zoom);

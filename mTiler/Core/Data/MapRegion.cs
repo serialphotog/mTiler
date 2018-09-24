@@ -81,7 +81,8 @@ namespace mTiler.Core.Data
         /// </summary>
         private void LoadTiles()
         {
-            Logger.Log("\t\tLoading tiles for map region: " + Name);
+            if (ApplicationController.Instance.EnableVerboseLogging)
+                Logger.Log("\t\tLoading tiles for map region: " + Name);
 
             // Find all of the tiles
             List<string> tilePaths = FS.EnumerateFiles(Path);
@@ -90,7 +91,8 @@ namespace mTiler.Core.Data
                 List<MapTile> tiles = new List<MapTile>();
                 foreach (string dir in tilePaths)
                 {
-                    Logger.Log("\t\t\tFound tile: " + dir);
+                    if (ApplicationController.Instance.EnableVerboseLogging)
+                        Logger.Log("\t\t\tFound tile: " + dir);
                     NTiles++;
                     MapTile tile = new MapTile(dir, Atlas, Zoom, this, Logger);
                     tiles.Add(tile);

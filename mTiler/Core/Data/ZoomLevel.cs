@@ -75,7 +75,8 @@ namespace mTiler.Core.Data
         /// </summary>
         private void LoadRegions()
         {
-            Logger.Log("\tLoading map regions for zoom level: " + Name);
+            if (ApplicationController.Instance.EnableVerboseLogging)
+                Logger.Log("\tLoading map regions for zoom level: " + Name);
 
             // Find all of the map regions
             List<string> regionPaths = FS.EnumerateDir(Path);
@@ -84,7 +85,8 @@ namespace mTiler.Core.Data
                 List<MapRegion> regions = new List<MapRegion>();
                 foreach (string dir in regionPaths)
                 {
-                    Logger.Log("\t\tFound map region: " + dir);
+                    if (ApplicationController.Instance.EnableVerboseLogging)
+                        Logger.Log("\t\tFound map region: " + dir);
                     MapRegion region = new MapRegion(dir, Atlas, this, Logger);
                     NTiles += region.NTiles;
                     regions.Add(region);
