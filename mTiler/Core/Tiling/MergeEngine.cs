@@ -21,7 +21,10 @@ using mTiler.Core.Util;
 using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
+using System.Drawing;
+using System.Drawing.Imaging;
 using System.IO;
+using System.Threading;
 using System.Threading.Tasks;
 
 namespace mTiler.Core.Tiling
@@ -31,6 +34,21 @@ namespace mTiler.Core.Tiling
     /// </summary>
     class MergeEngine
     {
+        /// <summary>
+        /// The threshold to use when checking for "white" pixels
+        /// </summary>
+        private static readonly int WhiteThreshold = 30;
+
+        /// <summary>
+        /// Threshold that is used when determining how alike colors are
+        /// </summary>
+        private static readonly int LikenessThreshold = 10;
+
+        /// <summary>
+        /// The amount of the back pixel color to keep when performing blends
+        /// </summary>
+        private static readonly double BlendAmount = 0.999;
+
         /// <summary>
         /// The app controller instance
         /// </summary>
@@ -166,7 +184,7 @@ namespace mTiler.Core.Tiling
                     string resultPath = Path.Combine(tmpDir, currentTile.GetZoomLevel().GetName(), currentTile.GetMapRegion().GetName());
 
                     // Merge the first two tiles
-                    string mergeResult = MapTile.MergeTiles(currentTile, nextTile, resultPath);
+                    string mergeResult = MergeTiles(currentTile, nextTile, resultPath);
                     MapTile resultingTile = new MapTile(mergeResult, null, currentTile.GetZoomLevel(), currentTile.GetMapRegion(), AppController.Logger);
                     AppController.Progress.Update(2);
 
@@ -183,7 +201,7 @@ namespace mTiler.Core.Tiling
 
                             currentTile = resultingTile;
                             nextTile = mergeJob[i];
-                            mergeResult = MapTile.MergeTiles(currentTile, nextTile, resultPath);
+                            mergeResult = MergeTiles(currentTile, nextTile, resultPath);
                             resultingTile = new MapTile(mergeResult, null, currentTile.GetZoomLevel(), currentTile.GetMapRegion(), AppController.Logger);
                             AppController.Progress.Update(1);
                         }
@@ -204,6 +222,68 @@ namespace mTiler.Core.Tiling
                     AppController.Progress.Update(1);
                 }
             }
+        }
+
+        private string MergeTiles(MapTile tileA, MapTile tileB, string outputDir)
+        {
+            Bitmap tileAImage = tileA.GetBitmap();
+            Bitmap tileBImage = tileB.GetBitmap();
+
+            int width = tileAImage.Width;
+            int height = tileBImage.Height;
+
+            // Create the result bitmap
+            PixelFormat pixelFormat = tileAImage.PixelFormat;
+            Bitmap resultingTile = new Bitmap(width, height, pixelFormat);
+
+            // Perform the merge
+            for (int w = 0; w < width; w++)
+            {
+                for (int h = 0; h < height; h++)
+                {
+                    Color pixelA = tileAImage.GetPixel(w, h);
+                    Color pixelB = tileBImage.GetPixel(w, h);
+
+                    if (!ImageUtil.ColorWithinThresholdOfWhite(pixelA, WhiteThreshold) && !ImageUtil.ColorWithinThresholdOfWhite(pixelB, WhiteThreshold))
+                    {
+                        // Set to the average of the two pixels
+                        if (ImageUtil.ColorsAreClose(pixelA, pixelB, LikenessThreshold))
+                        {
+                            resultingTile.SetPixel(w, h, pixelA);
+                        }
+                        else
+                        {
+                            int brightnessA = ImageUtil.GetBrightness(pixelA);
+                            int brightnessB = ImageUtil.GetBrightness(pixelB);
+                            Color blendedPixel;
+
+                            // Determine which order to mix the pixels in
+                            if (brightnessA > brightnessB)
+                            {
+                                blendedPixel = ImageUtil.Blend(pixelB, pixelA, BlendAmount);
+                            }
+                            else
+                            {
+                                blendedPixel = ImageUtil.Blend(pixelA, pixelB, BlendAmount);
+                            }
+                            resultingTile.SetPixel(w, h, blendedPixel);
+                        }
+                    }
+                    else if (!ImageUtil.ColorWithinThresholdOfWhite(pixelA, WhiteThreshold))
+                    {
+                        // This pixel has data, copy it
+                        resultingTile.SetPixel(w, h, pixelA);
+                    }
+                    else
+                    {
+                        // Pixel b has valid data to copy
+                        resultingTile.SetPixel(w, h, pixelB);
+                    }
+                }
+            }
+
+            // Write the bitmap to disk and return the URI
+            return FS.WriteBitmapToJpeg(resultingTile, outputDir, tileA.GetName());
         }
 
         /// <summary>

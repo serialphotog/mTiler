@@ -18,7 +18,6 @@ TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR TH
 using mTiler.Core.Util;
 using System;
 using System.Drawing;
-using System.Drawing.Imaging;
 using System.IO;
 
 namespace mTiler.Core.Data
@@ -32,21 +31,6 @@ namespace mTiler.Core.Data
         /// The white point for determining if tiles are dataless
         /// </summary>
         private static readonly Color WhitePoint = Color.FromArgb(255, 253, 253, 253);
-
-        /// <summary>
-        /// The threshold to use when checking for "white" pixels
-        /// </summary>
-        private static readonly int WhiteThreshold = 30;
-
-        /// <summary>
-        /// Threshold that is used when determining how alike colors are
-        /// </summary>
-        private static readonly int LikenessThreshold = 10;
-
-        /// <summary>
-        /// The amount of the back pixel color to keep when performing blends
-        /// </summary>
-        private static readonly double BlendAmount = 0.999;
 
         /// <summary>
         /// The path to the map tile on disk
@@ -169,75 +153,6 @@ namespace mTiler.Core.Data
                 }
             }
             return true;
-        }
-
-        /// <summary>
-        /// Merges two map tiles together
-        /// </summary>
-        /// <param name="tileA">Tile "A" for the merge</param>
-        /// <param name="tileB">Tile "B" for the merge</param>
-        /// <param name="outputDir">The directory to write the resulting tile image to</param>
-        /// <returns>The path to the resulting tile image</returns>
-        public static string MergeTiles(MapTile tileA, MapTile tileB, string outputDir)
-        {
-            Bitmap tileAImage = tileA.GetBitmap();
-            Bitmap tileBImage = tileB.GetBitmap();
-
-            int width = tileAImage.Width;
-            int height = tileBImage.Height;
-
-            // Create the result bitmap
-            PixelFormat pixelFormat = tileAImage.PixelFormat;
-            Bitmap resultingTile = new Bitmap(width, height, pixelFormat);
-
-            // Perform the merge
-            for (int w=0; w < width; w++)
-            {
-                for (int h=0; h < height; h++)
-                {
-                    Color pixelA = tileAImage.GetPixel(w, h);
-                    Color pixelB = tileBImage.GetPixel(w, h);
-
-                    if (!ImageUtil.ColorWithinThresholdOfWhite(pixelA, WhiteThreshold) && !ImageUtil.ColorWithinThresholdOfWhite(pixelB, WhiteThreshold))
-                    {
-                        // Set to the average of the two pixels
-                        if (ImageUtil.ColorsAreClose(pixelA, pixelB, LikenessThreshold))
-                        {
-                            resultingTile.SetPixel(w, h, pixelA);
-                        }
-                        else
-                        {
-                            int brightnessA = ImageUtil.GetBrightness(pixelA);
-                            int brightnessB = ImageUtil.GetBrightness(pixelB);
-                            Color blendedPixel;
-
-                            // Determine which order to mix the pixels in
-                            if (brightnessA > brightnessB)
-                            {
-                                blendedPixel = ImageUtil.Blend(pixelB, pixelA, BlendAmount);
-                            }
-                            else
-                            {
-                                blendedPixel = ImageUtil.Blend(pixelA, pixelB, BlendAmount);
-                            }
-                            resultingTile.SetPixel(w, h, blendedPixel);
-                        }
-                    }
-                    else if (!ImageUtil.ColorWithinThresholdOfWhite(pixelA, WhiteThreshold))
-                    {
-                        // This pixel has data, copy it
-                        resultingTile.SetPixel(w, h, pixelA);
-                    }
-                    else
-                    {
-                        // Pixel b has valid data to copy
-                        resultingTile.SetPixel(w, h, pixelB);
-                    }
-                }
-            }
-
-            // Write the bitmap to disk and return the URI
-            return FS.WriteBitmapToJpeg(resultingTile, outputDir, tileA.GetName());
         }
 
         /// <summary>
