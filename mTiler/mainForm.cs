@@ -153,6 +153,8 @@ namespace mTiler
         private void btnCancel_Click(object sender, EventArgs e)
         {
             AppController.Stop();
+            // Reset the progress bar
+            updateProgress(0, "0%");
         }
 
         /// <summary>
