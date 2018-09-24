@@ -47,6 +47,7 @@ namespace mTiler
             Properties.Settings.Default.MaxNumberTilingThreads = (byte)trackBarNThreads.Value;
 
             Properties.Settings.Default.Save();
+            AppController.ReloadConfig();
             Close();
         }
 

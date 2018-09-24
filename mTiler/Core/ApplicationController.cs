@@ -106,17 +106,17 @@ namespace mTiler.Core
         /// <summary>
         /// Rather or not to enable verbose logging
         /// </summary>
-        public bool EnableVerboseLogging = Properties.Settings.Default.EnableVerboseLogging;
+        public bool EnableVerboseLogging;
 
         /// <summary>
         /// Rather or not to clear the log on job start
         /// </summary>
-        public bool ClearLogOnJobStart = Properties.Settings.Default.ClearLogOnJobStart;
+        public bool ClearLogOnJobStart;
 
         /// <summary>
         /// The max number of threads to use for tiling
         /// </summary>
-        public byte MaxTilingThreads = Properties.Settings.Default.MaxNumberTilingThreads;
+        public byte MaxTilingThreads;
 
         public void Initialize(MainForm mainFormRef)
         {
@@ -126,6 +126,19 @@ namespace mTiler.Core
             Logger = new Logger(MainFormRef.GetOutputConsole());
             TilingEngine = new TilingEngine();
             MergeEngine = new MergeEngine();
+
+            // Update settings
+            ReloadConfig();
+        }
+
+        /// <summary>
+        /// Reloads the app configuration
+        /// </summary>
+        public void ReloadConfig()
+        {
+            EnableVerboseLogging = Properties.Settings.Default.EnableVerboseLogging;
+            ClearLogOnJobStart = Properties.Settings.Default.ClearLogOnJobStart;
+            MaxTilingThreads = Properties.Settings.Default.MaxNumberTilingThreads;
         }
 
         /// <summary>
