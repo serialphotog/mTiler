@@ -16,9 +16,7 @@ TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR TH
 */
 
 using mTiler.Core.Data;
-using mTiler.Core.Profiling;
 using mTiler.Core.Util;
-using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.IO;
@@ -33,34 +31,14 @@ namespace mTiler.Core.Tiling
     class TilingEngine
     {
         /// <summary>
-        /// The input path that stores our atlas directories
+        /// The application controller
         /// </summary>
-        private string InputPath;
-
-        /// <summary>
-        /// The output path, where we will write the final tiles
-        /// </summary>
-        private string OutputPath;
-
-        /// <summary>
-        /// Reference to the logger component
-        /// </summary>
-        private Logger Logger;
-
-        /// <summary>
-        /// Reference to the progress monitor instance
-        /// </summary>
-        private ProgressMonitor Progress;
+        ApplicationController AppController = ApplicationController.Instance;
 
         /// <summary>
         /// The atlases within the project
         /// </summary>
         private List<Atlas> Atlases;
-        
-        /// <summary>
-        /// Used to request that the tiling thread process be stopped
-        /// </summary>
-        public volatile bool StopRequested = false;
 
         /// <summary>
         /// The buffer the tiles are initially loaded into before they are processed.
@@ -78,11 +56,6 @@ namespace mTiler.Core.Tiling
         private ConcurrentBag<MapTile> IncompleteTiles;
 
         /// <summary>
-        /// Reference to the merge engine
-        /// </summary>
-        private MergeEngine MergeEngine;
-
-        /// <summary>
         /// Timer for the initial data load
         /// </summary>
         private Core.Profiling.Timer DataLoadTimer = new Core.Profiling.Timer();
@@ -91,22 +64,6 @@ namespace mTiler.Core.Tiling
         /// Timer for the tiling operations.
         /// </summary>
         private Core.Profiling.Timer TilingTimer = new Core.Profiling.Timer();
-
-        /// <summary>
-        /// Initializes the tiling engine
-        /// </summary>
-        /// <param name="inputPath">The path to the input directory</param>
-        /// <param name="outputPath">The path for the output directory</param>
-        /// <param name="logger">Reference to the logging component</param>
-        /// <param name="form">Reference to the main form (for progress bar updating)</param>
-        public TilingEngine(string inputPath, string outputPath, Logger logger, ProgressMonitor progressMonitor, MergeEngine mergeEngine)
-        {
-            Logger = logger;
-            InputPath = inputPath;
-            OutputPath = outputPath;
-            Progress = progressMonitor;
-            MergeEngine = mergeEngine;
-        }
 
         /// <summary>
         /// Performs the initialization task
@@ -127,7 +84,7 @@ namespace mTiler.Core.Tiling
         /// <returns></returns>
         private async Task PerformInitialLoad()
         {
-            Logger.Log("Performing initial data load from " + InputPath);
+            AppController.Logger.Log("Performing initial data load from " + AppController.InputPath);
             LoadAtlases();
             LoadTiles();
         }
@@ -138,9 +95,9 @@ namespace mTiler.Core.Tiling
         /// </summary>
         private void LoadAtlases()
         {
-            Logger.Log("Loading atlases...");
+            AppController.Logger.Log("Loading atlases...");
 
-            List<string> potentialAtlases = FS.EnumerateDir(InputPath);
+            List<string> potentialAtlases = FS.EnumerateDir(AppController.InputPath);
             Atlases = new List<Atlas>();
             if (potentialAtlases != null && potentialAtlases.Count > 0)
             {
@@ -150,15 +107,15 @@ namespace mTiler.Core.Tiling
                     if (dir.EndsWith("_atlas"))
                     {
                         // This is an atlas
-                        Logger.Log("\tFound atlas " + dir);
-                        Atlas atlas = new Atlas(dir, Logger);
+                        AppController.Logger.Log("\tFound atlas " + dir);
+                        Atlas atlas = new Atlas(dir, AppController.Logger);
                         Atlases.Add(atlas);
                     }
                 }
             }
             else
             {
-                Logger.Error("No atlases found in input path " + InputPath);
+                AppController.Logger.Error("No atlases found in input path " + AppController.InputPath);
             }
         }
 
@@ -172,7 +129,7 @@ namespace mTiler.Core.Tiling
             // Iterate through each atlas
             if (Atlases == null || Atlases.Count <= 0)
             {
-                Logger.Error("There are no atlases in " + InputPath);
+                AppController.Logger.Error("There are no atlases in " + AppController.InputPath);
                 return;
             }
             foreach (Atlas atlas in Atlases)
@@ -207,12 +164,12 @@ namespace mTiler.Core.Tiling
         {
             // Start from a clean state
             Reset();
-            Logger.Log("Performing the tiling operations...");
+            AppController.Logger.Log("Performing the tiling operations...");
 
             // Handle the tiles in the tile load buffer
             Parallel.ForEach(TileLoadBuffer, new ParallelOptions { MaxDegreeOfParallelism = 4 }, (currentTile, state) =>
             {
-                if (StopRequested) // User requested tiling thread be stopped
+                if (AppController.StopRequested) // User requested tiling thread be stopped
                     state.Break();
 
                 ProcessTile(currentTile);
@@ -228,8 +185,8 @@ namespace mTiler.Core.Tiling
             IncompleteTiles = null;
 
             // Perform the merge jobs
-            Logger.Log("Handling the merge queue...");
-            MergeEngine.Run();
+            AppController.Logger.Log("Handling the merge queue...");
+            AppController.MergeEngine.Run();
 
             // Cleanup
             Cleanup();
@@ -240,13 +197,13 @@ namespace mTiler.Core.Tiling
         /// </summary>
         private void Cleanup()
         {
-            Logger.Log("Cleaning up the temporary directory");
-            Directory.Delete(FS.BuildTempDir(OutputPath), true);
+            AppController.Logger.Log("Cleaning up the temporary directory");
+            Directory.Delete(FS.BuildTempDir(AppController.OutputPath), true);
 
             TilingTimer.Stop();
-            Logger.Log("Tiling is complete!");
-            Logger.Log("The initial data load took " + DataLoadTimer.GetMinutes() + " minutes");
-            Logger.Log("The tiling took " + TilingTimer.GetMinutes() + " minutes");
+            AppController.Logger.Log("Tiling is complete!");
+            AppController.Logger.Log("The initial data load took " + DataLoadTimer.GetMinutes() + " minutes");
+            AppController.Logger.Log("The tiling took " + TilingTimer.GetMinutes() + " minutes");
         }
 
         /// <summary>
@@ -258,7 +215,7 @@ namespace mTiler.Core.Tiling
             // Don't mess with a tile when we've already found a complete version of it
             if (!CompleteTiles.ContainsKey(currentTile.GetRegionId()))
             {
-                Logger.Log("Analyzing tile " + currentTile.GetName() + " for zoom level " + currentTile.GetZoomLevel().GetName() + " and region " + currentTile.GetMapRegion().GetName());
+                AppController.Logger.Log("Analyzing tile " + currentTile.GetName() + " for zoom level " + currentTile.GetZoomLevel().GetName() + " and region " + currentTile.GetMapRegion().GetName());
 
                 if (currentTile.IsDatalessTile())
                 {
@@ -275,7 +232,7 @@ namespace mTiler.Core.Tiling
             }
             else
             {
-                Progress.Update(1);
+                AppController.Progress.Update(1);
             }
 
             // Memory cleanup
@@ -290,8 +247,8 @@ namespace mTiler.Core.Tiling
         private void ProcessDatalessTile(MapTile tile)
         {
             // This tile has no data, ignore it
-            Logger.Log("\tTile " + tile.GetName() + " has no usable data. Ignoring it.");
-            Progress.Update(1);
+            AppController.Logger.Log("\tTile " + tile.GetName() + " has no usable data. Ignoring it.");
+            AppController.Progress.Update(1);
         }
 
         /// <summary>
@@ -301,12 +258,12 @@ namespace mTiler.Core.Tiling
         private void ProcessIncompleteTile(MapTile tile)
         {
             // Copy the tile to the temporary working directory for merging
-            Logger.Log("\tTile " + tile.GetName() + " is incomplete. Adding it to the merge queue.");
-            if (MergeEngine.HasJob(tile.GetRegionId()))
+            AppController.Logger.Log("\tTile " + tile.GetName() + " is incomplete. Adding it to the merge queue.");
+            if (AppController.MergeEngine.HasJob(tile.GetRegionId()))
             {
-                List<MapTile> jobTiles = MergeEngine.GetJob(tile.GetRegionId());
+                List<MapTile> jobTiles = AppController.MergeEngine.GetJob(tile.GetRegionId());
                 jobTiles.Add(tile);
-                MergeEngine.Update(tile.GetRegionId(), jobTiles);
+                AppController.MergeEngine.Update(tile.GetRegionId(), jobTiles);
             }
             else
             {
@@ -314,7 +271,7 @@ namespace mTiler.Core.Tiling
                 {
                     tile
                 };
-                MergeEngine.Update(tile.GetRegionId(), jobTiles);
+                AppController.MergeEngine.Update(tile.GetRegionId(), jobTiles);
             }
             IncompleteTiles.Add(tile);
         }
@@ -326,18 +283,18 @@ namespace mTiler.Core.Tiling
         private void ProcessCompleteTile(MapTile tile)
         {
             // This tile is complete. Ignore other non-complete versions and copy to final destination
-            Logger.Log("\tTile " + tile.GetName() + " is already complete. Copying it to final destination.");
+            AppController.Logger.Log("\tTile " + tile.GetName() + " is already complete. Copying it to final destination.");
 
             // Remove any incomplete version from the process queue, if present
-            if (MergeEngine.HasJob(tile.GetRegionId()))
+            if (AppController.MergeEngine.HasJob(tile.GetRegionId()))
             {
-                Progress.Update(MergeEngine.GetCountForJob(tile.GetRegionId()));
-                MergeEngine.Remove(tile.GetRegionId());
+                AppController.Progress.Update(AppController.MergeEngine.GetCountForJob(tile.GetRegionId()));
+                AppController.MergeEngine.Remove(tile.GetRegionId());
             }
 
             CompleteTiles.TryAdd(tile.GetRegionId(), tile);
 
-            Progress.Update(1);
+            AppController.Progress.Update(1);
         }
 
         /// <summary>
@@ -346,13 +303,13 @@ namespace mTiler.Core.Tiling
         private void HandleTileIO()
         {
             // Perform the I/O operations.
-            Logger.Log("Performing file I/O operations...");
+            AppController.Logger.Log("Performing file I/O operations...");
 
             Thread completeTileThread = new Thread(new ThreadStart(() =>
             {
                 foreach (MapTile tile in CompleteTiles.Values)
                 {
-                    if (StopRequested)
+                    if (AppController.StopRequested)
                         break;
 
                     HandleCompleteTile(tile);
@@ -363,7 +320,7 @@ namespace mTiler.Core.Tiling
             {
                 foreach (MapTile tile in IncompleteTiles)
                 {
-                    if (StopRequested)
+                    if (AppController.StopRequested)
                         break;
 
                     HandleIncompleteTile(tile);
@@ -381,8 +338,8 @@ namespace mTiler.Core.Tiling
         /// </summary>
         private void Reset()
         {
-            Progress.Reset();
-            MergeEngine.Reset();
+            AppController.Progress.Reset();
+            AppController.MergeEngine.Reset();
             CompleteTiles = new ConcurrentDictionary<string, MapTile>();
             IncompleteTiles = new ConcurrentBag<MapTile>();
             TilingTimer.Start();
@@ -394,7 +351,7 @@ namespace mTiler.Core.Tiling
         /// <param name="tile">The complete tile to copy</param>
         private void HandleCompleteTile(MapTile tile)
         {
-            string copyToDir = FS.BuildOutputDir(OutputPath, tile.GetZoomLevel().GetName(), tile.GetMapRegion().GetName());
+            string copyToDir = FS.BuildOutputDir(AppController.OutputPath, tile.GetZoomLevel().GetName(), tile.GetMapRegion().GetName());
             string copyPath = Path.Combine(copyToDir, tile.GetName());
             File.Copy(tile.GetPath(), copyPath, true);
         }
@@ -405,7 +362,7 @@ namespace mTiler.Core.Tiling
         /// <param name="tile">The incomplete tile to copy</param>
         private void HandleIncompleteTile(MapTile tile)
         {
-            string tmpDir = FS.BuildTempDir(OutputPath);
+            string tmpDir = FS.BuildTempDir(AppController.OutputPath);
             string copyTo = FS.BuildTempPath(tmpDir, tile.GetZoomLevel().GetName(), tile.GetMapRegion().GetName(), tile.GetName(), tile.GetAtlas().GetName());
             File.Copy(tile.GetPath(), copyTo, true);
         }

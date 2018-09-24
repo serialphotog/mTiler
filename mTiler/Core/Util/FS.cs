@@ -169,8 +169,6 @@ namespace mTiler.Core.Util
         public static string WriteBitmapToJpeg(Bitmap bmp, string outputDir, string name)
         {
             // Cleanup the name
-
-
             string path = (string)Path.Combine(outputDir, CleanupMergeName(name));
 
             using (MemoryStream memory = new MemoryStream())

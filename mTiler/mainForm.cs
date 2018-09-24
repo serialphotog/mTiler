@@ -16,13 +16,9 @@ TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR TH
 */
 
 using Microsoft.WindowsAPICodePack.Taskbar;
-using mTiler.Core.Profiling;
-using mTiler.Core.Tiling;
-using mTiler.Core.Util;
+using mTiler.Core;
 using System;
 using System.IO;
-using System.Threading;
-using System.Threading.Tasks;
 using System.Windows.Forms;
 
 namespace mTiler
@@ -30,34 +26,14 @@ namespace mTiler
     public partial class MainForm : Form
     {
         /// <summary>
-        /// Reference to the logger instance
+        /// The application controller
         /// </summary>
-        private Logger Logger { get; set; }
+        private ApplicationController AppController = ApplicationController.Instance;
 
         /// <summary>
-        /// Reference to the tiling engine.
+        /// Tracks the total work to be done
         /// </summary>
-        private TilingEngine TilingEngine;
-
-        /// <summary>
-        /// The merge engine instance
-        /// </summary>
-        private MergeEngine MergeEngine;
-
-        /// <summary>
-        /// The progress monitor instance
-        /// </summary>
-        private ProgressMonitor Progress;
-
-        /// <summary>
-        /// The thread the tiling engine runs in
-        /// </summary>
-        private Thread TilingEngineThread;
-
-        /// <summary>
-        /// Tracks the total work for the progress bar
-        /// </summary>
-        public int TotalWork = 0;
+        private int TotalWork;
 
         /// <summary>
         /// Delegates to update the progress bar
@@ -73,9 +49,11 @@ namespace mTiler
         {
             InitializeComponent();
 
+            // Initialize the app controller
+            AppController.Initialize(this);
+
             // Initialize the update progress delegate handler
             UpdateProgress = new UpdateProgressDelegate(updateProgress);
-            Progress = new ProgressMonitor(this);
 
             // Setup some output console properties
             outputConsole.ReadOnly = true;
@@ -83,8 +61,57 @@ namespace mTiler
 
             // Enable double buffering
             this.SetStyle(ControlStyles.AllPaintingInWmPaint | ControlStyles.UserPaint | ControlStyles.OptimizedDoubleBuffer, true);
+        }
 
-            Logger = new Logger(this.outputConsole);
+        /// <summary>
+        /// Validates the input path
+        /// </summary>
+        /// <param name="path">The path to validate</param>
+        /// <returns>True if input path is valid, else false</returns>
+        private bool ValidateInputPath(string path)
+        {
+            if (!(path.Length >= 3))
+            {
+                AppController.Logger.Error("Please enter a valid input path.");
+                return false;
+            }
+            else if (!Directory.Exists(path))
+            {
+                AppController.Logger.Error("The input path " + path + " does not exist!");
+                return false;
+            }
+            return true;
+        }
+
+        /// <summary>
+        /// Validates the output path
+        /// </summary>
+        /// <param name="path">The path to validate</param>
+        /// <returns>True if valid, else false</returns>
+        private bool ValidateOutputPath(string path)
+        {
+            if (!(path.Length >= 3))
+            {
+                AppController.Logger.Error("Please enter a valid output path.");
+                return false;
+            }
+            else if (!Directory.Exists(path))
+            {
+                // The output path doesn't exist, attempt to create it
+                AppController.Logger.Log("The output path " + path + " does not exist. Attempting to create it...");
+                try
+                {
+                    Directory.CreateDirectory(path);
+                    AppController.Logger.Log("Successfully created the output directory at " + path);
+                    return true;
+                }
+                catch (Exception e)
+                {
+                    AppController.Logger.Error("Failed to create output directory at " + path + " . " + e.ToString());
+                    return false;
+                }
+            }
+            return true;
         }
 
         /// <summary>
@@ -108,13 +135,7 @@ namespace mTiler
         /// <param name="e"></param>
         private void btnCancel_Click(object sender, EventArgs e)
         {
-            if (TilingEngine != null)
-                TilingEngine.StopRequested = true;
-            if (MergeEngine != null)
-                MergeEngine.StopRequested = true;
-            Logger.StopRequested = true;
-            Progress.StopRequested = true;
-            Application.Exit();
+            AppController.Stop();
         }
 
         /// <summary>
@@ -145,94 +166,12 @@ namespace mTiler
         /// </summary>
         /// <param name="sender"></param>
         /// <param name="e"></param>
-        private async void btnStart_Click(object sender, EventArgs e)
+        private void btnStart_Click(object sender, EventArgs e)
         {
-            // Validate the input and output paths
-            if (!ValidateInputPath(inputPathTxt.Text))
-                return;
-            if (!ValidateOutputPath(outputPathTxt.Text))
-                return;
-
-            // Initialize the progress bar in the taskbar
-            TaskbarManager.Instance.SetProgressState(TaskbarProgressBarState.Normal);
-
-            // Initialize the merge & tiling engines
-            MergeEngine = new MergeEngine(outputPathTxt.Text, Progress, Logger);
-            TilingEngine = new TilingEngine(inputPathTxt.Text, outputPathTxt.Text, Logger, Progress, MergeEngine);
-
-            // Load the data for the tiling engine
-            await Task.Run(() => TilingEngine.Init());
-
-            // Setup the progress bar
-            TotalWork = TilingEngine.GetTotalTiles();
-            progressBar.Maximum = TotalWork;
-            progressBar.Step = 1;
-            progressBar.Value = 0;
-            lblProgress.Text = "0%";
-
-            // Spawn the thread for the tiling engine
-            if (TotalWork > 0)
+            if (ValidateInputPath(inputPathTxt.Text) && ValidateOutputPath(outputPathTxt.Text))
             {
-                TilingEngine.StopRequested = false;
-                ThreadStart tilingThreadChildRef = new ThreadStart(TilingEngine.Tile);
-                TilingEngineThread = new Thread(tilingThreadChildRef);
-                TilingEngineThread.Start();
+                AppController.Start(inputPathTxt.Text, outputPathTxt.Text);
             }
-            else
-            {
-                Logger.Error("There is no work to be performed.");
-            }
-        }
-
-        /// <summary>
-        /// Validates the input path
-        /// </summary>
-        /// <param name="path">The path to validate</param>
-        /// <returns>True if input path is valid, else false</returns>
-        private bool ValidateInputPath(string path)
-        {
-            if (!(path.Length >= 3))
-            {
-                Logger.Error("Please enter a valid input path.");
-                return false;
-            }
-            else if (!Directory.Exists(path))
-            {
-                Logger.Error("The input path " + path + " does not exist!");
-                return false;
-            }
-            return true;
-        }
-
-        /// <summary>
-        /// Validates the output path
-        /// </summary>
-        /// <param name="path">The path to validate</param>
-        /// <returns>True if valid, else false</returns>
-        private bool ValidateOutputPath(string path)
-        {
-            if (!(path.Length >= 3))
-            {
-                Logger.Error("Please enter a valid output path.");
-                return false;
-            }
-            else if (!Directory.Exists(path))
-            {
-                // The output path doesn't exist, attempt to create it
-                Logger.Log("The output path " + path + " does not exist. Attempting to create it...");
-                try
-                {
-                    Directory.CreateDirectory(path);
-                    Logger.Log("Successfully created the output directory at " + path);
-                    return true;
-                }
-                catch (Exception e)
-                {
-                    Logger.Error("Failed to create output directory at " + path + " . " + e.ToString());
-                    return false;
-                }
-            }
-            return true;
         }
 
         /// <summary>
@@ -252,6 +191,28 @@ namespace mTiler
             // Check if we are done
             if (progress >= TotalWork)
                 TaskbarManager.Instance.SetProgressState(TaskbarProgressBarState.NoProgress);
+        }
+
+        /// <summary>
+        /// Returns the output console
+        /// </summary>
+        /// <returns></returns>
+        public RichTextBox GetOutputConsole()
+        {
+            return this.outputConsole;
+        }
+
+        /// <summary>
+        /// Sets the maximum bounds for the progress bar
+        /// </summary>
+        /// <param name="totalWork"></param>
+        public void SetTotalWork(int totalWork)
+        {
+            TotalWork = totalWork;
+            progressBar.Maximum = totalWork;
+            progressBar.Step = 1;
+            progressBar.Value = 0;
+            lblProgress.Text = "0%";
         }
 
     }

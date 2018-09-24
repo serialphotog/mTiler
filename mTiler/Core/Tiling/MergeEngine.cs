@@ -31,44 +31,15 @@ namespace mTiler.Core.Tiling
     /// </summary>
     class MergeEngine
     {
-
         /// <summary>
-        /// The output path, where we will write the final tiles
+        /// The app controller instance
         /// </summary>
-        private string OutputPath;
-
-        /// <summary>
-        /// Reference to the logger component
-        /// </summary>
-        private Logger Logger;
-
-        /// <summary>
-        /// Reference to the progress monitor instance
-        /// </summary>
-        private ProgressMonitor Progress;
-
-        /// <summary>
-        /// Used to request that the tiling thread process be stopped
-        /// </summary>
-        public volatile bool StopRequested = false;
+        private ApplicationController AppController = ApplicationController.Instance;
 
         /// <summary>
         /// The merge queue
         /// </summary>
         private ConcurrentDictionary<string, List<MapTile>> MergeQueue;
-
-        /// <summary>
-        /// initializes the merge engine
-        /// </summary>
-        /// <param name="outputPath">The output path for merged tiles</param>
-        /// <param name="progressMonitor">The progress monitor instance</param>
-        /// <param name="logger">The logger instance</param>
-        public MergeEngine(string outputPath, ProgressMonitor progressMonitor, Logger logger)
-        {
-            OutputPath = outputPath;
-            Progress = progressMonitor;
-            Logger = logger;
-        }
 
         /// <summary>
         /// Runs the job queue
@@ -162,7 +133,7 @@ namespace mTiler.Core.Tiling
             // Run the merge queue
             Parallel.ForEach(MergeQueue.Values, (mergeJob, state) =>
             {
-                if (StopRequested)
+                if (AppController.StopRequested)
                     state.Break();
 
                 HandleMergeJob(mergeJob);
@@ -184,20 +155,20 @@ namespace mTiler.Core.Tiling
             int jobSize = mergeJob.Count;
             if (jobSize > 0)
             {
-                string tmpDir = FS.BuildTempDir(OutputPath);
+                string tmpDir = FS.BuildTempDir(AppController.OutputPath);
                 MapTile currentTile = mergeJob[0];
 
                 if (jobSize > 1)
                 {
                     // There are multiple tiles to merge
-                    Logger.Log("Handling " + jobSize + " tiles with ID " + currentTile.GetName() + " in zoom level " + currentTile.GetZoomLevel().GetName() + " and region " + currentTile.GetMapRegion().GetName());
+                    AppController.Logger.Log("Handling " + jobSize + " tiles with ID " + currentTile.GetName() + " in zoom level " + currentTile.GetZoomLevel().GetName() + " and region " + currentTile.GetMapRegion().GetName());
                     MapTile nextTile = mergeJob[1];
                     string resultPath = Path.Combine(tmpDir, currentTile.GetZoomLevel().GetName(), currentTile.GetMapRegion().GetName());
 
                     // Merge the first two tiles
                     string mergeResult = MapTile.MergeTiles(currentTile, nextTile, resultPath);
-                    MapTile resultingTile = new MapTile(mergeResult, null, currentTile.GetZoomLevel(), currentTile.GetMapRegion(), Logger);
-                    Progress.Update(2);
+                    MapTile resultingTile = new MapTile(mergeResult, null, currentTile.GetZoomLevel(), currentTile.GetMapRegion(), AppController.Logger);
+                    AppController.Progress.Update(2);
 
                     if (jobSize > 2)
                     {
@@ -213,8 +184,8 @@ namespace mTiler.Core.Tiling
                             currentTile = resultingTile;
                             nextTile = mergeJob[i];
                             mergeResult = MapTile.MergeTiles(currentTile, nextTile, resultPath);
-                            resultingTile = new MapTile(mergeResult, null, currentTile.GetZoomLevel(), currentTile.GetMapRegion(), Logger);
-                            Progress.Update(1);
+                            resultingTile = new MapTile(mergeResult, null, currentTile.GetZoomLevel(), currentTile.GetMapRegion(), AppController.Logger);
+                            AppController.Progress.Update(1);
                         }
                     }
 
@@ -224,14 +195,13 @@ namespace mTiler.Core.Tiling
                     // Clean up tile memory
                     currentTile.Clean();
                     nextTile.Clean();
-                    GC.Collect();
                 }
                 else
                 {
                     // There are not multiple copies of this tile. Just copy it to final destination
-                    Logger.Warn("There is only one instance of tile " + currentTile.GetName() + " in zoom level " + currentTile.GetZoomLevel().GetName() + " and region " + currentTile.GetMapRegion().GetName() + ". Copying it to final destination");
+                    AppController.Logger.Warn("There is only one instance of tile " + currentTile.GetName() + " in zoom level " + currentTile.GetZoomLevel().GetName() + " and region " + currentTile.GetMapRegion().GetName() + ". Copying it to final destination");
                     HandleIncompleteNonMergedTile(currentTile);
-                    Progress.Update(1);
+                    AppController.Progress.Update(1);
                 }
             }
         }
@@ -242,7 +212,7 @@ namespace mTiler.Core.Tiling
         /// <param name="tile">The merged tile to move</param>
         private void HandleMergedTile(MapTile tile)
         {
-            string copyTo = FS.BuildOutputDir(OutputPath, tile.GetZoomLevel().GetName(), tile.GetMapRegion().GetName());
+            string copyTo = FS.BuildOutputDir(AppController.OutputPath, tile.GetZoomLevel().GetName(), tile.GetMapRegion().GetName());
             string copyPath = Path.Combine(copyTo, tile.GetName());
             File.Copy(tile.GetPath(), copyPath, true);
         }
@@ -253,7 +223,7 @@ namespace mTiler.Core.Tiling
         /// <param name="tile">The tile to copy</param>
         private void HandleIncompleteNonMergedTile(MapTile tile)
         {
-            string copyTo = FS.BuildOutputDir(OutputPath, tile.GetZoomLevel().GetName(), tile.GetMapRegion().GetName());
+            string copyTo = FS.BuildOutputDir(AppController.OutputPath, tile.GetZoomLevel().GetName(), tile.GetMapRegion().GetName());
             string copyPath = Path.Combine(copyTo, tile.GetName());
             File.Copy(tile.GetPath(), copyPath, true);
         }

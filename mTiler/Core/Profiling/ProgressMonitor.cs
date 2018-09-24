@@ -24,6 +24,10 @@ namespace mTiler.Core.Profiling
     /// </summary>
     class ProgressMonitor
     {
+        /// <summary>
+        /// The app controller
+        /// </summary>
+        ApplicationController AppController = ApplicationController.Instance;
 
         /// <summary>
         /// Tracks the total progress
@@ -31,30 +35,10 @@ namespace mTiler.Core.Profiling
         private int TotalProgress;
 
         /// <summary>
-        /// Reference to the form
-        /// </summary>
-        private MainForm FormRef;
-
-        /// <summary>
-        /// Used to request that the tiling thread process be stopped
-        /// </summary>
-        public volatile bool StopRequested = false;
-
-        /// <summary>
-        /// Initializes the progress montitor
-        /// </summary>
-        /// <param name="form">Reference to the main form</param>
-        public ProgressMonitor(MainForm form)
-        {
-            FormRef = form;
-        }
-
-        /// <summary>
         /// Resets the progress monitor
         /// </summary>
         public void Reset()
         {
-            StopRequested = false;
             TotalProgress = 0;
             UpdateProgress();
         }
@@ -74,19 +58,19 @@ namespace mTiler.Core.Profiling
         /// </summary>
         private void UpdateProgress()
         {
-            if (!StopRequested)
+            if (!AppController.StopRequested)
             {
                 // Don't overflow the progress bar
-                if (TotalProgress > FormRef.TotalWork)
-                    TotalProgress = FormRef.TotalWork;
+                if (TotalProgress > AppController.TotalWork)
+                    TotalProgress = AppController.TotalWork;
 
                 // Build the string label for the progress
-                double progressPercent = ((double)TotalProgress / FormRef.TotalWork) * 100;
+                double progressPercent = ((double)TotalProgress / AppController.TotalWork) * 100;
                 string progressText = decimal.Round((decimal)progressPercent, 0, MidpointRounding.AwayFromZero) + "%";
 
-                FormRef.Invoke((Action)delegate
+                AppController.MainFormRef.Invoke((Action)delegate
                 {
-                    FormRef.UpdateProgress(TotalProgress, progressText);
+                    AppController.MainFormRef.UpdateProgress(TotalProgress, progressText);
                 });
             }
         }

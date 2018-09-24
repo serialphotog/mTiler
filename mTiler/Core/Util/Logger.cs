@@ -16,11 +16,8 @@ TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR TH
 */
 
 using System;
-using System.Collections.Generic;
 using System.Drawing;
-using System.Linq;
 using System.Text;
-using System.Threading.Tasks;
 using System.Windows.Forms;
 
 namespace mTiler.Core.Util
@@ -30,14 +27,14 @@ namespace mTiler.Core.Util
         delegate void LoggingDelegate(string text);
 
         /// <summary>
+        /// The application controller
+        /// </summary>
+        private ApplicationController AppController = ApplicationController.Instance;
+
+        /// <summary>
         /// Reference to the output window
         /// </summary>
         private RichTextBox OutputWindow { get; set; }
-
-        /// <summary>
-        /// Used to determine if an application exit has been requested
-        /// </summary>
-        public volatile bool StopRequested = false;
 
         /// <summary>
         /// Initializes the logger component
@@ -56,7 +53,7 @@ namespace mTiler.Core.Util
         /// <param name="color">The text color to log the message in</param>
         private void Log(string header, string msg, Color color)
         {
-            if (!StopRequested)
+            if (!AppController.StopRequested)
             {
                 OutputWindow.Invoke((Action)delegate // Make things thread-safe
                 {
