@@ -157,6 +157,9 @@ namespace mTiler.Core
                 JobRunning = true;
                 StopRequested = false;
 
+                if (ClearLogOnJobStart)
+                    Logger.Clear();
+
                 // Perform the initial data load
                 DataLoadTimer.Start();
                 await Task.Run(() => TilingEngine.Init());

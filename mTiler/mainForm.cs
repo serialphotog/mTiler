@@ -59,8 +59,25 @@ namespace mTiler
             outputConsole.ReadOnly = true;
             outputConsole.WordWrap = false;
 
+            // Add context menu to the log
+            ContextMenu logContextMenu = new ContextMenu();
+            MenuItem clearMenuItem = new MenuItem("Clear");
+            clearMenuItem.Click += ClearLog;
+            logContextMenu.MenuItems.Add(clearMenuItem);
+            outputConsole.ContextMenu = logContextMenu;
+
             // Enable double buffering
             this.SetStyle(ControlStyles.AllPaintingInWmPaint | ControlStyles.UserPaint | ControlStyles.OptimizedDoubleBuffer, true);
+        }
+
+        /// <summary>
+        /// Clears the log when context menu item is selected   
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
+        private void ClearLog(object sender, EventArgs e)
+        {
+            AppController.Logger.Clear();
         }
 
         /// <summary>

@@ -67,6 +67,14 @@ namespace mTiler.Core.Util
         }
 
         /// <summary>
+        /// Clears the log
+        /// </summary>
+        public void Clear()
+        {
+            OutputWindow.Clear();
+        }
+
+        /// <summary>
         /// Logs a message to the output window
         /// </summary>
         /// <param name="msg">The message to log</param>
