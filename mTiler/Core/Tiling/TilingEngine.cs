@@ -294,7 +294,7 @@ namespace mTiler.Core.Tiling
         private void HandleTileIO()
         {
             // Perform the I/O operations.
-            AppController.Logger.Log("Performing file I/O operations...");
+            AppController.Logger.Log("Performing file I/O operations... This may take several minutes.");
 
             Thread completeTileThread = new Thread(new ThreadStart(() =>
             {

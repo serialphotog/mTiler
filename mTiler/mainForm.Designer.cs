@@ -45,10 +45,10 @@
             this.outputConsole = new System.Windows.Forms.RichTextBox();
             this.mainMenu = new System.Windows.Forms.MainMenu(this.components);
             this.menuItem1 = new System.Windows.Forms.MenuItem();
+            this.fileMenuItemSettings = new System.Windows.Forms.MenuItem();
             this.fileMenuItemExit = new System.Windows.Forms.MenuItem();
             this.menuItem2 = new System.Windows.Forms.MenuItem();
             this.tilingMenuItemCancel = new System.Windows.Forms.MenuItem();
-            this.fileMenuItemSettings = new System.Windows.Forms.MenuItem();
             ((System.ComponentModel.ISupportInitialize)(this.splitContainer1)).BeginInit();
             this.splitContainer1.Panel1.SuspendLayout();
             this.splitContainer1.Panel2.SuspendLayout();
@@ -203,6 +203,12 @@
             this.fileMenuItemExit});
             this.menuItem1.Text = "File";
             // 
+            // fileMenuItemSettings
+            // 
+            this.fileMenuItemSettings.Index = 0;
+            this.fileMenuItemSettings.Text = "Settings";
+            this.fileMenuItemSettings.Click += new System.EventHandler(this.fileMenuItemSettings_Click);
+            // 
             // fileMenuItemExit
             // 
             this.fileMenuItemExit.Index = 1;
@@ -221,12 +227,6 @@
             this.tilingMenuItemCancel.Index = 0;
             this.tilingMenuItemCancel.Text = "Cancel";
             this.tilingMenuItemCancel.Click += new System.EventHandler(this.tilingMenuItemCancel_Click);
-            // 
-            // fileMenuItemSettings
-            // 
-            this.fileMenuItemSettings.Index = 0;
-            this.fileMenuItemSettings.Text = "Settings";
-            this.fileMenuItemSettings.Click += new System.EventHandler(this.fileMenuItemSettings_Click);
             // 
             // MainForm
             // 
