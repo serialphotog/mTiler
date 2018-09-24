@@ -149,7 +149,7 @@ namespace mTiler.Core.Tiling
         private void RunMergeQueue()
         {
             // Run the merge queue
-            Parallel.ForEach(MergeQueue.Values, (mergeJob, state) =>
+            Parallel.ForEach(MergeQueue.Values, new ParallelOptions { MaxDegreeOfParallelism = AppController.MaxTilingThreads }, (mergeJob, state) =>
             {
                 if (AppController.StopRequested)
                     state.Break();
