@@ -165,6 +165,9 @@ namespace mTiler.Core.Tiling
             TileLoadBuffer.Clear();
             TileLoadBuffer = null;
 
+            if (AppController.StopRequested)
+                return;
+
             HandleTileIO();
 
             // Clear some memory
