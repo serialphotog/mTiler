@@ -41,9 +41,9 @@ namespace mTiler.Core.Data
         private string Path;
 
         /// <summary>
-        /// Reference to the logger component
+        /// The app controller
         /// </summary>
-        private Logger Logger;
+        private ApplicationController AppController = ApplicationController.Instance;
 
         /// <summary>
         /// The map regions within this zoom level
@@ -59,10 +59,9 @@ namespace mTiler.Core.Data
         /// Initializes this zoom level
         /// </summary>
         /// <param name="path">The path to this zoom level on disk</param>
-        public ZoomLevel(string path, Atlas atlas, Logger logger)
+        public ZoomLevel(string path, Atlas atlas)
         {
             Path = path;
-            Logger = logger;
             Name = FS.GetPathName(path);
             Atlas = atlas;
 
@@ -75,8 +74,8 @@ namespace mTiler.Core.Data
         /// </summary>
         private void LoadRegions()
         {
-            if (ApplicationController.Instance.EnableVerboseLogging)
-                Logger.Log("\tLoading map regions for zoom level: " + Name);
+            if (AppController.EnableVerboseLogging)
+                AppController.Logger.Log("\tLoading map regions for zoom level: " + Name);
 
             // Find all of the map regions
             List<string> regionPaths = FS.EnumerateDir(Path);
@@ -85,9 +84,9 @@ namespace mTiler.Core.Data
                 List<MapRegion> regions = new List<MapRegion>();
                 foreach (string dir in regionPaths)
                 {
-                    if (ApplicationController.Instance.EnableVerboseLogging)
-                        Logger.Log("\t\tFound map region: " + dir);
-                    MapRegion region = new MapRegion(dir, Atlas, this, Logger);
+                    if (AppController.EnableVerboseLogging)
+                        AppController.Logger.Log("\t\tFound map region: " + dir);
+                    MapRegion region = new MapRegion(dir, Atlas, this);
                     NTiles += region.NTiles;
                     regions.Add(region);
                 }
@@ -95,14 +94,14 @@ namespace mTiler.Core.Data
                 // Check that we actually found some regions
                 if (regions == null || !(regions.Count > 0))
                 {
-                    Logger.Error("\tNo map regions found for zoom level: " + Name);
+                    AppController.Logger.Error("\tNo map regions found for zoom level: " + Name);
                 } else
                 {
                     this.MapRegions = regions.ToArray();
                 }
             } else
             {
-                Logger.Error("\tNo map regions found for zoom level: " + Name);
+                AppController.Logger.Error("\tNo map regions found for zoom level: " + Name);
             }
         }
 

@@ -186,7 +186,7 @@ namespace mTiler.Core.Tiling
 
                     // Merge the first two tiles
                     string mergeResult = MergeTiles(currentTile, nextTile, resultPath);
-                    MapTile resultingTile = new MapTile(mergeResult, null, currentTile.GetZoomLevel(), currentTile.GetMapRegion(), AppController.Logger);
+                    MapTile resultingTile = new MapTile(mergeResult, null, currentTile.GetZoomLevel(), currentTile.GetMapRegion());
                     AppController.Progress.Update(2);
 
                     if (jobSize > 2)
@@ -203,7 +203,7 @@ namespace mTiler.Core.Tiling
                             currentTile = resultingTile;
                             nextTile = mergeJob[i];
                             mergeResult = MergeTiles(currentTile, nextTile, resultPath);
-                            resultingTile = new MapTile(mergeResult, null, currentTile.GetZoomLevel(), currentTile.GetMapRegion(), AppController.Logger);
+                            resultingTile = new MapTile(mergeResult, null, currentTile.GetZoomLevel(), currentTile.GetMapRegion());
                             AppController.Progress.Update(1);
                         }
                     }

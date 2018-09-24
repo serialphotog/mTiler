@@ -36,9 +36,9 @@ namespace mTiler.Core.Data
         private string Path;
 
         /// <summary>
-        /// Reference to the logger component
+        /// The app controller
         /// </summary>
-        private Logger Logger;
+        private ApplicationController AppController = ApplicationController.Instance;
 
         /// <summary>
         /// The zoom levels within this atlas
@@ -55,11 +55,10 @@ namespace mTiler.Core.Data
         /// </summary>
         /// <param name="path">The path to the atlas on Disk</param>
         /// <param name="logger">Reference to the logger component</param>
-        public Atlas(string path, Logger logger)
+        public Atlas(string path)
         {
-            this.Logger = logger;
-            this.Path = path;
-            this.Name = FS.GetPathName(path);
+            Path = path;
+            Name = FS.GetPathName(path);
 
             // Load the zoom levels
             LoadZoomLevels();
@@ -70,8 +69,8 @@ namespace mTiler.Core.Data
         /// </summary>
         private void LoadZoomLevels()
         {
-            if (ApplicationController.Instance.EnableVerboseLogging)
-                Logger.Log("Loading zoom levels for atlas: " + Name);
+            if (AppController.EnableVerboseLogging)
+                AppController.Logger.Log("Loading zoom levels for atlas: " + Name);
 
             // Find all of the zoom levels
             List<string> zoomPaths = FS.EnumerateDir(Path);
@@ -80,9 +79,9 @@ namespace mTiler.Core.Data
                 List<ZoomLevel> zooms = new List<ZoomLevel>();
                 foreach (string dir in zoomPaths)
                 {
-                    if (ApplicationController.Instance.EnableVerboseLogging)
-                        Logger.Log("\tFound zoom level: " + dir);
-                    ZoomLevel zoom = new ZoomLevel(dir, this, Logger);
+                    if (AppController.EnableVerboseLogging)
+                        AppController.Logger.Log("\tFound zoom level: " + dir);
+                    ZoomLevel zoom = new ZoomLevel(dir, this);
                     NTiles += zoom.NTiles;
                     zooms.Add(zoom);
                 }
@@ -90,14 +89,14 @@ namespace mTiler.Core.Data
                 // Check that we actually found some zoom levels
                 if (zooms == null || !(zooms.Count > 0))
                 {
-                    Logger.Error("No zoom levels found for atlas project: " + Name);
+                    AppController.Logger.Error("No zoom levels found for atlas project: " + Name);
                 } else
                 {
                     this.ZoomLevels = zooms.ToArray();
                 }
             } else
             {
-                Logger.Error("No zoom levels found for atlas project: " + Name);
+                AppController.Logger.Error("No zoom levels found for atlas project: " + Name);
             }
         }
 

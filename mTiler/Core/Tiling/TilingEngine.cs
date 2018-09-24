@@ -95,9 +95,9 @@ namespace mTiler.Core.Tiling
                     if (dir.EndsWith("_atlas"))
                     {
                         // This is an atlas
-                        if (ApplicationController.Instance.EnableVerboseLogging)
+                        if (AppController.EnableVerboseLogging)
                             AppController.Logger.Log("\tFound atlas " + dir);
-                        Atlas atlas = new Atlas(dir, AppController.Logger);
+                        Atlas atlas = new Atlas(dir);
                         Atlases.Add(atlas);
                     }
                 }

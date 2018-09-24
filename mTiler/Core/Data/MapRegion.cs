@@ -46,9 +46,9 @@ namespace mTiler.Core.Data
         private string Name;
 
         /// <summary>
-        /// Reference to the logging instance
+        /// The app controller
         /// </summary>
-        private Logger Logger;
+        private ApplicationController AppController = ApplicationController.Instance;
 
         /// <summary>
         /// The map tiles within this map region.
@@ -64,12 +64,11 @@ namespace mTiler.Core.Data
         /// Initializes a map region
         /// </summary>
         /// <param name="path">The path to this map region on disk</param>
-        public MapRegion(string path, Atlas atlas, ZoomLevel zoomLevel, Logger logger)
+        public MapRegion(string path, Atlas atlas, ZoomLevel zoomLevel)
         {
             Path = path;
             Zoom = zoomLevel;
             Atlas = atlas;
-            Logger = logger;
             Name = FS.GetPathName(path);
 
             // Load the tiles in this region
@@ -81,8 +80,8 @@ namespace mTiler.Core.Data
         /// </summary>
         private void LoadTiles()
         {
-            if (ApplicationController.Instance.EnableVerboseLogging)
-                Logger.Log("\t\tLoading tiles for map region: " + Name);
+            if (AppController.EnableVerboseLogging)
+                AppController.Logger.Log("\t\tLoading tiles for map region: " + Name);
 
             // Find all of the tiles
             List<string> tilePaths = FS.EnumerateFiles(Path);
@@ -91,23 +90,23 @@ namespace mTiler.Core.Data
                 List<MapTile> tiles = new List<MapTile>();
                 foreach (string dir in tilePaths)
                 {
-                    if (ApplicationController.Instance.EnableVerboseLogging)
-                        Logger.Log("\t\t\tFound tile: " + dir);
+                    if (AppController.EnableVerboseLogging)
+                        AppController.Logger.Log("\t\t\tFound tile: " + dir);
                     NTiles++;
-                    MapTile tile = new MapTile(dir, Atlas, Zoom, this, Logger);
+                    MapTile tile = new MapTile(dir, Atlas, Zoom, this);
                     tiles.Add(tile);
                 }
 
                 if (tiles == null || !(tiles.Count > 0))
                 {
-                    Logger.Error("\t\tNo tiles found for region " + Name);
+                    AppController.Logger.Error("\t\tNo tiles found for region " + Name);
                 } else
                 {
                     this.MapTiles = tiles.ToArray();
                 }
             } else
             {
-                Logger.Error("\t\tNo tiles found for region " + Name);
+                AppController.Logger.Error("\t\tNo tiles found for region " + Name);
             }
         }
 

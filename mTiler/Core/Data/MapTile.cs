@@ -63,14 +63,14 @@ namespace mTiler.Core.Data
         private string RegionId;
 
         /// <summary>
-        /// The logger instance
-        /// </summary>
-        private Logger Logger;
-
-        /// <summary>
         /// Cached tile image bitmap
         /// </summary>
         private Bitmap TileImage;
+
+        /// <summary>
+        /// The app controller
+        /// </summary>
+        private ApplicationController AppController = ApplicationController.Instance;
 
         /// <summary>
         /// Initializes a map tile.
@@ -80,13 +80,12 @@ namespace mTiler.Core.Data
         /// <param name="zoomLevel">The zoom level of this tile</param>
         /// <param name="mapRegion">The map region this tile belongs to</param>
         /// <param name="logger">Reference to the logger</param>
-        public MapTile(string path, Atlas atlas, ZoomLevel zoomLevel, MapRegion mapRegion, Logger logger)
+        public MapTile(string path, Atlas atlas, ZoomLevel zoomLevel, MapRegion mapRegion)
         {
             Path = path;
             Zoom = zoomLevel;
             Region = mapRegion;
             Atlas = atlas;
-            Logger = logger;
             Name = GetName();
         }
 
@@ -166,7 +165,7 @@ namespace mTiler.Core.Data
                 // Fix issues with some tiles having a .bcnav.png extension
                 if (System.IO.Path.GetExtension(Path) == ".bcnav")
                 {
-                    Logger.Warn("Fixing incorrect BCNAV file extension issue");
+                    AppController.Logger.Warn("Fixing incorrect BCNAV file extension issue");
 
                     string originalPath = Path;
                     Path = System.IO.Path.ChangeExtension(Path, "");
