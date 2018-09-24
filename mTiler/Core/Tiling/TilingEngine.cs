@@ -56,25 +56,13 @@ namespace mTiler.Core.Tiling
         private ConcurrentBag<MapTile> IncompleteTiles;
 
         /// <summary>
-        /// Timer for the initial data load
-        /// </summary>
-        private Core.Profiling.Timer DataLoadTimer = new Core.Profiling.Timer();
-
-        /// <summary>
-        /// Timer for the tiling operations.
-        /// </summary>
-        private Core.Profiling.Timer TilingTimer = new Core.Profiling.Timer();
-
-        /// <summary>
         /// Performs the initialization task
         /// </summary>
         /// <returns></returns>
         public async Task Init()
         {
             // Enumerate the atlases and kick off loading all of the data
-            DataLoadTimer.Start();
             await PerformInitialLoad();
-            DataLoadTimer.Stop();
         }
 
 #pragma warning disable 1998
@@ -199,11 +187,6 @@ namespace mTiler.Core.Tiling
         {
             AppController.Logger.Log("Cleaning up the temporary directory");
             Directory.Delete(FS.BuildTempDir(AppController.OutputPath), true);
-
-            TilingTimer.Stop();
-            AppController.Logger.Log("Tiling is complete!");
-            AppController.Logger.Log("The initial data load took " + DataLoadTimer.GetMinutes() + " minutes");
-            AppController.Logger.Log("The tiling took " + TilingTimer.GetMinutes() + " minutes");
         }
 
         /// <summary>
@@ -342,7 +325,6 @@ namespace mTiler.Core.Tiling
             AppController.MergeEngine.Reset();
             CompleteTiles = new ConcurrentDictionary<string, MapTile>();
             IncompleteTiles = new ConcurrentBag<MapTile>();
-            TilingTimer.Start();
         }
 
         /// <summary>

@@ -92,7 +92,17 @@ namespace mTiler.Core
         /// Tracks the total work for a given job
         /// </summary>
         public int TotalWork = 0;
-        
+
+        /// <summary>
+        /// Timer for the initial data load
+        /// </summary>
+        private Core.Profiling.Timer DataLoadTimer = new Core.Profiling.Timer();
+
+        /// <summary>
+        /// Timer for the tiling operations.
+        /// </summary>
+        private Core.Profiling.Timer TilingTimer = new Core.Profiling.Timer();
+
         public void Initialize(MainForm mainFormRef)
         {
             _initialized = true;
@@ -132,7 +142,10 @@ namespace mTiler.Core
                 StopRequested = false;
 
                 // Perform the initial data load
+                DataLoadTimer.Start();
                 await Task.Run(() => TilingEngine.Init());
+                DataLoadTimer.Stop();
+
                 TotalWork = TilingEngine.GetTotalTiles();
                 MainFormRef.SetTotalWork(TotalWork);
 
@@ -146,6 +159,7 @@ namespace mTiler.Core
                     {
                         tilingWorker.Run(TilingEngine);
                     });
+                    TilingTimer.Start();
                     tilingThread.Start();
                 }
                 else
@@ -164,7 +178,13 @@ namespace mTiler.Core
         /// <param name="e"></param>
         private void HandleTilingJobComplete(object sender, EventArgs e)
         {
+            TilingTimer.Stop();
             JobRunning = false;
+
+            // Log output
+            Logger.Log("Tiling Complete!");
+            Logger.Log("The initial data load took " + DataLoadTimer.GetMinutes() + " minutes");
+            Logger.Log("The tiling took " + TilingTimer.GetMinutes() + " minutes");
         }
 
         class TilingThreadWorker
