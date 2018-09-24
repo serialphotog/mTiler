@@ -1,6 +1,7 @@
 ﻿using mTiler.Core.Profiling;
 using mTiler.Core.Tiling;
 using mTiler.Core.Util;
+using System;
 using System.Threading;
 using System.Threading.Tasks;
 
@@ -138,8 +139,14 @@ namespace mTiler.Core
                 // Perform the job, if there is work to do
                 if (TotalWork > 0)
                 {
-                    Thread tilingEngineThread = new Thread(new ThreadStart(TilingEngine.Tile));
-                    tilingEngineThread.Start();
+                    TilingThreadWorker tilingWorker = new TilingThreadWorker();
+                    tilingWorker.ThreadComplete += HandleTilingJobComplete;
+
+                    Thread tilingThread = new Thread(() =>
+                    {
+                        tilingWorker.Run(TilingEngine);
+                    });
+                    tilingThread.Start();
                 }
                 else
                 {
@@ -149,6 +156,34 @@ namespace mTiler.Core
                 }
             }
         }
+
+        /// <summary>
+        /// Gets called when the tiling thread completes its work
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
+        private void HandleTilingJobComplete(object sender, EventArgs e)
+        {
+            JobRunning = false;
+        }
+
+        class TilingThreadWorker
+        {
+            // Event that gets fired when the thread completes
+            public event EventHandler ThreadComplete;
+
+            /// <summary>
+            ///  Runs the work
+            /// </summary>
+            public void Run(TilingEngine tilingEngine)
+            {
+                tilingEngine.Tile();
+
+                if (ThreadComplete != null)
+                    ThreadComplete(this, EventArgs.Empty);
+            }
+        }
+
 
     }
 }
