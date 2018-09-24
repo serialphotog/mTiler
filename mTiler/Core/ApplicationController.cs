@@ -121,6 +121,7 @@ namespace mTiler.Core
             if (!_initialized)
                 throw new AppControllerNotInitializedException();
             StopRequested = true;
+            JobRunning = false;
         }
 
         /// <summary>
