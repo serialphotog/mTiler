@@ -28,6 +28,7 @@
         /// </summary>
         private void InitializeComponent()
         {
+            this.components = new System.ComponentModel.Container();
             System.ComponentModel.ComponentResourceManager resources = new System.ComponentModel.ComponentResourceManager(typeof(MainForm));
             this.splitContainer1 = new System.Windows.Forms.SplitContainer();
             this.lblProgress = new System.Windows.Forms.Label();
@@ -42,6 +43,12 @@
             this.label2 = new System.Windows.Forms.Label();
             this.label1 = new System.Windows.Forms.Label();
             this.outputConsole = new System.Windows.Forms.RichTextBox();
+            this.mainMenu = new System.Windows.Forms.MainMenu(this.components);
+            this.menuItem1 = new System.Windows.Forms.MenuItem();
+            this.fileMenuItemExit = new System.Windows.Forms.MenuItem();
+            this.menuItem2 = new System.Windows.Forms.MenuItem();
+            this.tilingMenuItemCancel = new System.Windows.Forms.MenuItem();
+            this.fileMenuItemSettings = new System.Windows.Forms.MenuItem();
             ((System.ComponentModel.ISupportInitialize)(this.splitContainer1)).BeginInit();
             this.splitContainer1.Panel1.SuspendLayout();
             this.splitContainer1.Panel2.SuspendLayout();
@@ -182,7 +189,46 @@
             this.outputConsole.TabIndex = 0;
             this.outputConsole.Text = "";
             // 
-            // mainForm
+            // mainMenu
+            // 
+            this.mainMenu.MenuItems.AddRange(new System.Windows.Forms.MenuItem[] {
+            this.menuItem1,
+            this.menuItem2});
+            // 
+            // menuItem1
+            // 
+            this.menuItem1.Index = 0;
+            this.menuItem1.MenuItems.AddRange(new System.Windows.Forms.MenuItem[] {
+            this.fileMenuItemSettings,
+            this.fileMenuItemExit});
+            this.menuItem1.Text = "File";
+            // 
+            // fileMenuItemExit
+            // 
+            this.fileMenuItemExit.Index = 1;
+            this.fileMenuItemExit.Text = "Exit";
+            this.fileMenuItemExit.Click += new System.EventHandler(this.fileMenuItemExit_Click);
+            // 
+            // menuItem2
+            // 
+            this.menuItem2.Index = 1;
+            this.menuItem2.MenuItems.AddRange(new System.Windows.Forms.MenuItem[] {
+            this.tilingMenuItemCancel});
+            this.menuItem2.Text = "Tiling";
+            // 
+            // tilingMenuItemCancel
+            // 
+            this.tilingMenuItemCancel.Index = 0;
+            this.tilingMenuItemCancel.Text = "Cancel";
+            this.tilingMenuItemCancel.Click += new System.EventHandler(this.tilingMenuItemCancel_Click);
+            // 
+            // fileMenuItemSettings
+            // 
+            this.fileMenuItemSettings.Index = 0;
+            this.fileMenuItemSettings.Text = "Settings";
+            this.fileMenuItemSettings.Click += new System.EventHandler(this.fileMenuItemSettings_Click);
+            // 
+            // MainForm
             // 
             this.AcceptButton = this.btnStart;
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
@@ -191,8 +237,9 @@
             this.Controls.Add(this.splitContainer1);
             this.Icon = ((System.Drawing.Icon)(resources.GetObject("$this.Icon")));
             this.MaximumSize = new System.Drawing.Size(600, 450);
+            this.Menu = this.mainMenu;
             this.MinimumSize = new System.Drawing.Size(600, 450);
-            this.Name = "mainForm";
+            this.Name = "MainForm";
             this.Text = "mTiler";
             this.splitContainer1.Panel1.ResumeLayout(false);
             this.splitContainer1.Panel1.PerformLayout();
@@ -218,6 +265,12 @@
         private System.Windows.Forms.Label lblProgress;
         private System.Windows.Forms.Label label3;
         private System.Windows.Forms.ProgressBar progressBar;
+        private System.Windows.Forms.MainMenu mainMenu;
+        private System.Windows.Forms.MenuItem menuItem1;
+        private System.Windows.Forms.MenuItem fileMenuItemExit;
+        private System.Windows.Forms.MenuItem menuItem2;
+        private System.Windows.Forms.MenuItem tilingMenuItemCancel;
+        private System.Windows.Forms.MenuItem fileMenuItemSettings;
     }
 }
 

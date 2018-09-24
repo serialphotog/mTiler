@@ -103,6 +103,21 @@ namespace mTiler.Core
         /// </summary>
         private Core.Profiling.Timer TilingTimer = new Core.Profiling.Timer();
 
+        /// <summary>
+        /// Rather or not to enable verbose logging
+        /// </summary>
+        public bool EnableVerboseLogging = Properties.Settings.Default.EnableVerboseLogging;
+
+        /// <summary>
+        /// Rather or not to clear the log on job start
+        /// </summary>
+        public bool ClearLogOnJobStart = Properties.Settings.Default.ClearLogOnJobStart;
+
+        /// <summary>
+        /// The max number of threads to use for tiling
+        /// </summary>
+        public byte MaxTilingThreads = Properties.Settings.Default.MaxNumberTilingThreads;
+
         public void Initialize(MainForm mainFormRef)
         {
             _initialized = true;

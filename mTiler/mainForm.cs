@@ -215,5 +215,36 @@ namespace mTiler
             lblProgress.Text = "0%";
         }
 
+        /// <summary>
+        /// Handles the click event for the exit menu item (File->Exit)
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
+        private void fileMenuItemExit_Click(object sender, EventArgs e)
+        {
+            AppController.Stop();
+            Application.Exit();
+        }
+
+        /// <summary>
+        /// Handles the click event for the Tiling->Cancel menu item
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
+        private void tilingMenuItemCancel_Click(object sender, EventArgs e)
+        {
+            AppController.Stop();
+        }
+
+        /// <summary>
+        /// Shows the settings dialog
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
+        private void fileMenuItemSettings_Click(object sender, EventArgs e)
+        {
+            SettingsDialog settingsDialog = new SettingsDialog();
+            settingsDialog.ShowDialog(this);
+        }
     }
 }
