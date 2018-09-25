@@ -147,7 +147,7 @@ namespace mTiler.Core.Data
                 for (int y=0; y < height; y++)
                 {
                     Color currentPixel = tileImage.GetPixel(x, y);
-                    if (currentPixel == WhitePoint)
+                    if (ImageUtil.ColorWithinThresholdOfWhite(currentPixel, 5))
                         return false;
                 }
             }

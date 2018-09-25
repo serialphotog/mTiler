@@ -158,7 +158,6 @@ namespace mTiler.Core.Tiling
                 // Free up some memory
                 mergeJob.Clear();
             });
-
             // Free up memory
             MergeQueue.Clear();
             MergeQueue = null; 

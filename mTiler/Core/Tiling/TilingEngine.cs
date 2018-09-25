@@ -163,6 +163,7 @@ namespace mTiler.Core.Tiling
 
                 ProcessTile(currentTile);
             });
+
             TileLoadBuffer.Clear();
             TileLoadBuffer = null;
 
