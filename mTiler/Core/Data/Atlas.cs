@@ -58,7 +58,7 @@ namespace mTiler.Core.Data
         public Atlas(string path)
         {
             Path = path;
-            Name = FS.GetPathName(path);
+            Name = FilesystemHelper.GetPathName(path);
 
             // Load the zoom levels
             LoadZoomLevels();
@@ -73,7 +73,7 @@ namespace mTiler.Core.Data
                 AppController.Logger.Log("Loading zoom levels for atlas: " + Name);
 
             // Find all of the zoom levels
-            List<string> zoomPaths = FS.EnumerateDir(Path);
+            List<string> zoomPaths = FilesystemHelper.EnumerateDir(Path);
             if (zoomPaths != null && zoomPaths.Count > 0)
             {
                 List<ZoomLevel> zooms = new List<ZoomLevel>();

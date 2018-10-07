@@ -177,7 +177,7 @@ namespace mTiler.Core.Data
                     File.Move(originalPath, Path);
                 }
 
-                Name = FS.GetFilename(Path);
+                Name = FilesystemHelper.GetFilename(Path);
             }
 
             return Name;

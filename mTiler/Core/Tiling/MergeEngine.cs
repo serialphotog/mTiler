@@ -172,7 +172,7 @@ namespace mTiler.Core.Tiling
             int jobSize = mergeJob.Count;
             if (jobSize > 0)
             {
-                string tmpDir = FS.BuildTempDir(AppController.OutputPath);
+                string tmpDir = FilesystemHelper.BuildTempDir(AppController.OutputPath);
                 MapTile currentTile = mergeJob[0];
 
                 if (jobSize > 1)
@@ -284,7 +284,7 @@ namespace mTiler.Core.Tiling
             }
 
             // Write the bitmap to disk and return the URI
-            return FS.WriteBitmapToJpeg(resultingTile, outputDir, tileA.GetName());
+            return FilesystemHelper.WriteBitmapToJpeg(resultingTile, outputDir, tileA.GetName());
         }
 
         /// <summary>
@@ -293,7 +293,7 @@ namespace mTiler.Core.Tiling
         /// <param name="tile">The merged tile to move</param>
         private void HandleMergedTile(MapTile tile)
         {
-            string copyTo = FS.BuildOutputDir(AppController.OutputPath, tile.GetZoomLevel().GetName(), tile.GetMapRegion().GetName());
+            string copyTo = FilesystemHelper.BuildOutputDir(AppController.OutputPath, tile.GetZoomLevel().GetName(), tile.GetMapRegion().GetName());
             string copyPath = Path.Combine(copyTo, tile.GetName());
             File.Copy(tile.GetPath(), copyPath, true);
         }
@@ -304,7 +304,7 @@ namespace mTiler.Core.Tiling
         /// <param name="tile">The tile to copy</param>
         private void HandleIncompleteNonMergedTile(MapTile tile)
         {
-            string copyTo = FS.BuildOutputDir(AppController.OutputPath, tile.GetZoomLevel().GetName(), tile.GetMapRegion().GetName());
+            string copyTo = FilesystemHelper.BuildOutputDir(AppController.OutputPath, tile.GetZoomLevel().GetName(), tile.GetMapRegion().GetName());
             string copyPath = Path.Combine(copyTo, tile.GetName());
             File.Copy(tile.GetPath(), copyPath, true);
         }

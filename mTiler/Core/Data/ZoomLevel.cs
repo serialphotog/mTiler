@@ -62,7 +62,7 @@ namespace mTiler.Core.Data
         public ZoomLevel(string path, Atlas atlas)
         {
             Path = path;
-            Name = FS.GetPathName(path);
+            Name = FilesystemHelper.GetPathName(path);
             Atlas = atlas;
 
             // Load the map regions within this zoom level
@@ -78,7 +78,7 @@ namespace mTiler.Core.Data
                 AppController.Logger.Log("\tLoading map regions for zoom level: " + Name);
 
             // Find all of the map regions
-            List<string> regionPaths = FS.EnumerateDir(Path);
+            List<string> regionPaths = FilesystemHelper.EnumerateDir(Path);
             if (regionPaths != null && regionPaths.Count > 0)
             {
                 List<MapRegion> regions = new List<MapRegion>();

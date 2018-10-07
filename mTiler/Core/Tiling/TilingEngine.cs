@@ -85,7 +85,7 @@ namespace mTiler.Core.Tiling
         {
             AppController.Logger.Log("Loading atlases...");
 
-            List<string> potentialAtlases = FS.EnumerateDir(AppController.InputPath);
+            List<string> potentialAtlases = FilesystemHelper.EnumerateDir(AppController.InputPath);
             Atlases = new List<Atlas>();
             if (potentialAtlases != null && potentialAtlases.Count > 0)
             {
@@ -191,7 +191,7 @@ namespace mTiler.Core.Tiling
         private void Cleanup()
         {
             AppController.Logger.Log("Cleaning up the temporary directory");
-            Directory.Delete(FS.BuildTempDir(AppController.OutputPath), true);
+            Directory.Delete(FilesystemHelper.BuildTempDir(AppController.OutputPath), true);
         }
 
         /// <summary>
@@ -342,7 +342,7 @@ namespace mTiler.Core.Tiling
         /// <param name="tile">The complete tile to copy</param>
         private void HandleCompleteTile(MapTile tile)
         {
-            string copyToDir = FS.BuildOutputDir(AppController.OutputPath, tile.GetZoomLevel().GetName(), tile.GetMapRegion().GetName());
+            string copyToDir = FilesystemHelper.BuildOutputDir(AppController.OutputPath, tile.GetZoomLevel().GetName(), tile.GetMapRegion().GetName());
             string copyPath = Path.Combine(copyToDir, tile.GetName());
             File.Copy(tile.GetPath(), copyPath, true);
         }
@@ -353,8 +353,8 @@ namespace mTiler.Core.Tiling
         /// <param name="tile">The incomplete tile to copy</param>
         private void HandleIncompleteTile(MapTile tile)
         {
-            string tmpDir = FS.BuildTempDir(AppController.OutputPath);
-            string copyTo = FS.BuildTempPath(tmpDir, tile.GetZoomLevel().GetName(), tile.GetMapRegion().GetName(), tile.GetName(), tile.GetAtlas().GetName());
+            string tmpDir = FilesystemHelper.BuildTempDir(AppController.OutputPath);
+            string copyTo = FilesystemHelper.BuildTempPath(tmpDir, tile.GetZoomLevel().GetName(), tile.GetMapRegion().GetName(), tile.GetName(), tile.GetAtlas().GetName());
             File.Copy(tile.GetPath(), copyTo, true);
         }
 

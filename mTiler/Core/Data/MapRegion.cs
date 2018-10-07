@@ -69,7 +69,7 @@ namespace mTiler.Core.Data
             Path = path;
             Zoom = zoomLevel;
             Atlas = atlas;
-            Name = FS.GetPathName(path);
+            Name = FilesystemHelper.GetPathName(path);
 
             // Load the tiles in this region
             LoadTiles();
@@ -84,7 +84,7 @@ namespace mTiler.Core.Data
                 AppController.Logger.Log("\t\tLoading tiles for map region: " + Name);
 
             // Find all of the tiles
-            List<string> tilePaths = FS.EnumerateFiles(Path);
+            List<string> tilePaths = FilesystemHelper.EnumerateFiles(Path);
             if (tilePaths != null && tilePaths.Count > 0)
             {
                 List<MapTile> tiles = new List<MapTile>();

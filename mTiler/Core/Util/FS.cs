@@ -24,7 +24,7 @@ using System.Linq;
 
 namespace mTiler.Core.Util
 {
-    class FS
+    class FilesystemHelper
     {
         /// <summary>
         /// Used to help generate random strings for merge result file names
