@@ -170,12 +170,11 @@ namespace mTiler.Core.Tiling
             if (AppController.StopRequested)
                 return;
 
-            HandleTileIO();
+            //HandleTileIO();
 
             // Clear some memory
             CompleteTiles.Clear();
             CompleteTiles = null;
-            IncompleteTiles = null;
 
             // Perform the merge jobs
             AppController.Logger.Log("Handling the merge queue...");
@@ -264,7 +263,8 @@ namespace mTiler.Core.Tiling
                 };
                 AppController.MergeEngine.Update(tile.GetRegionId(), jobTiles);
             }
-            IncompleteTiles.Add(tile);
+
+            FilesystemHelper.HandleIncompleteTileAsync(tile);
         }
 
         /// <summary>
@@ -284,45 +284,9 @@ namespace mTiler.Core.Tiling
                 AppController.MergeEngine.Remove(tile.GetRegionId());
             }
 
-            CompleteTiles.TryAdd(tile.GetRegionId(), tile);
+            FilesystemHelper.HandleCompleteTileAsync(tile);
 
             AppController.Progress.Update(1);
-        }
-
-        /// <summary>
-        /// Handles the tile I/O operations
-        /// </summary>
-        private void HandleTileIO()
-        {
-            // Perform the I/O operations.
-            AppController.Logger.Log("Performing file I/O operations... This may take several minutes.");
-
-            Thread completeTileThread = new Thread(new ThreadStart(() =>
-            {
-                foreach (MapTile tile in CompleteTiles.Values)
-                {
-                    if (AppController.StopRequested)
-                        break;
-
-                    HandleCompleteTile(tile);
-                }
-            }));
-
-            Thread incompleteTileThread = new Thread(new ThreadStart(() =>
-            {
-                foreach (MapTile tile in IncompleteTiles)
-                {
-                    if (AppController.StopRequested)
-                        break;
-
-                    HandleIncompleteTile(tile);
-                }
-            }));
-
-            completeTileThread.Start();
-            incompleteTileThread.Start();
-            completeTileThread.Join();
-            incompleteTileThread.Join();
         }
 
         /// <summary>
@@ -334,28 +298,6 @@ namespace mTiler.Core.Tiling
             AppController.MergeEngine.Reset();
             CompleteTiles = new ConcurrentDictionary<string, MapTile>();
             IncompleteTiles = new ConcurrentBag<MapTile>();
-        }
-
-        /// <summary>
-        /// Hanldes a complete tile by copying it to the final destination.
-        /// </summary>
-        /// <param name="tile">The complete tile to copy</param>
-        private void HandleCompleteTile(MapTile tile)
-        {
-            string copyToDir = FilesystemHelper.BuildOutputDir(AppController.OutputPath, tile.GetZoomLevel().GetName(), tile.GetMapRegion().GetName());
-            string copyPath = Path.Combine(copyToDir, tile.GetName());
-            File.Copy(tile.GetPath(), copyPath, true);
-        }
-
-        /// <summary>
-        /// Handles incomplete tiles by copying them to the temporary working directory
-        /// </summary>
-        /// <param name="tile">The incomplete tile to copy</param>
-        private void HandleIncompleteTile(MapTile tile)
-        {
-            string tmpDir = FilesystemHelper.BuildTempDir(AppController.OutputPath);
-            string copyTo = FilesystemHelper.BuildTempPath(tmpDir, tile.GetZoomLevel().GetName(), tile.GetMapRegion().GetName(), tile.GetName(), tile.GetAtlas().GetName());
-            File.Copy(tile.GetPath(), copyTo, true);
         }
 
         /// <summary>

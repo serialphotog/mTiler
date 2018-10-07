@@ -15,6 +15,7 @@ AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY
 TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 */
 
+using mTiler.Core.Data;
 using System;
 using System.Collections.Generic;
 using System.Drawing;
@@ -26,6 +27,17 @@ namespace mTiler.Core.Util
 {
     class FilesystemHelper
     {
+
+        /// <summary>
+        /// The locker object
+        /// </summary>
+        private static object SyncLock = new object();
+
+        /// <summary>
+        /// The application controller instance
+        /// </summary>
+        private static ApplicationController AppController = ApplicationController.Instance;
+
         /// <summary>
         /// Used to help generate random strings for merge result file names
         /// </summary>
@@ -182,6 +194,28 @@ namespace mTiler.Core.Util
             }
 
             return path;
+        }
+
+        private static void CopyAsync(string src, string dest)
+        {
+            lock (SyncLock)
+            {
+                File.Copy(src, dest, true);
+            }
+        }
+
+        public static void HandleCompleteTileAsync(MapTile tile)
+        {
+            string copyToDir = BuildOutputDir(AppController.OutputPath, tile.GetZoomLevel().GetName(), tile.GetMapRegion().GetName());
+            string copyPath = Path.Combine(copyToDir, tile.GetName());
+            CopyAsync(tile.GetPath(), copyPath);
+        }
+
+        public static void HandleIncompleteTileAsync(MapTile tile)
+        {
+            string tmpDir = BuildTempDir(AppController.OutputPath);
+            string copyTo = BuildTempPath(tmpDir, tile.GetZoomLevel().GetName(), tile.GetMapRegion().GetName(), tile.GetName(), tile.GetAtlas().GetName());
+            CopyAsync(tile.GetPath(), copyTo);
         }
 
     }
