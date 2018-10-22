@@ -53,7 +53,7 @@ namespace mTiler.Core.Data
         /// <summary>
         /// The map tiles within this map region.
         /// </summary>
-        private MapTile[] MapTiles;
+        private Tile[] MapTiles;
 
         /// <summary>
         /// Tracks the total number of tiles in this region
@@ -87,13 +87,13 @@ namespace mTiler.Core.Data
             List<string> tilePaths = FilesystemHelper.EnumerateFiles(Path);
             if (tilePaths != null && tilePaths.Count > 0)
             {
-                List<MapTile> tiles = new List<MapTile>();
+                List<Tile> tiles = new List<Tile>();
                 foreach (string dir in tilePaths)
                 {
                     if (AppController.EnableVerboseLogging)
                         AppController.Logger.Log("\t\t\tFound tile: " + dir);
                     NTiles++;
-                    MapTile tile = new MapTile(dir, Atlas, Zoom, this);
+                    Tile tile = new Tile(dir, Atlas, Zoom, this);
                     tiles.Add(tile);
                 }
 
@@ -114,7 +114,7 @@ namespace mTiler.Core.Data
         /// Returns the map tiles within this region
         /// </summary>
         /// <returns></returns>
-        public MapTile[] GetMapTiles()
+        public Tile[] GetMapTiles()
         {
             return MapTiles;
         }

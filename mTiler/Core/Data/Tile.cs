@@ -25,7 +25,7 @@ namespace mTiler.Core.Data
     /// <summary>
     /// Represents an individual map tile
     /// </summary>
-    class MapTile
+    class Tile
     {
         /// <summary>
         /// The white point for determining if tiles are dataless
@@ -80,7 +80,7 @@ namespace mTiler.Core.Data
         /// <param name="zoomLevel">The zoom level of this tile</param>
         /// <param name="mapRegion">The map region this tile belongs to</param>
         /// <param name="logger">Reference to the logger</param>
-        public MapTile(string path, Atlas atlas, ZoomLevel zoomLevel, MapRegion mapRegion)
+        public Tile(string path, Atlas atlas, ZoomLevel zoomLevel, MapRegion mapRegion)
         {
             Path = path;
             Zoom = zoomLevel;

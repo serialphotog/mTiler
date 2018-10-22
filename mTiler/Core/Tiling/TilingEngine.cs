@@ -43,17 +43,17 @@ namespace mTiler.Core.Tiling
         /// <summary>
         /// The buffer the tiles are initially loaded into before they are processed.
         /// </summary>
-        private List<MapTile> TileLoadBuffer;
+        private List<Tile> TileLoadBuffer;
 
         /// <summary>
         /// List of complete tiles. This is used to separate I/O operations from processing threads.
         /// </summary>
-        private ConcurrentDictionary<string, MapTile> CompleteTiles;
+        private ConcurrentDictionary<string, Tile> CompleteTiles;
 
         /// <summary>
         /// List of incomplete tiles. This is used to separate I/O operations from processing threads.
         /// </summary>
-        private ConcurrentBag<MapTile> IncompleteTiles;
+        private ConcurrentBag<Tile> IncompleteTiles;
 
         /// <summary>
         /// Performs the initialization task
@@ -113,7 +113,7 @@ namespace mTiler.Core.Tiling
         /// </summary>
         private void LoadTiles()
         {
-            TileLoadBuffer = new List<MapTile>();
+            TileLoadBuffer = new List<Tile>();
 
             // Iterate through each atlas
             if (Atlases == null || Atlases.Count <= 0)
@@ -134,9 +134,9 @@ namespace mTiler.Core.Tiling
                     foreach (MapRegion region in mapRegions)
                     {
                         // Iterate over each tile
-                        MapTile[] mapTiles = region.GetMapTiles();
+                        Tile[] mapTiles = region.GetMapTiles();
                         if (mapTiles == null || mapTiles.Length <= 0) continue;
-                        foreach (MapTile tile in mapTiles)
+                        foreach (Tile tile in mapTiles)
                         {
                             // Add the tile to the tile load buffer
                             TileLoadBuffer.Add(tile);
@@ -197,7 +197,7 @@ namespace mTiler.Core.Tiling
         /// Performs the processing on a single tile.
         /// </summary>
         /// <param name="currentTile">The tile to process</param>
-        private void ProcessTile(MapTile currentTile)
+        private void ProcessTile(Tile currentTile)
         {
             // Don't mess with a tile when we've already found a complete version of it
             if (!CompleteTiles.ContainsKey(currentTile.GetRegionId()))
@@ -232,7 +232,7 @@ namespace mTiler.Core.Tiling
         /// Performs the processing on a dataless tile
         /// </summary>
         /// <param name="tile">The dataless tile to process</param>
-        private void ProcessDatalessTile(MapTile tile)
+        private void ProcessDatalessTile(Tile tile)
         {
             // This tile has no data, ignore it
             if (AppController.EnableVerboseLogging)
@@ -244,20 +244,20 @@ namespace mTiler.Core.Tiling
         /// Performs the processing on an incomplete tile
         /// </summary>
         /// <param name="tile">The incomplete tile to process</param>
-        private void ProcessIncompleteTile(MapTile tile)
+        private void ProcessIncompleteTile(Tile tile)
         {
             // Copy the tile to the temporary working directory for merging
             if (AppController.EnableVerboseLogging)
                 AppController.Logger.Log("\tTile " + tile.GetName() + " is incomplete. Adding it to the merge queue.");
             if (AppController.MergeEngine.HasJob(tile.GetRegionId()))
             {
-                List<MapTile> jobTiles = AppController.MergeEngine.GetJob(tile.GetRegionId());
+                List<Tile> jobTiles = AppController.MergeEngine.GetJob(tile.GetRegionId());
                 jobTiles.Add(tile);
                 AppController.MergeEngine.Update(tile.GetRegionId(), jobTiles);
             }
             else
             {
-                List<MapTile> jobTiles = new List<MapTile>
+                List<Tile> jobTiles = new List<Tile>
                 {
                     tile
                 };
@@ -271,7 +271,7 @@ namespace mTiler.Core.Tiling
         /// Performs the processing on a complete tile
         /// </summary>
         /// <param name="tile">The complete tile to process</param>
-        private void ProcessCompleteTile(MapTile tile)
+        private void ProcessCompleteTile(Tile tile)
         {
             // This tile is complete. Ignore other non-complete versions and copy to final destination
             if (AppController.EnableVerboseLogging)
@@ -296,8 +296,8 @@ namespace mTiler.Core.Tiling
         {
             AppController.Progress.Reset();
             AppController.MergeEngine.Reset();
-            CompleteTiles = new ConcurrentDictionary<string, MapTile>();
-            IncompleteTiles = new ConcurrentBag<MapTile>();
+            CompleteTiles = new ConcurrentDictionary<string, Tile>();
+            IncompleteTiles = new ConcurrentBag<Tile>();
         }
 
         /// <summary>
