@@ -20,7 +20,7 @@ using System;
 using System.Drawing;
 using System.IO;
 
-namespace mTiler.Core.Data
+namespace mTiler.Core.Mapping
 {
     /// <summary>
     /// Represents an individual map tile

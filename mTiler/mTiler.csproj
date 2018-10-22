@@ -88,10 +88,11 @@
   <ItemGroup>
     <Compile Include="Core\AppControllerNotInitializedException.cs" />
     <Compile Include="Core\ApplicationController.cs" />
-    <Compile Include="Core\Data\Atlas.cs" />
-    <Compile Include="Core\Data\MapTile.cs" />
-    <Compile Include="Core\Data\MapRegion.cs" />
-    <Compile Include="Core\Data\ZoomLevel.cs" />
+    <Compile Include="Core\Mapping\Atlas.cs" />
+    <Compile Include="Core\Mapping\Coordinate.cs" />
+    <Compile Include="Core\Mapping\Tile.cs" />
+    <Compile Include="Core\Mapping\MapRegion.cs" />
+    <Compile Include="Core\Mapping\ZoomLevel.cs" />
     <Compile Include="Core\Profiling\Timer.cs" />
     <Compile Include="Core\Tiling\MergeEngine.cs" />
     <Compile Include="Core\Util\Logger.cs" />

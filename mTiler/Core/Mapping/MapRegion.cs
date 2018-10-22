@@ -18,7 +18,7 @@ TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR TH
 using mTiler.Core.Util;
 using System.Collections.Generic;
 
-namespace mTiler.Core.Data
+namespace mTiler.Core.Mapping
 {
     /// <summary>
     /// Represents a region of a map within an atlas project

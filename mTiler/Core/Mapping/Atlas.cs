@@ -18,25 +18,20 @@ TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR TH
 using mTiler.Core.Util;
 using System.Collections.Generic;
 
-namespace mTiler.Core.Data
+namespace mTiler.Core.Mapping
 {
     /// <summary>
-    /// Represents an individual zoom level within an atlas project.
+    /// Represents an atlas
     /// </summary>
-    class ZoomLevel
+    class Atlas
     {
         /// <summary>
-        /// The name of this zoom level
+        /// The name of the atlas
         /// </summary>
         private string Name;
 
         /// <summary>
-        /// The atlas this zoom level originall belongs to
-        /// </summary>
-        private Atlas Atlas;
-
-        /// <summary>
-        /// The path to this zoom level on disk
+        /// The path to this atlas
         /// </summary>
         private string Path;
 
@@ -46,76 +41,76 @@ namespace mTiler.Core.Data
         private ApplicationController AppController = ApplicationController.Instance;
 
         /// <summary>
-        /// The map regions within this zoom level
+        /// The zoom levels within this atlas
         /// </summary>
-        private MapRegion[] MapRegions;
+        private ZoomLevel[] ZoomLevels;
 
         /// <summary>
-        /// The total number of tiles in this zoom level
+        /// The total number of tiles in this atlas
         /// </summary>
         public int NTiles = 0;
 
         /// <summary>
-        /// Initializes this zoom level
+        /// Initializes the atlas
         /// </summary>
-        /// <param name="path">The path to this zoom level on disk</param>
-        public ZoomLevel(string path, Atlas atlas)
+        /// <param name="path">The path to the atlas on Disk</param>
+        /// <param name="logger">Reference to the logger component</param>
+        public Atlas(string path)
         {
             Path = path;
             Name = FilesystemHelper.GetPathName(path);
-            Atlas = atlas;
 
-            // Load the map regions within this zoom level
-            LoadRegions();
+            // Load the zoom levels
+            LoadZoomLevels();
         }
 
         /// <summary>
-        /// Loads the map regions contained within this zoom level
+        /// Loads all of the zoom levels within this atlas project
         /// </summary>
-        private void LoadRegions()
+        private void LoadZoomLevels()
         {
             if (AppController.EnableVerboseLogging)
-                AppController.Logger.Log("\tLoading map regions for zoom level: " + Name);
+                AppController.Logger.Log("Loading zoom levels for atlas: " + Name);
 
-            // Find all of the map regions
-            List<string> regionPaths = FilesystemHelper.EnumerateDir(Path);
-            if (regionPaths != null && regionPaths.Count > 0)
+            // Find all of the zoom levels
+            List<string> zoomPaths = FilesystemHelper.EnumerateDir(Path);
+            if (zoomPaths != null && zoomPaths.Count > 0)
             {
-                List<MapRegion> regions = new List<MapRegion>();
-                foreach (string dir in regionPaths)
+                List<ZoomLevel> zooms = new List<ZoomLevel>();
+                foreach (string dir in zoomPaths)
                 {
                     if (AppController.EnableVerboseLogging)
-                        AppController.Logger.Log("\t\tFound map region: " + dir);
-                    MapRegion region = new MapRegion(dir, Atlas, this);
-                    NTiles += region.NTiles;
-                    regions.Add(region);
+                        AppController.Logger.Log("\tFound zoom level: " + dir);
+                    ZoomLevel zoom = new ZoomLevel(dir, this);
+                    NTiles += zoom.NTiles;
+                    zooms.Add(zoom);
                 }
 
-                // Check that we actually found some regions
-                if (regions == null || !(regions.Count > 0))
+                // Check that we actually found some zoom levels
+                if (zooms == null || !(zooms.Count > 0))
                 {
-                    AppController.Logger.Error("\tNo map regions found for zoom level: " + Name);
+                    AppController.Logger.Error("No zoom levels found for atlas project: " + Name);
                 } else
                 {
-                    this.MapRegions = regions.ToArray();
+                    this.ZoomLevels = zooms.ToArray();
                 }
             } else
             {
-                AppController.Logger.Error("\tNo map regions found for zoom level: " + Name);
+                AppController.Logger.Error("No zoom levels found for atlas project: " + Name);
             }
         }
 
         /// <summary>
-        /// Gets the map regions within this zoom level
+        /// Returns the zoom levels within this atlas project
         /// </summary>
-        /// <returns></returns>
-        public MapRegion[] GetMapRegions()
+        /// <returns>ZoomLevel[] - The zoom levels</returns>
+        public ZoomLevel[] GetZoomLevels()
         {
-            return MapRegions;
+            return ZoomLevels;
         }
 
         /// <summary>
-        /// Returns the name of this zoom level.
+        /// Returns the name of this atlas.
         /// </summary>
         /// <returns></returns>
         public string GetName()

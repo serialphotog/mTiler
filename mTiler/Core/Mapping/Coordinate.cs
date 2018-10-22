@@ -1,4 +1,4 @@
-﻿namespace mTiler.Core.Data
+﻿namespace mTiler.Core.Mapping
 {
     /// <summary>
     /// Represents an X, Y coordinate
