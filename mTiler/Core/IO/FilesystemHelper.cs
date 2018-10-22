@@ -23,7 +23,7 @@ using System.Drawing.Imaging;
 using System.IO;
 using System.Linq;
 
-namespace mTiler.Core.Util
+namespace mTiler.Core.IO
 {
     class FilesystemHelper
     {
