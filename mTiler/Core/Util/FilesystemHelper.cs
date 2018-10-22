@@ -196,6 +196,11 @@ namespace mTiler.Core.Util
             return path;
         }
 
+        /// <summary>
+        /// Performs a thread-safe copy operation
+        /// </summary>
+        /// <param name="src">The source file</param>
+        /// <param name="dest">The destination file</param>
         private static void CopyAsync(string src, string dest)
         {
             lock (SyncLock)
@@ -204,14 +209,22 @@ namespace mTiler.Core.Util
             }
         }
 
-        public static void HandleCompleteTileAsync(MapTile tile)
+        /// <summary>
+        /// Copies a complete map tile to the final destination
+        /// </summary>
+        /// <param name="tile">The tile to copy</param>
+        public static void HandleCompleteTileAsync(Tile tile)
         {
             string copyToDir = BuildOutputDir(AppController.OutputPath, tile.GetZoomLevel().GetName(), tile.GetMapRegion().GetName());
             string copyPath = Path.Combine(copyToDir, tile.GetName());
             CopyAsync(tile.GetPath(), copyPath);
         }
 
-        public static void HandleIncompleteTileAsync(MapTile tile)
+        /// <summary>
+        /// Copies an incomplete tile to the temporary destination
+        /// </summary>
+        /// <param name="tile"></param>
+        public static void HandleIncompleteTileAsync(Tile tile)
         {
             string tmpDir = BuildTempDir(AppController.OutputPath);
             string copyTo = BuildTempPath(tmpDir, tile.GetZoomLevel().GetName(), tile.GetMapRegion().GetName(), tile.GetName(), tile.GetAtlas().GetName());
