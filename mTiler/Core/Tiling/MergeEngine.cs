@@ -16,7 +16,6 @@ TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR TH
 */
 
 using mTiler.Core.Mapping;
-using mTiler.Core.Profiling;
 using mTiler.Core.Util;
 using System;
 using System.Collections.Concurrent;
@@ -24,7 +23,6 @@ using System.Collections.Generic;
 using System.Drawing;
 using System.Drawing.Imaging;
 using System.IO;
-using System.Threading;
 using System.Threading.Tasks;
 
 namespace mTiler.Core.Tiling
