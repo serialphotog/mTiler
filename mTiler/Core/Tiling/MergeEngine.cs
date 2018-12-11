@@ -15,7 +15,7 @@ AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY
 TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 */
 
-using mTiler.Core.Data;
+using mTiler.Core.Mapping;
 using mTiler.Core.Profiling;
 using mTiler.Core.Util;
 using System;
@@ -57,7 +57,7 @@ namespace mTiler.Core.Tiling
         /// <summary>
         /// The merge queue
         /// </summary>
-        private ConcurrentDictionary<string, List<MapTile>> MergeQueue;
+        private ConcurrentDictionary<string, List<Tile>> MergeQueue;
 
         /// <summary>
         /// Runs the job queue
@@ -85,7 +85,7 @@ namespace mTiler.Core.Tiling
         {
             if (HasJob(jobId))
             {
-                List<MapTile> tmp;
+                List<Tile> tmp;
                 MergeQueue.TryRemove(jobId, out tmp);
             }
         }
@@ -109,7 +109,7 @@ namespace mTiler.Core.Tiling
         /// </summary>
         /// <param name="jobId">The id of the job</param>
         /// <returns>The job, or null if not present in queue</returns>
-        public List<MapTile> GetJob(string jobId)
+        public List<Tile> GetJob(string jobId)
         {
             if (HasJob(jobId))
             {
@@ -123,7 +123,7 @@ namespace mTiler.Core.Tiling
         /// </summary>
         /// <param name="jobId">The job id</param>
         /// <param name="job">The job</param>
-        public void Update(string jobId, List<MapTile> job)
+        public void Update(string jobId, List<Tile> job)
         {
             if (HasJob(jobId))
             {
@@ -140,7 +140,7 @@ namespace mTiler.Core.Tiling
         /// </summary>
         public void Reset()
         {
-            MergeQueue = new ConcurrentDictionary<string, List<MapTile>>();
+            MergeQueue = new ConcurrentDictionary<string, List<Tile>>();
         }
 
         /// <summary>
@@ -167,25 +167,25 @@ namespace mTiler.Core.Tiling
         /// Handles a single merge job
         /// </summary>
         /// <param name="mergeJob">The merge job to handle</param>
-        private void HandleMergeJob(List<MapTile> mergeJob)
+        private void HandleMergeJob(List<Tile> mergeJob)
         {
             int jobSize = mergeJob.Count;
             if (jobSize > 0)
             {
                 string tmpDir = FS.BuildTempDir(AppController.OutputPath);
-                MapTile currentTile = mergeJob[0];
+                Tile currentTile = mergeJob[0];
 
                 if (jobSize > 1)
                 {
                     // There are multiple tiles to merge
                     if (ApplicationController.Instance.EnableVerboseLogging)
-                        AppController.Logger.Log("Handling " + jobSize + " tiles with ID " + currentTile.GetName() + " in zoom level " + currentTile.GetZoomLevel().GetName() + " and region " + currentTile.GetMapRegion().GetName());
-                    MapTile nextTile = mergeJob[1];
-                    string resultPath = Path.Combine(tmpDir, currentTile.GetZoomLevel().GetName(), currentTile.GetMapRegion().GetName());
+                        AppController.Logger.Log("Handling " + jobSize + " tiles with ID " + currentTile.GetName() + " in zoom level " + currentTile.ZoomLevel.ToString() + " and region " + currentTile.Coords.Y.ToString());
+                    Tile nextTile = mergeJob[1];
+                    string resultPath = Path.Combine(tmpDir, currentTile.ZoomLevel.ToString(), currentTile.Coords.Y.ToString());
 
                     // Merge the first two tiles
                     string mergeResult = MergeTiles(currentTile, nextTile, resultPath);
-                    MapTile resultingTile = new MapTile(mergeResult, null, currentTile.GetZoomLevel(), currentTile.GetMapRegion());
+                    Tile resultingTile = new Tile(null, currentTile.ZoomLevel, currentTile.Coords, mergeResult);
                     AppController.Progress.Update(2);
 
                     if (jobSize > 2)
@@ -202,7 +202,7 @@ namespace mTiler.Core.Tiling
                             currentTile = resultingTile;
                             nextTile = mergeJob[i];
                             mergeResult = MergeTiles(currentTile, nextTile, resultPath);
-                            resultingTile = new MapTile(mergeResult, null, currentTile.GetZoomLevel(), currentTile.GetMapRegion());
+                            resultingTile = new Tile(null, currentTile.ZoomLevel, currentTile.Coords, mergeResult);
                             AppController.Progress.Update(1);
                         }
                     }
@@ -218,14 +218,14 @@ namespace mTiler.Core.Tiling
                 {
                     // There are not multiple copies of this tile. Just copy it to final destination
                     if (ApplicationController.Instance.EnableVerboseLogging)
-                        AppController.Logger.Warn("There is only one instance of tile " + currentTile.GetName() + " in zoom level " + currentTile.GetZoomLevel().GetName() + " and region " + currentTile.GetMapRegion().GetName() + ". Copying it to final destination");
+                        AppController.Logger.Warn("There is only one instance of tile " + currentTile.GetName() + " in zoom level " + currentTile.ZoomLevel.ToString() + " and region " + currentTile.Coords.Y.ToString() + ". Copying it to final destination");
                     HandleIncompleteNonMergedTile(currentTile);
                     AppController.Progress.Update(1);
                 }
             }
         }
 
-        private string MergeTiles(MapTile tileA, MapTile tileB, string outputDir)
+        private string MergeTiles(Tile tileA, Tile tileB, string outputDir)
         {
             Bitmap tileAImage = tileA.GetBitmap();
             Bitmap tileBImage = tileB.GetBitmap();
@@ -291,22 +291,22 @@ namespace mTiler.Core.Tiling
         /// Handles a merged tile by copying it to the final destination.
         /// </summary>
         /// <param name="tile">The merged tile to move</param>
-        private void HandleMergedTile(MapTile tile)
+        private void HandleMergedTile(Tile tile)
         {
-            string copyTo = FS.BuildOutputDir(AppController.OutputPath, tile.GetZoomLevel().GetName(), tile.GetMapRegion().GetName());
+            string copyTo = FS.BuildOutputDir(AppController.OutputPath, tile.ZoomLevel.ToString(), tile.Coords.Y.ToString());
             string copyPath = Path.Combine(copyTo, tile.GetName());
-            File.Copy(tile.GetPath(), copyPath, true);
+            File.Copy(tile.Path, copyPath, true);
         }
 
         /// <summary>
         /// Handles an incomplete, but non-merged, tile by copying it to the final destination
         /// </summary>
         /// <param name="tile">The tile to copy</param>
-        private void HandleIncompleteNonMergedTile(MapTile tile)
+        private void HandleIncompleteNonMergedTile(Tile tile)
         {
-            string copyTo = FS.BuildOutputDir(AppController.OutputPath, tile.GetZoomLevel().GetName(), tile.GetMapRegion().GetName());
+            string copyTo = FS.BuildOutputDir(AppController.OutputPath, tile.ZoomLevel.ToString(), tile.Coords.Y.ToString());
             string copyPath = Path.Combine(copyTo, tile.GetName());
-            File.Copy(tile.GetPath(), copyPath, true);
+            File.Copy(tile.Path, copyPath, true);
         }
 
     }

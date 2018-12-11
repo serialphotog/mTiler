@@ -80,6 +80,16 @@ namespace mTiler.Core.Util
         }
 
         /// <summary>
+        /// Gets the name of a file without the extension
+        /// </summary>
+        /// <param name="path">The path to the file</param>
+        /// <returns>The base name of the tile</returns>
+        public static string GetFileBasename(string path)
+        {
+            return Path.GetFileNameWithoutExtension(path);
+        }
+
+        /// <summary>
         /// Builds the output directory, if it doesn't exist, for completed tiles
         /// </summary>
         /// <param name="outputDir">The output directory path</param>
