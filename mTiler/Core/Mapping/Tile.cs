@@ -1,4 +1,5 @@
-﻿using mTiler.Core.Util;
+﻿using mTiler.Core.Imaging;
+using mTiler.Core.Util;
 using System;
 using System.Drawing;
 using System.IO;
@@ -151,7 +152,7 @@ namespace mTiler.Core.Mapping
                 for (int y = 0; y < height; y++)
                 {
                     Color currentPixel = tileImage.GetPixel(x, y);
-                    if (ImageUtil.ColorWithinThresholdOfWhite(currentPixel, 5))
+                    if (BitmapHandler.ColorWithinThresholdOfWhite(currentPixel, 5))
                         return false;
                 }
             }

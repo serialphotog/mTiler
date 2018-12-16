@@ -69,18 +69,10 @@ namespace mTiler.Core.Tiling
         private async Task PerformInitialLoad()
         {
             AppController.Logger.Log("Performing initial data load from " + AppController.InputPath);
-            LoadTiles();
-        }
-#pragma warning restore 1998
-
-        /// <summary>
-        /// Loads all of the tiles into the tile load buffer
-        /// </summary>
-        private void LoadTiles()
-        {
             TileDataLoader loader = new TileDataLoader(AppController.InputPath);
             TileLoadBuffer = loader.LoadTileData();
         }
+#pragma warning restore 1998
 
         /// <summary>
         /// Performs the actual tiling operations.
