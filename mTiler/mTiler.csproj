@@ -89,6 +89,9 @@
     <Compile Include="Core\AppControllerNotInitializedException.cs" />
     <Compile Include="Core\ApplicationController.cs" />
     <Compile Include="Core\Imaging\BitmapHandler.cs" />
+    <Compile Include="Core\Imaging\PixelUtils.cs" />
+    <Compile Include="Core\Imaging\Process\IMergeProcess.cs" />
+    <Compile Include="Core\Imaging\Process\VersionOneProcess.cs" />
     <Compile Include="Core\IO\InvalidPathException.cs" />
     <Compile Include="Core\IO\TileDataLoader.cs" />
     <Compile Include="Core\IO\TileLoadBuffer.cs" />

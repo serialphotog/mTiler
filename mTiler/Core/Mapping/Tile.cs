@@ -152,7 +152,7 @@ namespace mTiler.Core.Mapping
                 for (int y = 0; y < height; y++)
                 {
                     Color currentPixel = tileImage.GetPixel(x, y);
-                    if (BitmapHandler.ColorWithinThresholdOfWhite(currentPixel, 5))
+                    if (PixelUtils.ColorWithinThresholdOfWhite(currentPixel, 5))
                         return false;
                 }
             }
