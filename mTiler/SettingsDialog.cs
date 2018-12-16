@@ -1,4 +1,5 @@
 ﻿using mTiler.Core;
+using mTiler.Core.Imaging;
 using System;
 using System.Windows.Forms;
 
@@ -14,15 +15,20 @@ namespace mTiler
         private bool EnableVerboseLogging = Properties.Settings.Default.EnableVerboseLogging;
         private bool ClearLogOnJobStart = Properties.Settings.Default.ClearLogOnJobStart;
         private byte MaxNumberThreads = Properties.Settings.Default.MaxNumberTilingThreads;
+        private string EnabledMergeProcess = Properties.Settings.Default.EnabledMergeProcess;
 
         public SettingsDialog()
         {
             InitializeComponent();
 
+            // Initialize the merge process combo box
+            comboMergeProcess.DataSource = BitmapHandler.GetAvailableProcesses();
+
             // Load data
             chkEnableVerboseLogging.Checked = EnableVerboseLogging;
             chkClearLogOnJobRun.Checked = ClearLogOnJobStart;
             trackBarNThreads.Value = MaxNumberThreads;
+            comboMergeProcess.SelectedItem = EnabledMergeProcess;
         }
 
         /// <summary>
@@ -45,6 +51,7 @@ namespace mTiler
             Properties.Settings.Default.EnableVerboseLogging = chkEnableVerboseLogging.Checked;
             Properties.Settings.Default.ClearLogOnJobStart = chkClearLogOnJobRun.Checked;
             Properties.Settings.Default.MaxNumberTilingThreads = (byte)trackBarNThreads.Value;
+            Properties.Settings.Default.EnabledMergeProcess = (string)comboMergeProcess.SelectedItem;
 
             Properties.Settings.Default.Save();
             AppController.ReloadConfig();

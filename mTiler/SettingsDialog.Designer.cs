@@ -38,9 +38,13 @@
             this.label1 = new System.Windows.Forms.Label();
             this.btnCancel = new System.Windows.Forms.Button();
             this.btnSave = new System.Windows.Forms.Button();
+            this.groupBox3 = new System.Windows.Forms.GroupBox();
+            this.label2 = new System.Windows.Forms.Label();
+            this.comboMergeProcess = new System.Windows.Forms.ComboBox();
             this.groupBox1.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)(this.trackBarNThreads)).BeginInit();
             this.groupBox2.SuspendLayout();
+            this.groupBox3.SuspendLayout();
             this.SuspendLayout();
             // 
             // groupBox1
@@ -117,7 +121,7 @@
             // 
             // btnCancel
             // 
-            this.btnCancel.Location = new System.Drawing.Point(230, 113);
+            this.btnCancel.Location = new System.Drawing.Point(218, 226);
             this.btnCancel.Name = "btnCancel";
             this.btnCancel.Size = new System.Drawing.Size(75, 23);
             this.btnCancel.TabIndex = 3;
@@ -127,7 +131,7 @@
             // 
             // btnSave
             // 
-            this.btnSave.Location = new System.Drawing.Point(311, 113);
+            this.btnSave.Location = new System.Drawing.Point(299, 226);
             this.btnSave.Name = "btnSave";
             this.btnSave.Size = new System.Drawing.Size(75, 23);
             this.btnSave.TabIndex = 4;
@@ -135,20 +139,49 @@
             this.btnSave.UseVisualStyleBackColor = true;
             this.btnSave.Click += new System.EventHandler(this.btnSave_Click);
             // 
+            // groupBox3
+            // 
+            this.groupBox3.Controls.Add(this.comboMergeProcess);
+            this.groupBox3.Controls.Add(this.label2);
+            this.groupBox3.Location = new System.Drawing.Point(12, 113);
+            this.groupBox3.Name = "groupBox3";
+            this.groupBox3.Size = new System.Drawing.Size(362, 93);
+            this.groupBox3.TabIndex = 5;
+            this.groupBox3.TabStop = false;
+            this.groupBox3.Text = "Merge Process";
+            // 
+            // label2
+            // 
+            this.label2.AutoSize = true;
+            this.label2.Location = new System.Drawing.Point(6, 26);
+            this.label2.Name = "label2";
+            this.label2.Size = new System.Drawing.Size(296, 13);
+            this.label2.TabIndex = 0;
+            this.label2.Text = "The merge process to use when merging tile images together.";
+            // 
+            // comboMergeProcess
+            // 
+            this.comboMergeProcess.FormattingEnabled = true;
+            this.comboMergeProcess.Location = new System.Drawing.Point(9, 55);
+            this.comboMergeProcess.Name = "comboMergeProcess";
+            this.comboMergeProcess.Size = new System.Drawing.Size(288, 21);
+            this.comboMergeProcess.TabIndex = 1;
+            // 
             // SettingsDialog
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-            this.ClientSize = new System.Drawing.Size(398, 146);
+            this.ClientSize = new System.Drawing.Size(398, 264);
+            this.Controls.Add(this.groupBox3);
             this.Controls.Add(this.btnSave);
             this.Controls.Add(this.btnCancel);
             this.Controls.Add(this.groupBox2);
             this.Controls.Add(this.groupBox1);
             this.Icon = ((System.Drawing.Icon)(resources.GetObject("$this.Icon")));
             this.MaximizeBox = false;
-            this.MaximumSize = new System.Drawing.Size(414, 185);
+            this.MaximumSize = new System.Drawing.Size(414, 303);
             this.MinimizeBox = false;
-            this.MinimumSize = new System.Drawing.Size(414, 185);
+            this.MinimumSize = new System.Drawing.Size(414, 303);
             this.Name = "SettingsDialog";
             this.Text = "mTiler Settings";
             this.groupBox1.ResumeLayout(false);
@@ -156,6 +189,8 @@
             ((System.ComponentModel.ISupportInitialize)(this.trackBarNThreads)).EndInit();
             this.groupBox2.ResumeLayout(false);
             this.groupBox2.PerformLayout();
+            this.groupBox3.ResumeLayout(false);
+            this.groupBox3.PerformLayout();
             this.ResumeLayout(false);
 
         }
@@ -171,5 +206,8 @@
         private System.Windows.Forms.Button btnCancel;
         private System.Windows.Forms.Button btnSave;
         private System.Windows.Forms.Label lblNThreads;
+        private System.Windows.Forms.GroupBox groupBox3;
+        private System.Windows.Forms.ComboBox comboMergeProcess;
+        private System.Windows.Forms.Label label2;
     }
 }

@@ -114,6 +114,11 @@ namespace mTiler.Core
         public bool ClearLogOnJobStart;
 
         /// <summary>
+        /// The currently enabled merge process
+        /// </summary>
+        public string EnabledMergeProcess;
+
+        /// <summary>
         /// The max number of threads to use for tiling
         /// </summary>
         public byte MaxTilingThreads;
@@ -139,6 +144,7 @@ namespace mTiler.Core
             EnableVerboseLogging = Properties.Settings.Default.EnableVerboseLogging;
             ClearLogOnJobStart = Properties.Settings.Default.ClearLogOnJobStart;
             MaxTilingThreads = Properties.Settings.Default.MaxNumberTilingThreads;
+            EnabledMergeProcess = Properties.Settings.Default.EnabledMergeProcess;
         }
 
         /// <summary>
