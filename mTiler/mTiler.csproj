@@ -33,9 +33,10 @@
     <DebugType>full</DebugType>
     <Optimize>false</Optimize>
     <OutputPath>bin\Debug\</OutputPath>
-    <DefineConstants>DEBUG;TRACE</DefineConstants>
+    <DefineConstants>TRACE;DEBUG</DefineConstants>
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
+    <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
     <PlatformTarget>AnyCPU</PlatformTarget>
@@ -45,6 +46,7 @@
     <DefineConstants>TRACE</DefineConstants>
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
+    <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
   </PropertyGroup>
   <PropertyGroup>
     <ApplicationIcon>mtiler.ico</ApplicationIcon>
@@ -92,6 +94,7 @@
     <Compile Include="Core\Imaging\PixelUtils.cs" />
     <Compile Include="Core\Imaging\Process\IMergeProcess.cs" />
     <Compile Include="Core\Imaging\Process\InvalidProcessException.cs" />
+    <Compile Include="Core\Imaging\Process\VersionOneFastProcess.cs" />
     <Compile Include="Core\Imaging\Process\VersionOneProcess.cs" />
     <Compile Include="Core\IO\InvalidPathException.cs" />
     <Compile Include="Core\IO\TileDataLoader.cs" />

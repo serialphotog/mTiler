@@ -201,7 +201,7 @@ namespace mTiler
         {
             // Update the in-app progress bar
             lblProgress.Text = lblTxt;
-            progressBar.Value = progress;
+            //progressBar.Value = progress;
 
             // Update the taskbar progress
             // Updat the progress in the taskbar

@@ -1,7 +1,5 @@
 ﻿using mTiler.Core.Imaging.Process;
-using System;
 using System.Drawing;
-using System.Drawing.Imaging;
 
 namespace mTiler.Core.Imaging
 {
@@ -27,6 +25,9 @@ namespace mTiler.Core.Imaging
                 case "Version 1 Process":
                     process = new VersionOneProcess();
                     break;
+                case "Version One Fast Process":
+                    process = new VersionOneFastProcess();
+                    break;
                 default:
                     // An unknown merge process was encountered
                     throw new InvalidProcessException(AppController.EnabledMergeProcess);
@@ -41,7 +42,7 @@ namespace mTiler.Core.Imaging
         /// <returns>string[] of available process names</returns>
         public static string[] GetAvailableProcesses()
         {
-            return new string[] { "Version 1 Process" };
+            return new string[] { "Version 1 Process", "Version One Fast Process" };
         }
     }
 }
