@@ -21,7 +21,6 @@ using mTiler.Core.Util;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.IO;
-using System.Threading;
 using System.Threading.Tasks;
 
 namespace mTiler.Core.Tiling
@@ -45,11 +44,6 @@ namespace mTiler.Core.Tiling
         /// List of complete tiles. This is used to separate I/O operations from processing threads.
         /// </summary>
         private ConcurrentDictionary<string, Tile> CompleteTiles;
-
-        /// <summary>
-        /// List of incomplete tiles. This is used to separate I/O operations from processing threads.
-        /// </summary>
-        private ConcurrentBag<Tile> IncompleteTiles;
 
         /// <summary>
         /// Performs the initialization task
@@ -105,12 +99,9 @@ namespace mTiler.Core.Tiling
             if (AppController.StopRequested)
                 return;
 
-            HandleTileIO();
-
             // Clear some memory
             CompleteTiles.Clear();
             CompleteTiles = null;
-            IncompleteTiles = null;
 
             // Perform the merge jobs
             AppController.Logger.Log("Handling the merge queue...");
@@ -199,7 +190,7 @@ namespace mTiler.Core.Tiling
                 };
                 AppController.MergeEngine.Update(tile.RegionID, jobTiles);
             }
-            IncompleteTiles.Add(tile);
+            HandleIncompleteTile(tile);
         }
 
         /// <summary>
@@ -220,44 +211,9 @@ namespace mTiler.Core.Tiling
             }
 
             CompleteTiles.TryAdd(tile.RegionID, tile);
+            HandleCompleteTile(tile);
 
             AppController.Progress.Update(1);
-        }
-
-        /// <summary>
-        /// Handles the tile I/O operations
-        /// </summary>
-        private void HandleTileIO()
-        {
-            // Perform the I/O operations.
-            AppController.Logger.Log("Performing file I/O operations... This may take several minutes.");
-
-            Thread completeTileThread = new Thread(new ThreadStart(() =>
-            {
-                foreach (Tile tile in CompleteTiles.Values)
-                {
-                    if (AppController.StopRequested)
-                        break;
-
-                    HandleCompleteTile(tile);
-                }
-            }));
-
-            Thread incompleteTileThread = new Thread(new ThreadStart(() =>
-            {
-                foreach (Tile tile in IncompleteTiles)
-                {
-                    if (AppController.StopRequested)
-                        break;
-
-                    HandleIncompleteTile(tile);
-                }
-            }));
-
-            completeTileThread.Start();
-            incompleteTileThread.Start();
-            completeTileThread.Join();
-            incompleteTileThread.Join();
         }
 
         /// <summary>
@@ -268,7 +224,6 @@ namespace mTiler.Core.Tiling
             AppController.Progress.Reset();
             AppController.MergeEngine.Reset();
             CompleteTiles = new ConcurrentDictionary<string, Tile>();
-            IncompleteTiles = new ConcurrentBag<Tile>();
         }
 
         /// <summary>
