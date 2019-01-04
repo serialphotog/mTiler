@@ -110,7 +110,12 @@ namespace mTiler.Core.IO
         /// <returns></returns>
         public int GetCount()
         {
-            return Buffer.Count;
+            int count = 0;
+            foreach (List<Tile> tiles in Buffer.Values)
+            {
+                count += tiles.Count;
+            }
+            return count;
         }
     }
 }

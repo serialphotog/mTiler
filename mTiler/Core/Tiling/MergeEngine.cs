@@ -186,7 +186,7 @@ namespace mTiler.Core.Tiling
                             nextTile = mergeJob[i];
                             mergeResult = MergeTiles(currentTile, nextTile, resultPath);
                             resultingTile = new Tile(null, currentTile.ZoomLevel, currentTile.Coords, mergeResult);
-                            //AppController.Progress.Update(1);
+                            AppController.Progress.Update(1);
                         }
                     }
 
@@ -203,7 +203,7 @@ namespace mTiler.Core.Tiling
                     if (ApplicationController.Instance.EnableVerboseLogging)
                         AppController.Logger.Warn("There is only one instance of tile " + currentTile.GetName() + " in zoom level " + currentTile.ZoomLevel.ToString() + " and region " + currentTile.Coords.Y.ToString() + ". Copying it to final destination");
                     HandleIncompleteNonMergedTile(currentTile);
-                    //AppController.Progress.Update(1);
+                    AppController.Progress.Update(1);
                 }
             }
         }
